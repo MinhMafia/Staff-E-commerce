@@ -130,3 +130,4 @@ D:\Nam4_HK1\.Net\store-management\backend\obj\Debug\net9.0\refint\backend.dll
 D:\Nam4_HK1\.Net\store-management\backend\obj\Debug\net9.0\backend.pdb
 D:\Nam4_HK1\.Net\store-management\backend\obj\Debug\net9.0\backend.genruntimeconfig.cache
 D:\Nam4_HK1\.Net\store-management\backend\obj\Debug\net9.0\ref\backend.dll
+D:\Nam4_HK1\.Net\store-management\backend\obj\Debug\net9.0\backend.sourcelink.json
