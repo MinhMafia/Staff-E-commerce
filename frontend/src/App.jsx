@@ -9,15 +9,19 @@ function App() {
     <BrowserRouter>
       <AppLayout>
         <Routes>
+          {/* Khi người dùng truy cập "/" → tự chuyển đến trang Dashboard */}
+          <Route path="/" element={<Dashboard />} />
+          
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<ProductList />} />
-          {/* Trang quan lí đơn hàng bán trực tiếp */}
           <Route path="/orders" element={<OrdersPage />} />
-          
-          {/* các route khác */}
+
+          {/* Trang 404 (nếu cần) */}
+          <Route path="*" element={<h1>404 - Page not found</h1>} />
         </Routes>
       </AppLayout>
     </BrowserRouter>
   );
 }
+
 export default App;

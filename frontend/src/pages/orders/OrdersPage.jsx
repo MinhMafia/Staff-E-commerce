@@ -1,22 +1,36 @@
-// src/pages/orders/OrdersPage.jsx
-// import { useOrders } from '../../hook//useOrders';
-// import OrderTable from '../../components/orders/OrderTable';
-// import OrderForm from '../../components/orders/OrderForm';
-// import CustomerModal from '../../components/orders/CustomerModal';
-// import ProductModal from '../../components/orders/ProductModal';
-
+import React from "react";
 import OrdersForm from "../../components/orders/OrderForm";
+import OrderTable from "../../components/orders/OrderTable";
+import CustomerModal from "../../components/orders/CustomerModal";
+import ProductModal from "../../components/orders/ProductModal";
+import { useOrders } from "../../hook/useOrders";
 
 export default function OrdersPage() {
+  const { 
+    showCustomerModal,
+    showProductModal,
+    showOrderModal, 
+    openOrderModal, 
+    closeOrderModal,
+    openCustomerModal,
+    closeCustomerModal,
+    openProductModal,
+    closeProductModal
 
+  } = useOrders();
   return (
-    <div class="max-w-7xl mx-auto p-4 sm:p-6">
+    <div className="max-w-7xl mx-auto p-4 sm:p-6">
 
-      {/* <!-- Lọc trạng thái + Tạo đơn hàng --> */}
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div class="flex items-center gap-3 w-full sm:w-auto">
-          <label class="text-sm font-bold text-gray-700 whitespace-nowrap">Lọc trạng thái:</label>
-          <select x-model="filterStatus" onChange={() => {}} class="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary">
+      {/* Lọc trạng thái + Tạo đơn hàng */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <label className="text-sm font-bold text-gray-700 whitespace-nowrap">
+            Lọc trạng thái:
+          </label>
+          <select
+            onChange={() => {}}
+            className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary"
+          >
             <option value="">Tất cả trạng thái</option>
             <option value="pending">Chưa xử lý</option>
             <option value="paid">Đã thanh toán</option>
@@ -25,35 +39,55 @@ export default function OrdersPage() {
           </select>
         </div>
 
-        <button onclick={() => {}}
-          class="w-full sm:w-auto px-6 py-3 bg-primary text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg transition">
+        <button
+          onClick={openOrderModal}
+          className="w-full sm:w-auto px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg transition"
+        >
           Tạo Đơn Hàng Mới
         </button>
       </div>
 
-      {/* <!-- Tìm kiếm --> */}
-      <div class="flex gap-3 mb-4">
-        <input type="text" x-model="searchQuery" 
+      {/* Tìm kiếm */}
+      <div className="flex gap-3 mb-4">
+        <input
+          type="text"
           placeholder="Tìm theo Mã đơn hoặc Tên khách"
-          class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"/>
-        <button onclick = {() => {}} class="px-6 py-3 bg-primary text-white rounded-lg font-bold hover:bg-blue-700">
+          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary"
+        />
+        <button
+          onClick={() => {}}
+          className="px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-blue-700"
+        >
           Tìm Kiếm
         </button>
       </div>
 
-      {/* <!-- Lọc theo ngày --> */}
-      <div class="flex gap-3 mb-6">
-        <input type="date" x-model="filterStart" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg"/>
-        <input type="date" x-model="filterEnd" class="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg"/>
-        <button onClick={() => {}} class="px-6 py-3 bg-primary text-white rounded-lg font-bold hover:bg-blue-700">
+      {/* Lọc theo ngày */}
+      <div className="flex gap-3 mb-6">
+        <input
+          type="date"
+          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg"
+        />
+        <input
+          type="date"
+          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg"
+        />
+        <button
+          onClick={() => {}}
+          className="px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-blue-700"
+        >
           Lọc
         </button>
       </div>
-      {/* <!-- Form đơn hàng sẽ ở đây <các thao tác, tạo, xem, xử lí sẽ gọi tới nó> Lúc đầu sẽ bị ẩn--> */}
-      <OrdersForm />
-      <NoteFrom />
-      
 
+      {/* Form đơn hàng */}
+      {showOrderModal && <OrdersForm onClose={closeOrderModal} openCustomerModal={openCustomerModal} openProductModal={openProductModal} />}
+      {/* Danh sách đơn hàng*/}
+      <OrderTable />
+      {/* Modal chọn khách hàng */}
+      {showCustomerModal && <CustomerModal onClose={closeCustomerModal} />}
+      {/* Modal chọn sản phẩm */}
+      {showProductModal && <ProductModal onClose={closeProductModal}/>}
     </div>
   );
 }
