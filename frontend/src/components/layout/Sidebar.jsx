@@ -69,7 +69,7 @@ export default function Sidebar({ collapsed, onClose }) {
         </NavLink>
 
         {/* POS */}
-        <NavLink to="/pos" className={linkClass}>
+        <NavLink to="/orders" className={linkClass}>
           <span className="w-5 h-5">🧾</span>
           <span className="text-sm">Bán hàng (POS)</span>
         </NavLink>

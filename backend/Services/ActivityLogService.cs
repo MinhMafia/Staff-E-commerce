@@ -1,5 +1,6 @@
 using backend.Models;
 using backend.Repository;
+using backend.DTO;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 
@@ -90,6 +91,35 @@ namespace backend.Services
             {
                 Console.WriteLine($"[LogCleanupError] {ex.Message}");
             }
+        }
+        
+         /// <summary>
+        /// Lấy danh sách log có phân trang.
+        /// </summary>
+        public async Task<(List<ActivityLogCreateDTO> Logs, int TotalCount)> GetPagedLogsAsync(int page, int size)
+        {
+            return await _logRepo.GetPagedLogsAsync(page, size);
+        }
+
+        /// <summary>
+        /// Lọc log theo user + khoảng thời gian (có phân trang).
+        /// </summary>
+        public async Task<(List<ActivityLogCreateDTO> Logs, int TotalCount)> GetFilteredLogsAsync(
+            int page,
+            int size,
+            int? userId,
+            DateTime? startDate,
+            DateTime? endDate)
+        {
+            // Validation: nếu chỉ có endDate mà không có startDate → lỗi
+            if (endDate.HasValue && !startDate.HasValue)
+                throw new ArgumentException("Bạn cần chọn ngày bắt đầu nếu đã chọn ngày kết thúc.");
+
+            // Validation: ngày bắt đầu > ngày kết thúc → lỗi
+            if (startDate.HasValue && endDate.HasValue && startDate > endDate)
+                throw new ArgumentException("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+
+            return await _logRepo.GetFilteredLogsAsync(page, size, userId, startDate, endDate);
         }
     }
 }
