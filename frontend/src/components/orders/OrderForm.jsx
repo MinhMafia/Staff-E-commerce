@@ -2,7 +2,10 @@ import React from "react";
 import DetailOrderForm from "./DetailOrderForm";
 import PromotionSection from "./PromotionSection";
 
-export default function OrdersForm({ onClose ,openCustomerModal, openProductModal}) {
+export default function OrdersForm({ onClose ,openCustomerModal, openProductModal, mode}) {
+  const isDetailMode = mode ;
+  
+  
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
@@ -14,9 +17,10 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-6 border-b pb-4">
-          <h3 className="text-2xl font-bold text-gray-800">
-            TẠO / CHI TIẾT ĐƠN HÀNG
-          </h3>
+          <h1 className="text-3xl font-bold text-gray-800">
+            {isDetailMode !="create" ? "CHI TIẾT ĐƠN HÀNG" : "ĐƠN HÀNG MỚI"}
+            
+          </h1>
           <button
             className="text-gray-500 hover:text-gray-700"
             onClick={onClose}
@@ -61,22 +65,25 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
                 placeholder="Chưa chọn khách..."
                 className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
               />
-              <button className="px-3 py-2.5 bg-gray-200 rounded-lg hover:bg-gray-300" onClick={openCustomerModal}>
-                {/* Nút mở modal khách hàng */}
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
-              </button>
+              {isDetailMode=="create" && (
+                <button className="px-3 py-2.5 bg-gray-200 rounded-lg hover:bg-gray-300" onClick={openCustomerModal}>
+                  {/* Nút mở modal khách hàng */}
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+>
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                </button>
+              )}
+             
             </div>
           </div>
 
@@ -138,10 +145,44 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
           </div>
 
           {/* Chi tiết đơn hàng */}
-          <DetailOrderForm openProductModal={openProductModal}/>
+          <DetailOrderForm openProductModal={openProductModal} isCreateMode={isDetailMode} />
 
           {/* Khuyến mãi */}
-          <PromotionSection />
+          <PromotionSection isCreateMode={isDetailMode}/>
+
+
+          {/* Thanh toán */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Phương thức
+              </label>
+              <select className="w-full px-4 py-2.5 border border-gray-300 rounded-lg font-medium">
+                <option>Tiền mặt</option>
+                <option>MoMo</option>
+              </select>
+            </div>
+            {
+              isDetailMode !="create" && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">
+                    Mã GD
+                  </label>
+                  <input
+                    readOnly
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
+                  />
+                  <label className="block text-sm font-bold text-gray-700 mb-1 mt-3">
+                    Trạng thái
+                  </label>
+                  <input
+                    readOnly
+                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
+                  />
+                </div>
+              )
+            }
+          </div>
 
           {/* Tổng tiền */}
           <div className="bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-xl mb-6 font-bold text-lg">
@@ -157,50 +198,19 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
             </div>
           </div>
 
-          {/* Thanh toán */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Phương thức
-              </label>
-              <select className="w-full px-4 py-2.5 border border-gray-300 rounded-lg font-medium">
-                <option>Tiền mặt</option>
-                <option>MoMo</option>
-              </select>
-            </div>
 
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Mã GD
-              </label>
-              <input
-                readOnly
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
-              />
-              <label className="block text-sm font-bold text-gray-700 mb-1 mt-3">
-                Trạng thái
-              </label>
-              <input
-                readOnly
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
-              />
-            </div>
-          </div>
 
           {/* Nút hành động */}
           <div className="flex flex-wrap gap-4 justify-end">
-            <button className="px-7 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg">
-              Tạo Đơn Hàng
-            </button>
-            <button className="px-7 py-3 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700 shadow-lg">
-              Xử Lý
-            </button>
-            <button className="px-7 py-3 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 shadow-lg">
-              Hủy Đơn
-            </button>
-            <button className="px-7 py-3 bg-gray-700 text-white rounded-lg font-bold hover:bg-gray-800 shadow-lg">
-              In Hóa Đơn
-            </button>
+            {isDetailMode =="create" &&(
+              <button className="px-7 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg">
+                Tạo Đơn Hàng
+              </button>
+            )}
+
+
+
+
           </div>
         </div>
       </div>

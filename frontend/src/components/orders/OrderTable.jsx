@@ -1,7 +1,7 @@
 import React from "react";
 
 
-export default function OrderTable() {
+export default function OrderTable({openOrderModal}) {
 
   return (
     <div className="bg-white rounded-xl shadow-xl overflow-hidden">
@@ -22,30 +22,26 @@ export default function OrderTable() {
             </tr>
           </thead>
           <tbody className="divide-y">
-
-            {/* Dòng 1 */}
+            {/* Dòng 3 */}
             <tr className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 font-bold">DH001</td>
-              <td className="px-6 py-4">Nguyễn Văn A</td>
-              <td className="px-6 py-4">Nhân viên 1</td>
-              <td className="px-6 py-4 text-right font-bold text-blue-600">1.200.000 ₫</td>
-              <td className="px-6 py-4 text-center text-yellow-600 font-bold">Chưa xử lý</td>
+              <td className="px-6 py-4 font-bold">DH003</td>
+              <td className="px-6 py-4">Lê Văn C</td>
+              <td className="px-6 py-4">Nhân viên 3</td>
+              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
+              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
               <td className="px-6 py-4 text-center space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700">Xem</button>
-                <button className="px-4 py-2 bg-green-600 text-white rounded-lg text-xs font-bold hover:bg-green-700">Xử lý</button>
-                <button className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700">Hủy</button>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700" onClick={() => openOrderModal("detail")}>Xem</button>
               </td>
             </tr>
-
-            {/* Dòng 2 */}
+            {/* Dòng 3 */}
             <tr className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 font-bold">DH002</td>
-              <td className="px-6 py-4">Trần Thị B</td>
-              <td className="px-6 py-4">Nhân viên 2</td>
-              <td className="px-6 py-4 text-right font-bold text-blue-600">850.000 ₫</td>
-              <td className="px-6 py-4 text-center text-green-600 font-bold">Đã thanh toán</td>
+              <td className="px-6 py-4 font-bold">DH003</td>
+              <td className="px-6 py-4">Lê Văn C</td>
+              <td className="px-6 py-4">Nhân viên 3</td>
+              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
+              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
               <td className="px-6 py-4 text-center space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700">Xem</button>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700"  onClick={() => openOrderModal("detail")}>Xem</button>
               </td>
             </tr>
 
@@ -57,7 +53,43 @@ export default function OrderTable() {
               <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
               <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
               <td className="px-6 py-4 text-center space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700">Xem</button>
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700" onClick={() => openOrderModal("detail")}>Xem</button>
+              </td>
+            </tr>
+
+            {/* Dòng 3 */}
+            <tr className="hover:bg-gray-50 transition">
+              <td className="px-6 py-4 font-bold">DH003</td>
+              <td className="px-6 py-4">Lê Văn C</td>
+              <td className="px-6 py-4">Nhân viên 3</td>
+              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
+              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
+              <td className="px-6 py-4 text-center space-x-2">
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700" onClick={() => openOrderModal("detail")}>Xem</button>
+              </td>
+            </tr>
+
+            {/* Dòng 3 */}
+            <tr className="hover:bg-gray-50 transition">
+              <td className="px-6 py-4 font-bold">DH003</td>
+              <td className="px-6 py-4">Lê Văn C</td>
+              <td className="px-6 py-4">Nhân viên 3</td>
+              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
+              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
+              <td className="px-6 py-4 text-center space-x-2">
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700" onClick={() => openOrderModal("detail")}>Xem</button>
+              </td>
+            </tr>
+
+            {/* Dòng 3 */}
+            <tr className="hover:bg-gray-50 transition">
+              <td className="px-6 py-4 font-bold">DH003</td>
+              <td className="px-6 py-4">Lê Văn C</td>
+              <td className="px-6 py-4">Nhân viên 3</td>
+              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
+              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
+              <td className="px-6 py-4 text-center space-x-2">
+                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700" onClick={() => openOrderModal("detail")}>Xem</button>
               </td>
             </tr>
 

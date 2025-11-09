@@ -3,9 +3,24 @@ using System.Text.Json.Serialization;
 
 namespace backend.DTO
 {
+    /*
+        PartnerCode:Mã đối tác MoMo
+        RequestId:Mã yêu cầu (requestId) - do bạn gửi lúc tạo đơn
+        OrderId:Mã đơn hàng của bạn
+        TransId:Mã giao dịch MoMo
+        Amount:Số tiền thanh toán
+        ResultCode:Kết quả giao dịch (0 = thành công)
+        Message:Thông báo kết quả
+        OrderType:Loại giao dịch (VD: momo_wallet)
+        OrderInfo:Thông tin đơn hàng (VD: Thanh toán đơn hàng #123)
+        PayType:Hình thức thanh toán (VD: qr, napas, credit_card,...)
+        ResponseTime:Thời điểm MoMo phản hồi (timestamp)
+        ExtraData:Dữ liệu thêm bạn gửi kèm khi tạo đơn
+        Signature:Chữ ký để xác thực dữ liệu
+    */
     public class MomoIpnCallbackDTO
     {
-        // Mã đối tác MoMo
+        //Mã đối tác MoMo
         public string? PartnerCode { get; set; }
 
         // Mã yêu cầu (requestId) - do bạn gửi lúc tạo đơn

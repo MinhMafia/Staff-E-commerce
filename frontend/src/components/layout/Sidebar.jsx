@@ -102,6 +102,12 @@ export default function Sidebar({ collapsed, onClose }) {
           <span className="text-sm">Báo cáo/Thống kê</span>
         </NavLink>
 
+        {/* Audit */}
+        <NavLink to="/audits" className={linkClass}>
+          <span className="w-5 h-5">🗂️</span>
+          <span className="text-sm">Nhật ký hệ thống</span>
+        </NavLink>
+
         {/* Settings */}
         <NavLink to="/settings" className={linkClass}>
           <span className="w-5 h-5">⚙️</span>
