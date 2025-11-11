@@ -27,6 +27,16 @@ export const useOrders = () => {
     }
   );
 
+  // --- Promotion ---
+  const [promotion, setPromotion] = useState(
+    {
+      id: "",
+      code: "",
+      type: "",
+      value: 0
+
+    }
+  )
   // --- Modal controls ---
   const openCustomerModal = () => setShowCustomerModal(true);
   const closeCustomerModal = () => setShowCustomerModal(false);
@@ -102,6 +112,8 @@ export const useOrders = () => {
     setListOrderProducts,
     payment,
     setPayment,
+    promotion,
+    setPromotion,
 
     // Actions
     createNewOrder,

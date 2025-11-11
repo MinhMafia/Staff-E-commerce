@@ -26,7 +26,9 @@ export default function OrdersPage() {
     listOrderProducts,
     setListOrderProducts,
     selectedProduct, 
-    setSelectedProduct
+    setSelectedProduct,
+    promotion,
+    setPromotion
 
  
 
@@ -108,6 +110,8 @@ export default function OrdersPage() {
       setListOrderProducts={setListOrderProducts}
       selectedProduct={selectedProduct}
       setSelectedProduct={setSelectedProduct}
+      promotion={promotion}
+      setPromotion={setPromotion}
 
 
       

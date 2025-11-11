@@ -14,7 +14,9 @@ export default function OrdersForm({
       listOrderProducts,
       setListOrderProducts,
       selectedProduct,
-      setSelectedProduct
+      setSelectedProduct,
+      promotion,
+      setPromotion
       }) {
 
   const formMode = mode ;
@@ -203,7 +205,7 @@ export default function OrdersForm({
             </label>
             <textarea
               
-              value={currentOrder?.note || ""}
+              value={currentOrder?.note}
               rows="2"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg"
             ></textarea>
@@ -214,7 +216,7 @@ export default function OrdersForm({
           <DetailOrderForm openProductModal={openProductModal} isCreateMode={formMode} listOrderProducts={listOrderProducts} setListOrderProducts={setListOrderProducts} selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct} />
 
           {/* Khuyến mãi */}
-          <PromotionSection isCreateMode={formMode}/>
+          <PromotionSection isCreateMode={formMode} promotion={promotion} setPromotion={setPromotion} currentOrder={currentOrder}/>
 
 
           {/* Thanh toán */}
