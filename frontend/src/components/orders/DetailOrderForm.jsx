@@ -1,62 +1,111 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-export default function DetailOrderForm({ openProductModal, isCreateMode }) {
-  // "add" = thêm mới, "edit" = đang chỉnh sửa
-  const [mode, setMode] = useState("add");
-  const [details, setDetails] = useState([]);
+export default function DetailOrderForm({
+  openProductModal,
+  isCreateMode,
+  listOrderProducts,
+  setListOrderProducts,
+  selectedProduct,
+  setSelectedProduct,
+}) {
+  // -------------------------------
+  // State lưu thông tin sản phẩm đang thao tác (trước khi thêm vào danh sách)
+  // -------------------------------
   const [current, setCurrent] = useState({
-    index: null,
-    code: "",
-    product: "",
-    price: 0,
-    qty: 1,
-    total: 0,
+    id: "",        // Mã sản phẩm
+    product: "",   // Tên sản phẩm
+    price: 0,      // Giá 1 sản phẩm
+    qty: 1,        // Số lượng
+    total: 0,      // Tổng tiền = price * qty
   });
 
-  // Thêm mới
+  const [mode, setMode] = useState("add"); // "add" | "edit"
+  const [editIndex, setEditIndex] = useState(null); // Lưu index sản phẩm đang sửa
+
+  // -------------------------------
+  // Khi chọn sản phẩm từ ProductModal, cập nhật current
+  // -------------------------------
+  useEffect(() => {
+    if (selectedProduct) {
+      setCurrent({
+        id: selectedProduct.id,
+        product: selectedProduct.name,
+        price: selectedProduct.price,
+        qty: 1,
+        total: selectedProduct.price,
+      });
+    }
+  }, [selectedProduct]);
+
+  // -------------------------------
+  // Khi thay đổi qty hoặc price, cập nhật total tự động
+  // -------------------------------
+  useEffect(() => {
+    setCurrent(prev => ({
+      ...prev,
+      total: prev.price * prev.qty
+    }));
+  }, [current.price, current.qty]);
+
+  // -------------------------------
+  // Thêm sản phẩm vào danh sách
+  // -------------------------------
   const handleAdd = () => {
-    if (!current.product || !current.qty || !current.price) return;
-    const total = Number(current.qty) * Number(current.price);
-    const newDetail = { ...current, total };
-    setDetails([...details, newDetail]);
-    setCurrent({ index: null, code: "", product: "", price: 0, qty: 1, total: 0 });
+    if (!current.product) return; // Không thêm nếu chưa chọn sản phẩm
+    setListOrderProducts([...listOrderProducts, current]);
+    resetForm();
   };
 
-  // Sửa
-  const handleEditClick = (item, index) => {
-    setCurrent({ ...item, index });
-    setMode("edit");
+  // -------------------------------
+  // Lưu sản phẩm chỉnh sửa
+  // -------------------------------
+  const handleSaveEdit = () => {
+    if (editIndex === null) return;
+    const updatedList = [...listOrderProducts];
+    updatedList[editIndex] = current;
+    setListOrderProducts(updatedList);
+    resetForm();
   };
 
-  const handleEditSave = () => {
-    const updated = details.map((d, i) =>
-      i === current.index ? { ...current, total: Number(current.qty) * Number(current.price) } : d
-    );
-    setDetails(updated);
-    setMode("add");
-    setCurrent({ index: null, code: "", product: "", price: 0, qty: 1, total: 0 });
-  };
-
-  const handleCancel = () => {
-    setMode("add");
-    setCurrent({ index: null, code: "", product: "", price: 0, qty: 1, total: 0 });
-  };
-
+  // -------------------------------
+  // Xóa sản phẩm
+  // -------------------------------
   const handleDelete = (index) => {
-    setDetails(details.filter((_, i) => i !== index));
+    const updatedList = listOrderProducts.filter((_, i) => i !== index);
+    setListOrderProducts(updatedList);
+    // Nếu đang sửa sản phẩm bị xóa, reset form
+    if (editIndex === index) resetForm();
+  };
+
+  // -------------------------------
+  // Sửa sản phẩm (đưa vào form)
+  // -------------------------------
+  const handleEdit = (index) => {
+    setCurrent(listOrderProducts[index]);
+    setMode("edit");
+    setEditIndex(index);
+  };
+
+  // -------------------------------
+  // Reset form
+  // -------------------------------
+  const resetForm = () => {
+    setCurrent({ id: "", product: "", price: 0, qty: 1, total: 0 });
+    setSelectedProduct(null);
+    setMode("add");
+    setEditIndex(null);
   };
 
   return (
-    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl mb-6  border-2 border-gray-400">
+    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl mb-6 border-2 border-gray-400">
       <h4 className="text-xl font-bold text-gray-800 mb-4">CHI TIẾT ĐƠN HÀNG</h4>
 
+      {/* Form chọn sản phẩm và nhập số lượng, giá */}
       {isCreateMode === "create" && (
         <div className="space-y-4 mb-4">
-          {/* Form nhập chi tiết sản phẩm */}
+          {/* Chọn sản phẩm */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              Sản phẩm
-            </label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Sản phẩm</label>
             <div className="flex gap-2">
               <input
                 readOnly
@@ -68,74 +117,48 @@ export default function DetailOrderForm({ openProductModal, isCreateMode }) {
                 className="px-3 py-2 bg-gray-200 rounded-lg hover:bg-gray-300"
                 onClick={openProductModal}
               >
-                <svg
-                  className="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                </svg>
+                Chọn
               </button>
             </div>
           </div>
 
+          {/* Giá, số lượng, tổng tiền */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Giá
-              </label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Giá</label>
               <input
                 type="number"
                 value={current.price}
-                onChange={(e) =>
-                  setCurrent({
-                    ...current,
-                    price: Number(e.target.value),
-                    total: Number(e.target.value) * current.qty,
-                  })
+                onChange={e =>
+                  setCurrent({ ...current, price: Number(e.target.value) })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Số lượng
-              </label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Số lượng</label>
               <input
                 type="number"
                 min="1"
                 value={current.qty}
-                onChange={(e) =>
-                  setCurrent({
-                    ...current,
-                    qty: Number(e.target.value),
-                    total: Number(e.target.value) * current.price,
-                  })
+                onChange={e =>
+                  setCurrent({ ...current, qty: Number(e.target.value) })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />
             </div>
-
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                Tổng tiền
-              </label>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Tổng tiền</label>
               <input
                 type="text"
                 readOnly
-                value={current.total}
+                value={current.total.toLocaleString()}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-sm font-medium"
               />
             </div>
           </div>
 
+          {/* Nút Thêm / Lưu / Hủy */}
           <div className="flex gap-3">
             {mode === "add" ? (
               <button
@@ -147,13 +170,13 @@ export default function DetailOrderForm({ openProductModal, isCreateMode }) {
             ) : (
               <>
                 <button
-                  onClick={handleEditSave}
+                  onClick={handleSaveEdit}
                   className="px-5 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700"
                 >
                   Lưu chỉnh sửa
                 </button>
                 <button
-                  onClick={handleCancel}
+                  onClick={resetForm}
                   className="px-5 py-2.5 bg-gray-600 text-white rounded-lg font-bold hover:bg-gray-700"
                 >
                   Hủy
@@ -166,13 +189,12 @@ export default function DetailOrderForm({ openProductModal, isCreateMode }) {
 
       {/* Bảng danh sách sản phẩm */}
       <div className="mb-6">
-        <h4 className="text-xl font-bold text-gray-800 mb-3">
-          DANH SÁCH SẢN PHẨM
-        </h4>
+        <h4 className="text-xl font-bold text-gray-800 mb-3">DANH SÁCH SẢN PHẨM</h4>
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">
             <thead className="bg-gradient-to-r from-gray-100 to-gray-200">
               <tr>
+                <th className="px-5 py-3 text-left font-bold">Mã SP</th>
                 <th className="px-5 py-3 text-left font-bold">Tên SP</th>
                 <th className="px-5 py-3 text-center font-bold">SL</th>
                 <th className="px-5 py-3 text-right font-bold">Giá</th>
@@ -183,8 +205,9 @@ export default function DetailOrderForm({ openProductModal, isCreateMode }) {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {details.map((item, index) => (
+              {listOrderProducts.map((item, index) => (
                 <tr key={index} className="hover:bg-gray-50 transition">
+                  <td className="px-5 py-3">{item.id}</td>
                   <td className="px-5 py-3">{item.product}</td>
                   <td className="px-5 py-3 text-center">{item.qty}</td>
                   <td className="px-5 py-3 text-right">{Number(item.price).toLocaleString()}</td>
@@ -192,7 +215,7 @@ export default function DetailOrderForm({ openProductModal, isCreateMode }) {
                   {isCreateMode === "create" && (
                     <td className="px-5 py-3 text-center space-x-2">
                       <button
-                        onClick={() => handleEditClick(item, index)}
+                        onClick={() => handleEdit(index)}
                         className="text-xs text-blue-600 hover:underline font-medium"
                       >
                         Sửa
@@ -207,9 +230,9 @@ export default function DetailOrderForm({ openProductModal, isCreateMode }) {
                   )}
                 </tr>
               ))}
-              {details.length === 0 && (
+              {listOrderProducts.length === 0 && (
                 <tr>
-                  <td colSpan={isCreateMode === "create" ? 5 : 4} className="text-center py-4 text-gray-500 italic">
+                  <td colSpan={isCreateMode === "create" ? 6 : 5} className="text-center py-4 text-gray-500 italic">
                     Chưa có sản phẩm nào
                   </td>
                 </tr>

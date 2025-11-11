@@ -39,6 +39,14 @@ namespace backend.Repository
                 await _context.SaveChangesAsync();
             }
         }
+
+        //Lấy max Id
+        public int GetMaxId()
+        {
+            return _context.Payments.Any() 
+                ? _context.Payments.Max(p => p.Id) 
+                : 0;
+        }
         
         public async Task<Payment?> UpdatePaymentAsync(Payment payment)
         {

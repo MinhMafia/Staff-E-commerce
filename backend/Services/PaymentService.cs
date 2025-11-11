@@ -22,6 +22,8 @@ namespace backend.Services
             _logService = logService;
             _config = config;
         }
+        //Tạo một payment tạm để gủi 
+
 
         // Hàm băm SHA256 để tạo chữ ký gửi MoMo
         private static string SignSHA256(string message, string key)
