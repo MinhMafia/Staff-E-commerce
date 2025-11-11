@@ -45,8 +45,14 @@ namespace backend.Models
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
+        [Column("updated_at")]
+        public DateTime? UpdatedAt { get; set; }
+
         [Column("last_login")]
         public DateTime? LastLogin { get; set; }
+
+        [Column("locked")]
+        public bool IsLocked { get; set; } = false;
 
         // Navigation
         public virtual ICollection<Order>? Orders { get; set; }         // orders created by this user

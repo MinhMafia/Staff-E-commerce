@@ -17,8 +17,37 @@ namespace backend.Repository
         public async Task<List<User>> GetAllAsync()
         {
             return await _context.Users
+                .AsNoTracking()
                 .OrderBy(u => u.Username)
                 .ToListAsync();
+        }
+
+        public async Task<PaginationResult<User>> GetPaginatedAsync(int page, int pageSize)
+        {
+            if (page < 1) page = 1;
+            if (pageSize <= 0) pageSize = 20;
+
+            var query = _context.Users.AsNoTracking();
+            var totalItems = await query.CountAsync();
+            var items = await query
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var calculatedTotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+            var totalPages = Math.Max(1, calculatedTotalPages);
+
+            return new PaginationResult<User>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalPages = totalPages,
+                HasPrevious = page > 1,
+                HasNext = page < totalPages
+            };
         }
 
         // Lấy user theo Id
@@ -32,6 +61,7 @@ namespace backend.Repository
         public async Task<User?> GetByUsernameAsync(string username)
         {
             return await _context.Users
+                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Username == username);
         }
 
@@ -39,6 +69,7 @@ namespace backend.Repository
         public async Task<User?> GetByEmailAsync(string email)
         {
             return await _context.Users
+                .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
@@ -75,6 +106,18 @@ namespace backend.Repository
         {
             return await _context.Users.AnyAsync(u => u.Id == id);
         }
+
+        public async Task<User> ChangePasswordAsync(int id, string newPasswordHash)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user == null)
+                throw new Exception("User not found");
+
+            user.PasswordHash = newPasswordHash;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+            return user;
+        }
     }
-    
+
 }

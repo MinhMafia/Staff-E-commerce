@@ -74,7 +74,9 @@ CREATE TABLE users (
   full_name VARCHAR(255),
   role ENUM('admin','staff') NOT NULL DEFAULT 'staff',
   is_active TINYINT(1) NOT NULL DEFAULT 1,
+  locked TINYINT(1) NOT NULL DEFAULT 0,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   last_login DATETIME DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -235,11 +237,11 @@ CREATE INDEX idx_inventory_quantity ON inventory (quantity);
 CREATE INDEX idx_products_created_at ON products (created_at);
 
 -- ===== USERS (Lưu ý: thay MD5(...) bằng bcrypt hash trong production) =====
-INSERT INTO users (username, email, password_hash, full_name, role, is_active, created_at)
+INSERT INTO users (username, email, password_hash, full_name, role, is_active, locked, created_at)
 VALUES
-  ('admin', 'admin@example.com', MD5('123456'), 'Quản trị viên', 'admin', 1, NOW()),
-  ('staff01', 'staff01@example.com', MD5('123456'), 'Nguyễn Văn A', 'staff', 1, NOW()),
-  ('staff02', 'staff02@example.com', MD5('123456'), 'Lê Thị B', 'staff', 1, NOW());
+  ('admin', 'admin@example.com', MD5('123456'), 'Quản trị viên', 'admin', 1, 0, NOW()),
+  ('staff01', 'staff01@example.com', MD5('123456'), 'Nguyễn Văn A', 'staff', 1, 0, NOW()),
+  ('staff02', 'staff02@example.com', MD5('123456'), 'Lê Thị B', 'staff', 1, 0, NOW());
 
 -- ===== CUSTOMERS (full_name, phone, email, address) =====
 INSERT INTO customers (full_name, phone, email, address, created_at)

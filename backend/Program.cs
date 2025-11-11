@@ -16,13 +16,13 @@ builder.Services.AddControllers()
         // ✅ Ignore circular references
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.WriteIndented = true;
-        
+
         // ✅ Alternative: Use preserve references
         // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-        
+
         // ✅ Configure property naming
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-        
+
         // ✅ Add this for better React compatibility
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
@@ -54,6 +54,7 @@ builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ActivityLogService>();
 builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<UserService>();
 
 
 // CORS configuration for React

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
+import GlobalSpinner from "../ui/GlobalSpinner";
 
 export default function AppLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -15,6 +16,7 @@ export default function AppLayout({ children }) {
         <Topbar onToggleSidebar={() => setSidebarOpen((s) => !s)} />
         <main className="p-4 overflow-auto">{children}</main>
       </div>
+      <GlobalSpinner />
     </div>
   );
 }

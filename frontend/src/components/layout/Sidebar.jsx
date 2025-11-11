@@ -24,6 +24,15 @@ const IconProducts = () => (
   </svg>
 );
 
+const IconUsers = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+    <path
+      d="M16 11c1.657 0 3-1.79 3-4s-1.343-4-3-4-3 1.79-3 4 1.343 4 3 4ZM8 11c1.657 0 3-1.79 3-4S9.657 3 8 3 5 4.79 5 7s1.343 4 3 4Zm0 2c-2.761 0-5 2.239-5 5v1.5A1.5 1.5 0 0 0 4.5 21h7.437c-.287-.604-.437-1.27-.437-1.962V18c0-1.333.44-2.562 1.184-3.56C11.773 13.543 9.908 13 8 13Zm8 0c-2.848 0-5 2.21-5 5v1c0 1.657 1.343 3 3 3h8c1.657 0 3-1.343 3-3v-1c0-2.79-2.152-5-5-5h-4Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 export default function Sidebar({ collapsed, onClose }) {
   // collapsed = true : hide labels (for mobile or small)
   const linkClass = ({ isActive }) =>
@@ -83,6 +92,13 @@ export default function Sidebar({ collapsed, onClose }) {
             <IconProducts />
           </span>
           <span className="text-sm">Quản lý Sản phẩm</span>
+        </NavLink>
+
+        <NavLink to="/users" className={linkClass}>
+          <span className="w-5 h-5">
+            👥
+          </span>
+          <span className="text-sm">Quản lý Nhân Viên</span>
         </NavLink>
 
         {/* Customers */}

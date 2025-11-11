@@ -2,7 +2,8 @@ using backend.Data;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace backend.Repository{
+namespace backend.Repository
+{
     public class CustomerRepository
     {
         private readonly AppDbContext _context;
@@ -74,7 +75,7 @@ namespace backend.Repository{
             return await _context.Customers.AnyAsync(c => c.Id == id);
         }
 
-        
+
         public async Task<List<Customer>> GetPaginatedAsync(int page, int pageSize)
         {
             return await _context.Set<Customer>()

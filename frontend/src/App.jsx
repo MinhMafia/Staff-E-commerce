@@ -4,6 +4,8 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import ProductList from "./pages/products/ProductList";
 import OrdersPage from "./pages/orders/OrdersPage";
 import AuditPage from "./pages/audits/AuditPage";
+import UserManagement from "./pages/users/UserManagement";
+import ProfilePage from "./pages/profile/ProfilePage";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
           <Route path="/products" element={<ProductList />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/audit" element={<AuditPage />} />
+          <Route path="/users" element={<UserManagement />} />
+          <Route path="/profile" element={<ProfilePage />} />
 
           {/* Trang 404 (nếu cần) */}
           <Route path="*" element={<h1>404 - Page not found</h1>} />
