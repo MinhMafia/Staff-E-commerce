@@ -18,9 +18,21 @@ export default function OrdersPage() {
     closeProductModal,
     ordersFormMode,
     createNewOrder,
-    currentOrder, 
-    addOrUpdateProduct,
-    updateCustomer
+    currentOrder,
+    setCurrentOrder ,
+    payment,
+    setPayment,
+    updateCustomer,
+    listOrderProducts,
+    setListOrderProducts,
+    selectedProduct, 
+    setSelectedProduct,
+    promotion,
+    setPromotion
+
+ 
+
+    
   } = useOrders();
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
@@ -85,13 +97,45 @@ export default function OrdersPage() {
       </div>
 
       {/* Form đơn hàng */}
-      {showOrderModal && <OrdersForm onClose={closeOrderModal} openCustomerModal={openCustomerModal} openProductModal={openProductModal} mode = {ordersFormMode} currentOrder={currentOrder} />}
+      {showOrderModal && <OrdersForm 
+      onClose={closeOrderModal} 
+      openCustomerModal={openCustomerModal}
+      openProductModal={openProductModal} 
+      mode = {ordersFormMode} 
+      currentOrder={currentOrder}
+      setCurrentOrder={setCurrentOrder}
+      payment={payment}
+      setPayment={setPayment}
+      listOrderProducts={listOrderProducts}
+      setListOrderProducts={setListOrderProducts}
+      selectedProduct={selectedProduct}
+      setSelectedProduct={setSelectedProduct}
+      promotion={promotion}
+      setPromotion={setPromotion}
+
+
+      
+     />}
+  
+
       {/* Danh sách đơn hàng*/}
-      <OrderTable openOrderModal={openOrderModal}/>
+      <OrderTable 
+      openOrderModal={openOrderModal} 
+      />
+
       {/* Modal chọn khách hàng */}
-      {showCustomerModal && <CustomerModal onClose={closeCustomerModal}  updateCustomer ={updateCustomer}/>}
+      {showCustomerModal && <CustomerModal 
+      onClose={closeCustomerModal}  
+      updateCustomer ={updateCustomer}
+      />}
+
       {/* Modal chọn sản phẩm */}
-      {showProductModal && <ProductModal onClose={closeProductModal} addOrUpdateProduct={addOrUpdateProduct}/>}
+      {showProductModal && <ProductModal 
+      onClose={closeProductModal}       
+      selectedProduct={selectedProduct}
+      setSelectedProduct={setSelectedProduct} 
+      />}
+
     </div>
   );
 }

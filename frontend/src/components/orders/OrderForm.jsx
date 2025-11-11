@@ -2,8 +2,27 @@ import React from "react";
 import DetailOrderForm from "./DetailOrderForm";
 import PromotionSection from "./PromotionSection";
 
-export default function OrdersForm({ onClose ,openCustomerModal, openProductModal, mode, currentOrder }) {
+export default function OrdersForm({ 
+      onClose,
+      openCustomerModal,
+      openProductModal,
+      mode ,
+      currentOrder,
+      setCurrentOrder,
+      payment,
+      setPayment,
+      listOrderProducts,
+      setListOrderProducts,
+      selectedProduct,
+      setSelectedProduct,
+      promotion,
+      setPromotion
+      }) {
+
   const formMode = mode ;
+ 
+
+
   
   
   return (
@@ -153,24 +172,24 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
 
           {
             formMode !="create" && (
-            <div>
-              {/* Trạng thái đơn */}
-              <label className="block text-sm font-bold text-gray-700 mb-1">
-                Trạng thái đơn
-              </label>
-              <select
-                value={currentOrder?.status || "pending"}
-                disabled={mode !== "create"}
-                className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg font-bold ${
-                  mode !== "create" ? "bg-gray-100 text-gray-600" : ""
-                }`}
-              >
-                <option value="pending">Chưa xử lý</option>
-                <option value="paid">Đã thanh toán</option>
-                <option value="completed">Hoàn thành</option>
-                <option value="canceled">Đã hủy</option>
-              </select>
-            </div>
+              <div>
+                {/* Trạng thái đơn */}
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  Trạng thái đơn
+                </label>
+                <select
+                  value={currentOrder?.status || "pending"}
+                  disabled={mode !== "create"}
+                  className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg font-bold ${
+                    mode !== "create" ? "bg-gray-100 text-gray-600" : ""
+                  }`}
+                >
+                  <option value="pending">Chưa xử lý</option>
+                  <option value="paid">Đã thanh toán</option>
+                  <option value="completed">Hoàn thành</option>
+                  <option value="canceled">Đã hủy</option>
+                </select>
+              </div>
 
             )
           }
@@ -184,7 +203,8 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
               Ghi chú
             </label>
             <textarea
-              value={currentOrder?.note || ""}
+              
+              value={currentOrder?.note}
               rows="2"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg"
             ></textarea>
@@ -192,59 +212,83 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
 
 
           {/* Chi tiết đơn hàng */}
-          <DetailOrderForm openProductModal={openProductModal} isCreateMode={formMode} />
+          <DetailOrderForm 
+          openProductModal={openProductModal} 
+          isCreateMode={formMode} 
+          listOrderProducts={listOrderProducts} 
+          setListOrderProducts={setListOrderProducts} 
+          selectedProduct={selectedProduct} 
+          setSelectedProduct={setSelectedProduct} 
+          setCurrentOrder={setCurrentOrder}/>
 
           {/* Khuyến mãi */}
-          <PromotionSection isCreateMode={formMode}/>
+          <PromotionSection 
+          isCreateMode={formMode} 
+          promotion={promotion} 
+          setPromotion={setPromotion} 
+          currentOrder={currentOrder} 
+          setCurrentOrder={setCurrentOrder}/>
 
 
           {/* Thanh toán */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
+            {/* Phương thức */}
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">
                 Phương thức
               </label>
-              <select className="w-full px-4 py-2.5 border border-gray-300 rounded-lg font-medium">
-                <option>Tiền mặt</option>
-                <option>MoMo</option>
-              </select>
+              {formMode === "create" ? (
+                <select
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg font-medium"
+                  value={payment.method}
+                  onChange={(e) => setPayment({ ...payment, method: e.target.value })}
+                >
+                  <option value="cash">Tiền mặt</option>
+                  <option value="other">MoMo</option>
+                </select>
+              ) : (
+                <input
+                  readOnly
+                  value={payment.method}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
+                />
+              )}
             </div>
 
-            {
-              formMode !="create" && (
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-1">
-                    Mã GD
-                  </label>
-                  <input
-                    readOnly
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
-                  />
-                  <label className="block text-sm font-bold text-gray-700 mb-1 mt-3">
-                    Trạng thái
-                  </label>
-                  <input
-                    readOnly
-                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
-                  />
-                </div>
-              )
-            }
+          
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Mã GD
+              </label>
+              <input
+                readOnly
+                value={payment.transaction_ref}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
+              />
 
-
+              <label className="block text-sm font-bold text-gray-700 mb-1 mt-3">
+                Trạng thái
+              </label>
+              <input
+                readOnly
+                value={payment.status}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
+              />
+            </div>
           </div>
+
 
           {/* Tổng tiền */}
           <div className="bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-xl mb-6 font-bold text-lg">
             <div className="flex justify-between mb-2">
-              <span>Tổng trước giảm:</span> <span>0₫</span>
+              <span>Tổng trước giảm:</span> <span>{currentOrder.subtotal}₫</span>
             </div>
             <div className="flex justify-between mb-2">
               <span>Giảm giá:</span>{" "}
-              <span className="text-green-600">0₫</span>
+              <span className="text-green-600">{currentOrder.discount}₫</span>
             </div>
             <div className="flex justify-between text-xl text-blue-600">
-              <span>Phải trả:</span> <span>0₫</span>
+              <span>Phải trả:</span> <span>{currentOrder.total_amount}₫</span>
             </div>
           </div>
 

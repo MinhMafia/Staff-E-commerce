@@ -1,45 +1,61 @@
-// src/hook/useOrders.js
 import { useState } from "react";
 
 export const useOrders = () => {
-  // Modal states
+  // --- Modal states ---
   const [showCustomerModal, setShowCustomerModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
 
-  // Form mode: "create" | "detail"
+  // --- Form mode ---
   const [ordersFormMode, setOrdersFormMode] = useState("create");
 
-  // Current order info
+  // --- Current order info ---
   const [currentOrder, setCurrentOrder] = useState(null);
 
-  // Product list in the order
+  // --- Product đang chọn từ ProductModal (chưa thêm vào đơn) ---
+  const [selectedProduct, setSelectedProduct] = useState(null);
+
+  // --- Danh sách sản phẩm trong đơn ---
   const [listOrderProducts, setListOrderProducts] = useState([]);
 
-  // Payment info: chỉ hỗ trợ "cash" và "momo"
-  const [payment, setPayment] = useState({
-    method: "cash", // "cash" | "momo"
-    transactionId: null, // chỉ dùng khi momo
-    status: "pending",
-    amount: 0,
-  });
+  // --- Payment info ---
+  const [payment, setPayment] = useState(
+    {
+      method: "cash",
+      transaction_ref: "",
+      status: "pending",
+    }
+  );
 
-  // Modal controls
+  // --- Promotion ---
+  const [promotion, setPromotion] = useState(
+    {
+      id: "",
+      code: "",
+      type: "",
+      value: 0
+
+    }
+  )
+  // --- Modal controls ---
   const openCustomerModal = () => setShowCustomerModal(true);
   const closeCustomerModal = () => setShowCustomerModal(false);
 
   const openProductModal = () => setShowProductModal(true);
   const closeProductModal = () => setShowProductModal(false);
 
-  const openOrderModal = (mode = "create", order = null, products = []) => {
+ 
+
+  const openOrderModal = (mode = "create", order = null, products = [], payment = []) => {
     setOrdersFormMode(mode);
     setCurrentOrder(order);
     setListOrderProducts(products);
+    setPayment(payment);
     setShowOrderModal(true);
   };
   const closeOrderModal = () => setShowOrderModal(false);
 
-  // API: Tạo đơn tạm thời
+  // --- API: tạo đơn tạm ---
   const createNewOrder = async () => {
     try {
       const response = await fetch("http://localhost:5099/api/orders/create-temp", {
@@ -52,15 +68,15 @@ export const useOrders = () => {
         console.error("Lỗi khi tạo đơn hàng:", error.message || response.statusText);
         return;
       }
-
+      //Tạo ra một đơn hàng tạm
       const orderData = await response.json();
-      openOrderModal("create", orderData);
+      openOrderModal("create", orderData,[]);
     } catch (err) {
       console.error("Lỗi khi gọi API:", err);
     }
   };
 
-  // Cập nhật khách hàng khi chọn từ CustomerModal
+  // --- Cập nhật khách hàng ---
   const updateCustomer = (customer) => {
     setCurrentOrder((prev) => ({
       ...prev,
@@ -68,30 +84,7 @@ export const useOrders = () => {
       customerName: customer.fullName,
     }));
     closeCustomerModal();
-  };
-
-  // Thêm hoặc cập nhật sản phẩm khi chọn từ ProductModal
-  const addOrUpdateProduct = (product) => {
-    setListOrderProducts((prev) => {
-      const existing = prev.find((p) => p.productId === product.productId);
-      if (existing) {
-        return prev.map((p) =>
-          p.productId === product.productId
-            ? { ...p, quantity: p.quantity + (product.quantity || 1) }
-            : p
-        );
-      }
-      return [...prev, { ...product, quantity: product.quantity || 1 }];
-    });
-    closeProductModal();
-  };
-
-  // Cập nhật payment (chỉ cash hoặc momo)
-  const updatePayment = (update) => {
-    setPayment((prev) => ({
-      ...prev,
-      ...update,
-    }));
+    console.log("Đơn Hàng: \n"+currentOrder);
   };
 
 
@@ -108,21 +101,23 @@ export const useOrders = () => {
     openOrderModal,
     closeOrderModal,
 
-    // Order data
+    // Data
     ordersFormMode,
     setOrdersFormMode,
     currentOrder,
     setCurrentOrder,
+    selectedProduct,
+    setSelectedProduct,
     listOrderProducts,
     setListOrderProducts,
     payment,
     setPayment,
+    promotion,
+    setPromotion,
 
     // Actions
     createNewOrder,
     updateCustomer,
-    addOrUpdateProduct,
-    updatePayment,
-
+ 
   };
 };

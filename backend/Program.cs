@@ -48,6 +48,8 @@ builder.Services.AddScoped<OrderRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<CustomerRepository>();
 builder.Services.AddScoped<ActivityLogRepository>();
+builder.Services.AddScoped<PromotionRepository>();
+
 
 // Register services
 builder.Services.AddScoped<ProductService>();
@@ -55,7 +57,7 @@ builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ActivityLogService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<UserService>();
-
+builder.Services.AddScoped<PromotionService>();
 
 // CORS configuration for React
 builder.Services.AddCors(options =>
@@ -70,7 +72,7 @@ builder.Services.AddCors(options =>
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();  // ✅ Important for React with authentication
+            .AllowCredentials();
     });
 });
 
