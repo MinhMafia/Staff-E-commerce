@@ -64,9 +64,21 @@ export default function CustomerModal({onClose}) {
           </div>
         </div>
 
+        {/* Pagination tĩnh */}
+        <div className="flex justify-center items-center gap-3 mt-4">
+          <button className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-gray-300 ">
+            Prev
+          </button>
+          <span>1 / 3</span>
+          <button className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-gray-300">
+            Next
+          </button>
+        </div>
+
+
         {/* Footer */}
         <div className="flex justify-end gap-3 p-5 border-t">
-          <button className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">
+          <button className="px-6 py-2 bg-purple-500 text-white rounded-lg font-bold hover:bg-blue-700">
             Chọn Khách
           </button>
         </div>

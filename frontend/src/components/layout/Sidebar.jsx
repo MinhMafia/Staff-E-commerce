@@ -1,6 +1,7 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
+
 /**
  * Nếu bạn không dùng react-router, thay NavLink bằng <a href="..."> và className active logic
  */
@@ -103,7 +104,7 @@ export default function Sidebar({ collapsed, onClose }) {
         </NavLink>
 
         {/* Audit */}
-        <NavLink to="/audits" className={linkClass}>
+        <NavLink to="/audit" className={linkClass}>
           <span className="w-5 h-5">🗂️</span>
           <span className="text-sm">Nhật ký hệ thống</span>
         </NavLink>
