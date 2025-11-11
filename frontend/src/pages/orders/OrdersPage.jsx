@@ -16,7 +16,11 @@ export default function OrdersPage() {
     closeCustomerModal,
     openProductModal,
     closeProductModal,
-    ordersFormMode
+    ordersFormMode,
+    createNewOrder,
+    currentOrder, 
+    addOrUpdateProduct,
+    updateCustomer
   } = useOrders();
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6">
@@ -40,7 +44,7 @@ export default function OrdersPage() {
         </div>
 
         <button
-          onClick={() => openOrderModal("create")}
+          onClick={createNewOrder}
           className="w-full sm:w-auto px-6 py-3 bg-purple-500 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg transition"
         >
           Tạo Đơn Hàng Mới
@@ -81,13 +85,13 @@ export default function OrdersPage() {
       </div>
 
       {/* Form đơn hàng */}
-      {showOrderModal && <OrdersForm onClose={closeOrderModal} openCustomerModal={openCustomerModal} openProductModal={openProductModal} mode = {ordersFormMode} />}
+      {showOrderModal && <OrdersForm onClose={closeOrderModal} openCustomerModal={openCustomerModal} openProductModal={openProductModal} mode = {ordersFormMode} currentOrder={currentOrder} />}
       {/* Danh sách đơn hàng*/}
       <OrderTable openOrderModal={openOrderModal}/>
       {/* Modal chọn khách hàng */}
-      {showCustomerModal && <CustomerModal onClose={closeCustomerModal} />}
+      {showCustomerModal && <CustomerModal onClose={closeCustomerModal}  updateCustomer ={updateCustomer}/>}
       {/* Modal chọn sản phẩm */}
-      {showProductModal && <ProductModal onClose={closeProductModal}/>}
+      {showProductModal && <ProductModal onClose={closeProductModal} addOrUpdateProduct={addOrUpdateProduct}/>}
     </div>
   );
 }

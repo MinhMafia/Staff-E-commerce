@@ -34,5 +34,22 @@ namespace backend.Repository
                 await _context.SaveChangesAsync();
             }
         }
+
+        //3. Lấy max Id hiện tại trong bảng Orders => nếu chưa có đơn hàng nào thì trả về 0
+        public async Task<int> GetMaxIdAsync()
+        {
+            return await _context.Orders.AnyAsync() ? await _context.Orders.MaxAsync(o => o.Id) : 0;
+        }
+
+        /*
+            4. Tạo đơn hàng mới 
+
+        */
+        public async Task<Order> CreateOrderAsync(Order order)
+        {
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+            return order;
+        }
     }
 }

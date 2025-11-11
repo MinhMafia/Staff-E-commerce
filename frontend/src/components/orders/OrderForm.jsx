@@ -2,8 +2,8 @@ import React from "react";
 import DetailOrderForm from "./DetailOrderForm";
 import PromotionSection from "./PromotionSection";
 
-export default function OrdersForm({ onClose ,openCustomerModal, openProductModal, mode}) {
-  const isDetailMode = mode ;
+export default function OrdersForm({ onClose ,openCustomerModal, openProductModal, mode, currentOrder }) {
+  const formMode = mode ;
   
   
   return (
@@ -18,7 +18,7 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
         {/* Header */}
         <div className="flex justify-between items-center mb-6 border-b pb-4">
           <h1 className="text-3xl font-bold text-gray-800">
-            {isDetailMode !="create" ? "CHI TIẾT ĐƠN HÀNG" : "ĐƠN HÀNG MỚI"}
+            {formMode !="create" ? "CHI TIẾT ĐƠN HÀNG" : "ĐƠN HÀNG MỚI"}
             
           </h1>
           <button
@@ -50,6 +50,7 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
             </label>
             <input
               readOnly
+              value={currentOrder?.orderNumber || " "}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
             />
           </div>
@@ -61,11 +62,11 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
             </label>
             <div className="flex gap-2">
               <input
+                value={`${currentOrder?.customerName || "Khách Hàng"} (${currentOrder?.customerId ?? 0})`}
                 readOnly
-                placeholder="Chưa chọn khách..."
                 className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
               />
-              {isDetailMode=="create" && (
+              {formMode=="create" && (
                 <button className="px-3 py-2.5 bg-gray-200 rounded-lg hover:bg-gray-300" onClick={openCustomerModal}>
                   {/* Nút mở modal khách hàng */}
                   <svg
@@ -93,6 +94,11 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
               Nhân viên
             </label>
             <input
+              value={
+                currentOrder?.userName && currentOrder?.userId
+                  ? `${currentOrder.userName} (${currentOrder.userId})`
+                  : "Nhân Viên"
+              }
               readOnly
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
             />
@@ -104,6 +110,18 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
               Ngày lập phiếu
             </label>
             <input
+                value={
+                  currentOrder?.createdAt
+                    ? new Date(currentOrder.createdAt).toLocaleString("vi-VN", {
+                        timeZone: "Asia/Ho_Chi_Minh",
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : ""
+                }
               readOnly
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
             />
@@ -115,6 +133,18 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
               Ngày chỉnh sửa
             </label>
             <input
+                value={
+                  currentOrder?.updatedAt
+                    ? new Date(currentOrder.updatedAt).toLocaleString("vi-VN", {
+                        timeZone: "Asia/Ho_Chi_Minh",
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : ""
+                }
               readOnly
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
             />
@@ -122,21 +152,27 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
 
 
           {
-            isDetailMode !="create" && (
-              <div>
-                {/* Trạng thái đơn */}
-                <label className="block text-sm font-bold text-gray-700 mb-1">
-                  Trạng thái đơn
-                </label>
-                <select className="w-full px-4 py-2.5 border border-gray-300 rounded-lg font-bold">
-                  <option>Chưa xử lý</option>
-                  <option>Đã thanh toán</option>
-                  <option>Hoàn thành</option>
-                  <option>Đã hủy</option>
-                </select>
-              </div>
+            formMode !="create" && (
+            <div>
+              {/* Trạng thái đơn */}
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Trạng thái đơn
+              </label>
+              <select
+                value={currentOrder?.status || "pending"}
+                disabled={mode !== "create"}
+                className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg font-bold ${
+                  mode !== "create" ? "bg-gray-100 text-gray-600" : ""
+                }`}
+              >
+                <option value="pending">Chưa xử lý</option>
+                <option value="paid">Đã thanh toán</option>
+                <option value="completed">Hoàn thành</option>
+                <option value="canceled">Đã hủy</option>
+              </select>
+            </div>
+
             )
-            
           }
 
          
@@ -148,6 +184,7 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
               Ghi chú
             </label>
             <textarea
+              value={currentOrder?.note || ""}
               rows="2"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg"
             ></textarea>
@@ -155,10 +192,10 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
 
 
           {/* Chi tiết đơn hàng */}
-          <DetailOrderForm openProductModal={openProductModal} isCreateMode={isDetailMode} />
+          <DetailOrderForm openProductModal={openProductModal} isCreateMode={formMode} />
 
           {/* Khuyến mãi */}
-          <PromotionSection isCreateMode={isDetailMode}/>
+          <PromotionSection isCreateMode={formMode}/>
 
 
           {/* Thanh toán */}
@@ -174,7 +211,7 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
             </div>
 
             {
-              isDetailMode !="create" && (
+              formMode !="create" && (
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1">
                     Mã GD
@@ -215,7 +252,7 @@ export default function OrdersForm({ onClose ,openCustomerModal, openProductModa
 
           {/* Nút hành động */}
           <div className="flex flex-wrap gap-4 justify-end">
-            {isDetailMode =="create" &&(
+            {formMode =="create" &&(
               <button className="px-7 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg">
                 Tạo Đơn Hàng
               </button>
