@@ -1,34 +1,55 @@
 import React, { useEffect, useState } from "react";
 
-export default function PromotionSection({ isCreateMode, promotion, setPromotion, currentOrder }) {
+export default function PromotionSection({ isCreateMode, promotion, setPromotion, currentOrder, setCurrentOrder }) {
   const [promotions, setPromotions] = useState([]);
   const [selectedPromotionId, setSelectedPromotionId] = useState(promotion?.id || null);
 
+  // Fetch promotions khi tạo đơn
   useEffect(() => {
     if (isCreateMode === "create") {
       const customerId = currentOrder?.customer_id || 0;
-
       fetch(`http://localhost:5099/api/promotions/promotionforneworder?customerId=${customerId}`)
         .then((res) => res.json())
         .then((data) => {
           setPromotions(data);
 
-          // Auto select voucher đầu tiên nếu chưa có promotion chọn
+          // Auto chọn voucher đầu tiên nếu chưa có promotion
           if (!promotion && data.length > 0) {
-            setSelectedPromotionId(data[0].id);
-            setPromotion(data[0]);
+            handleSelect(data[0]);
           }
         })
         .catch((err) => console.error("Failed to fetch promotions:", err));
     } else {
-      // Detail mode: set selectedPromotionId từ promotion prop
       setSelectedPromotionId(promotion?.id || null);
     }
-  }, [isCreateMode, currentOrder, promotion, setPromotion]);
+  }, [isCreateMode, currentOrder, promotion]);
 
+  // Khi chọn promotion
   const handleSelect = (promo) => {
     setSelectedPromotionId(promo.id);
     setPromotion(promo);
+
+    // Tính discount
+    let discountAmount = 0;
+    const subtotal = currentOrder?.subtotal || 0;
+
+    if (promo.type === "percent") {
+      discountAmount = Math.floor((subtotal * promo.value) / 100); // tròn xuống
+    } else {
+      discountAmount = promo.value;
+    }
+
+    // Nếu subtotal < minOrderAmount, không áp dụng
+    if (promo.minOrderAmount > 0 && subtotal < promo.minOrderAmount) {
+      discountAmount = 0;
+    }
+
+    // Cập nhật currentOrder
+    setCurrentOrder(prev => ({
+      ...prev,
+      discount: discountAmount,
+      total_amount: subtotal - discountAmount
+    }));
   };
 
   const formatValue = (promo) => {
@@ -78,13 +99,7 @@ export default function PromotionSection({ isCreateMode, promotion, setPromotion
                     )}
                   </div>
                 </div>
-                <input
-                  type="radio"
-                  name="voucher"
-                  className="form-radio h-5 w-5 text-green-600"
-                  checked
-                  readOnly
-                />
+                <input type="radio" name="voucher" className="form-radio h-5 w-5 text-green-600" checked readOnly />
               </label>
             )}
       </div>

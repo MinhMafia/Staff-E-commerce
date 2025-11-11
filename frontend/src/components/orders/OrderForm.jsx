@@ -20,9 +20,8 @@ export default function OrdersForm({
       }) {
 
   const formMode = mode ;
-  const _ = setCurrentOrder;
-  const __ = payment;
-  const ___ = setPayment;
+ 
+
 
   
   
@@ -213,10 +212,22 @@ export default function OrdersForm({
 
 
           {/* Chi tiết đơn hàng */}
-          <DetailOrderForm openProductModal={openProductModal} isCreateMode={formMode} listOrderProducts={listOrderProducts} setListOrderProducts={setListOrderProducts} selectedProduct={selectedProduct} setSelectedProduct={setSelectedProduct} />
+          <DetailOrderForm 
+          openProductModal={openProductModal} 
+          isCreateMode={formMode} 
+          listOrderProducts={listOrderProducts} 
+          setListOrderProducts={setListOrderProducts} 
+          selectedProduct={selectedProduct} 
+          setSelectedProduct={setSelectedProduct} 
+          setCurrentOrder={setCurrentOrder}/>
 
           {/* Khuyến mãi */}
-          <PromotionSection isCreateMode={formMode} promotion={promotion} setPromotion={setPromotion} currentOrder={currentOrder}/>
+          <PromotionSection 
+          isCreateMode={formMode} 
+          promotion={promotion} 
+          setPromotion={setPromotion} 
+          currentOrder={currentOrder} 
+          setCurrentOrder={setCurrentOrder}/>
 
 
           {/* Thanh toán */}
