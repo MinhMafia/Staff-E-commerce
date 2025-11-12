@@ -17,13 +17,13 @@ builder.Services.AddControllers()
         // ✅ Ignore circular references
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.WriteIndented = true;
-        
+
         // ✅ Alternative: Use preserve references
         // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-        
+
         // ✅ Configure property naming
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-        
+
         // ✅ Add this for better React compatibility
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
@@ -41,12 +41,31 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 // Register repositories and services
+
+
+// Register repositories
 builder.Services.AddScoped<ProductRepository>();
+builder.Services.AddScoped<OrderRepository>();
+builder.Services.AddScoped<UserRepository>();
+builder.Services.AddScoped<CustomerRepository>();
+builder.Services.AddScoped<ActivityLogRepository>();
+builder.Services.AddScoped<PromotionRepository>();
+
+
+// Register services
 builder.Services.AddScoped<ProductService>();
+<<<<<<< HEAD
 builder.Services.AddScoped<PromotionRepository>();
 builder.Services.AddScoped<PromotionService>();
 builder.Services.AddScoped<StatisticsRepository>();
 builder.Services.AddScoped<StatisticsService>();
+=======
+builder.Services.AddScoped<OrderService>();
+builder.Services.AddScoped<ActivityLogService>();
+builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<PromotionService>();
+>>>>>>> 856fce17931302786087e0e4743c12a98924e27b
 
 // CORS configuration for React
 builder.Services.AddCors(options =>
@@ -61,7 +80,7 @@ builder.Services.AddCors(options =>
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();  // ✅ Important for React with authentication
+            .AllowCredentials();
     });
 });
 
