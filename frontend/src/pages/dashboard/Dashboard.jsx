@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 // src/pages/dashboard/Dashboard.jsx
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -38,9 +37,3 @@ export default function Dashboard() {
     </div>
   );
 }
-=======
-function Dashboard() {
-  return <div>Dashboard works ✅</div>;
-}
-export default Dashboard;
->>>>>>> 856fce17931302786087e0e4743c12a98924e27b

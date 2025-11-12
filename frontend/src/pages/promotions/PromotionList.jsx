@@ -18,7 +18,7 @@ export default function PromotionList() {
   const [editingPromotion, setEditingPromotion] = useState(null);
   const [statsLocal, setStatsLocal] = useState(null);
   
-  // state from store used instead  const dispatch = useDispatch();
+  const dispatch = useDispatch();
   const { items, loading, error, meta, overview: stats } = useSelector((s) => s.promotions);
 
   useEffect(() => {
@@ -38,6 +38,7 @@ export default function PromotionList() {
   const handleToggle = async (id) => {
     const res = await dispatch(togglePromotionActiveThunk(id));
     if (res.meta.requestStatus === 'rejected') alert("Lỗi: " + res.payload);
+    else dispatch(fetchPromotionStats());
   };
 
   useEffect(() => {
@@ -95,12 +96,12 @@ export default function PromotionList() {
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold text-gray-900">
               Quản lý Khuyến mãi
             </h1>
             <button 
               onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl"
             >
               <span className="flex items-center">
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -246,7 +247,7 @@ export default function PromotionList() {
                           <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             promo.type === "percent" ? "bg-purple-100 text-purple-800" : "bg-blue-100 text-blue-800"
                           }`}>
-                            {promo.type === "percent" ? `${promo.value}%` : "VNĐ"}
+                            {promo.type === "percent" ? "Giảm theo %" : "Giảm cố định"}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">
@@ -284,6 +285,12 @@ export default function PromotionList() {
                               }`}
                             >
                               {promo.active ? "Tắt" : "Bật"}
+                            </button>
+                            <button
+                              onClick={() => setEditingPromotion(promo)}
+                              className="px-3 py-1.5 bg-orange-100 text-orange-800 rounded-md text-xs font-medium hover:bg-orange-200"
+                            >
+                              Sửa
                             </button>
                             <button
                               onClick={() => setSelectedPromotionId(promo.id)}

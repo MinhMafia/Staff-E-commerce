@@ -43,7 +43,8 @@ namespace backend.Repository
                 : 0;
 
             var todayProductsSold = await _context.OrderItems
-                .Where(oi => oi.Order!.CreatedAt.Date == today && oi.Order.Status == "paid")
+                .Include(oi => oi.Order)
+                .Where(oi => oi.Order != null && oi.Order.CreatedAt.Date == today && oi.Order.Status == "paid")
                 .SumAsync(oi => oi.Quantity);
 
             var avgOrderValue = todayOrders > 0 ? todayRevenue / todayOrders : 0;
@@ -103,7 +104,8 @@ namespace backend.Repository
             var startDate = DateTime.UtcNow.Date.AddDays(-days);
 
             var data = await _context.OrderItems
-                .Where(oi => oi.Order!.Status == "paid" && oi.Order.CreatedAt >= startDate)
+                .Include(oi => oi.Order)
+                .Where(oi => oi.Order != null && oi.Order.Status == "paid" && oi.Order.CreatedAt >= startDate)
                 .GroupBy(oi => oi.ProductId)
                 .Select(g => new
                 {
@@ -166,9 +168,9 @@ namespace backend.Repository
             return new OrderStatsDTO
             {
                 TotalOrders = orders.Count,
-                CompletedOrders = orders.Count(o => o.Status == "paid"),
+                CompletedOrders = orders.Count(o => o.Status == "paid" || o.Status == "completed"),
                 PendingOrders = orders.Count(o => o.Status == "pending"),
-                ProcessingOrders = orders.Count(o => o.Status == "processing"),
+                ProcessingOrders = 0, // No processing status in ENUM
                 CancelledOrders = orders.Count(o => o.Status == "cancelled"),
                 TotalRevenue = orders.Where(o => o.Status == "paid").Sum(o => o.TotalAmount),
                 AverageOrderValue = orders.Where(o => o.Status == "paid").Any()

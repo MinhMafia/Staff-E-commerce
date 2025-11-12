@@ -114,7 +114,7 @@ export default function Sidebar({ collapsed, onClose }) {
         </NavLink>
 
         {/* Reports */}
-        <NavLink to="/reports" className={linkClass}>
+        <NavLink to="/statistics" className={linkClass}>
           <span className="w-5 h-5">📊</span>
           <span className="text-sm">Báo cáo/Thống kê</span>
         </NavLink>

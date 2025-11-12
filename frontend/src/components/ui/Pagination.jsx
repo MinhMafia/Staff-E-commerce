@@ -5,6 +5,7 @@ export default function Pagination({ meta, onPageChange }) {
   if (!meta) return null;
 
   const { currentPage, totalPages } = meta;
+  if (totalPages <= 1) return null;
   const pagesToShow = 5;
   const start = Math.max(1, currentPage - Math.floor(pagesToShow / 2));
   const end = Math.min(totalPages, start + pagesToShow - 1);

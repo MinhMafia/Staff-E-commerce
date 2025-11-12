@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using backend.Models;
 using backend.Services;
 using backend.DTO;
+using backend.Repository;
 
 namespace backend.Controllers
 {
@@ -10,10 +11,12 @@ namespace backend.Controllers
     public class PromotionsController : ControllerBase
     {
         private readonly PromotionService _promotionService;
+        private readonly OrderRepository _orderRepository;
 
-        public PromotionsController(PromotionService promotionService)
+        public PromotionsController(PromotionService promotionService, OrderRepository orderRepository)
         {
             _promotionService = promotionService;
+            _orderRepository = orderRepository;
         }
 
         // GET api/promotions
@@ -298,6 +301,40 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // GET api/promotions/promotionforneworder (for POS)
+        [HttpGet("promotionforneworder")]
+        public async Task<ActionResult<List<Promotion>>> GetPromotionsForNewOrder([FromQuery] int? customerId)
+        {
+            try
+            {
+                var promotions = await _promotionService.GetPromotionsForCustomerAsync(customerId ?? 0);
+                return Ok(promotions);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // POST api/promotions/{orderId}/apply (for POS)
+        [HttpPost("{orderId}/apply")]
+        public async Task<ActionResult> ApplyPromotionToOrder(int orderId)
+        {
+            try
+            {
+                var order = await _orderRepository.GetByIdAsync(orderId);
+                if (order == null)
+                    return NotFound(new { message = "Order không tồn tại" });
+
+                await _promotionService.ApplyPromotionAsync(order);
+                return Ok(new { message = "Áp dụng khuyến mãi thành công" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }

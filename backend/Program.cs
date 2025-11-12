@@ -50,22 +50,17 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<CustomerRepository>();
 builder.Services.AddScoped<ActivityLogRepository>();
 builder.Services.AddScoped<PromotionRepository>();
+builder.Services.AddScoped<StatisticsRepository>();
 
 
 // Register services
 builder.Services.AddScoped<ProductService>();
-<<<<<<< HEAD
-builder.Services.AddScoped<PromotionRepository>();
-builder.Services.AddScoped<PromotionService>();
-builder.Services.AddScoped<StatisticsRepository>();
-builder.Services.AddScoped<StatisticsService>();
-=======
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ActivityLogService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PromotionService>();
->>>>>>> 856fce17931302786087e0e4743c12a98924e27b
+builder.Services.AddScoped<StatisticsService>();
 
 // CORS configuration for React
 builder.Services.AddCors(options =>

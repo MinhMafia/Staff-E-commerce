@@ -1,15 +1,14 @@
 import React, { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 
-const COLORS = ['#10b981', '#f59e0b', '#ef4444'];
+const COLORS = ['#10b981', '#ef4444'];
 
 export default function OrderStatusChart({ orderStats }) {
   const { data, total } = useMemo(() => {
     if (!orderStats) return { data: [], total: 0 };
     const d = [
       { name: 'Hoàn tất', value: orderStats.completedOrders },
-      { name: 'Đang xử lý', value: orderStats.processingOrders },
-      { name: 'Chờ xử lý', value: orderStats.pendingOrders },
+      { name: 'Đã hủy', value: orderStats.cancelledOrders },
     ];
     const t = d.reduce((s, it) => s + (it.value || 0), 0);
     return { data: d, total: t };

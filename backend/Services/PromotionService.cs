@@ -1,9 +1,6 @@
 using backend.Models;
 using backend.Repository;
-<<<<<<< HEAD
 using backend.DTO;
-=======
->>>>>>> 856fce17931302786087e0e4743c12a98924e27b
 
 namespace backend.Services
 {
@@ -16,7 +13,6 @@ namespace backend.Services
             _promotionRepository = promotionRepository;
         }
 
-<<<<<<< HEAD
         // Get all promotions
         public async Task<List<PromotionDTO>> GetAllPromotionsAsync()
         {
@@ -287,7 +283,7 @@ namespace backend.Services
         public async Task<object> GetOverviewStatsAsync()
         {
             var allPromotions = await _promotionRepository.GetAllAsync();
-            var now = DateTime.Now;
+            var now = DateTime.UtcNow;
             
             var total = allPromotions.Count;
             var active = allPromotions.Count(p => p.Active && (!p.EndDate.HasValue || p.EndDate >= now));
@@ -348,7 +344,8 @@ namespace backend.Services
                 CreatedAt = p.CreatedAt,
                 UpdatedAt = p.UpdatedAt
             };
-=======
+        }
+
         /// <summary>
         /// Lấy danh sách khuyến mãi cho khách hàng
         /// customerId = 0 hoặc null => khách vãng lai
@@ -356,7 +353,16 @@ namespace backend.Services
         /// </summary>
         public async Task<List<Promotion>> GetPromotionsForCustomerAsync(int? customerId = null)
         {
-            var promotions = await _promotionRepository.GetActivePromotionsAsync(customerId);
+            var promotions = await _promotionRepository.GetActivePromotionsAsync();
+            
+            // Filter by customerId if needed (customer already used promotion)
+            if (customerId.HasValue && customerId.Value > 0)
+            {
+                var usedPromotionIds = await _promotionRepository.GetRedemptionsAsync(0)
+                    .ContinueWith(t => t.Result.Where(r => r.CustomerId == customerId).Select(r => r.PromotionId).ToList());
+                promotions = promotions.Where(p => !usedPromotionIds.Contains(p.Id)).ToList();
+            }
+            
             return promotions;
         }
 
@@ -376,7 +382,6 @@ namespace backend.Services
                 // có thể log lỗi nếu muốn
                 throw new Exception($"Áp dụng khuyến mãi thất bại: {ex.Message}");
             }
->>>>>>> 856fce17931302786087e0e4743c12a98924e27b
         }
     }
 }

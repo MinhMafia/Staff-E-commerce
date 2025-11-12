@@ -59,7 +59,7 @@ export default function PromotionDetail({ promotionId, onClose, onEdit }) {
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black/5 backdrop-blur-sm flex items-center justify-center z-50">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
         <div className="bg-white rounded-xl p-8 shadow-2xl">
           <div className="flex items-center gap-3">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
@@ -72,7 +72,7 @@ export default function PromotionDetail({ promotionId, onClose, onEdit }) {
 
   if (error || !promotion) {
     return (
-      <div className="fixed inset-0 bg-black/5 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-xl p-8 shadow-2xl max-w-md">
           <div className="text-center">
             <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -106,28 +106,24 @@ export default function PromotionDetail({ promotionId, onClose, onEdit }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/5 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6">
+        <div className="bg-blue-600 p-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-white">Chi tiết khuyến mãi</h2>
-              <p className="text-blue-100 mt-1 font-mono text-lg">{promotion.code}</p>
+              <p className="text-white mt-1 font-mono text-lg">{promotion.code}</p>
             </div>
             <div className="flex items-center gap-3">
               {getStatusBadge()}
               <button
                 onClick={onClose}
-                className="bg-red-500  hover:bg-red-600 p-2 rounded"
+                className="bg-red-500 text-white hover:bg-red-600 p-2 rounded font-bold text-xl"
                 aria-label="Đóng"
               >
-                {/* <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg> */}
                  &times;
               </button>
-             
             </div>
           </div>
         </div>
@@ -355,7 +351,7 @@ export default function PromotionDetail({ promotionId, onClose, onEdit }) {
           </button>
           <button
             onClick={() => onEdit(promotion)}
-            className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700"
+            className="flex-1 px-4 py-2 bg-blue-600 text-gray-900 rounded-lg hover:bg-blue-700 font-semibold"
           >
             Chỉnh sửa
           </button>

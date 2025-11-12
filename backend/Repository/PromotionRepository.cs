@@ -1,10 +1,3 @@
-<<<<<<< HEAD
-=======
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
->>>>>>> 856fce17931302786087e0e4743c12a98924e27b
 using backend.Data;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
@@ -20,12 +13,12 @@ namespace backend.Repository
             _context = context;
         }
 
-<<<<<<< HEAD
         // Get all promotions
         public async Task<List<Promotion>> GetAllAsync()
         {
             return await _context.Promotions
                 .AsNoTracking()
+                .Where(p => !p.IsDeleted)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
@@ -36,11 +29,12 @@ namespace backend.Repository
             if (page < 1) page = 1;
             if (pageSize <= 0) pageSize = 20;
 
-            var totalItems = await _context.Promotions.CountAsync();
+            var totalItems = await _context.Promotions.Where(p => !p.IsDeleted).CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
             var items = await _context.Promotions
                 .AsNoTracking()
+                .Where(p => !p.IsDeleted)
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -63,7 +57,7 @@ namespace backend.Repository
         {
             return await _context.Promotions
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
         }
 
         // Get promotion by code
@@ -71,7 +65,7 @@ namespace backend.Repository
         {
             return await _context.Promotions
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Code == code);
+                .FirstOrDefaultAsync(p => p.Code == code && !p.IsDeleted);
         }
 
         // Create promotion
@@ -122,7 +116,8 @@ namespace backend.Repository
             var now = DateTime.UtcNow;
             return await _context.Promotions
                 .AsNoTracking()
-                .Where(p => p.Active &&
+                .Where(p => !p.IsDeleted &&
+                           p.Active &&
                            (p.StartDate == null || p.StartDate <= now) &&
                            (p.EndDate == null || p.EndDate >= now) &&
                            (p.UsageLimit == null || p.UsedCount < p.UsageLimit))
@@ -166,84 +161,29 @@ namespace backend.Repository
             _context.PromotionRedemptions.Add(redemption);
             await _context.SaveChangesAsync();
             return redemption;
-=======
-        /// <summary>
-        /// Lấy danh sách khuyến mãi đang hoạt động.
-        /// Nếu customerId > 0 => lọc khuyến mãi chưa dùng bởi khách này
-        /// Nếu customerId = 0 hoặc null => khách vãng lai, show tất cả
-        /// </summary>
-        public async Task<List<Promotion>> GetActivePromotionsAsync(int? customerId = null)
-        {
-            var now = DateTime.UtcNow;
-
-            var query = _context.Promotions
-                .Where(p => p.Active &&
-                            (!p.StartDate.HasValue || p.StartDate <= now) &&
-                            (!p.EndDate.HasValue || p.EndDate >= now))
-                .AsQueryable();
-
-            if (customerId.HasValue && customerId.Value > 0)
-            {
-                query = query.Where(p =>
-                    !_context.PromotionRedemptions
-                        .Any(r => r.PromotionId == p.Id && r.CustomerId == customerId.Value)
-                );
-            }
-
-            return await query
-                .OrderBy(p => p.StartDate)
-                .ToListAsync();
         }
 
         /// <summary>
-        /// Lấy khuyến mãi theo Id
-        /// </summary>
-        public async Task<Promotion?> GetByIdAsync(int promotionId)
-        {
-            return await _context.Promotions.FirstOrDefaultAsync(p => p.Id == promotionId);
-        }
-
-        /// <summary>
-        /// Thêm bản ghi redemption
-        /// </summary>
-        public async Task AddRedemptionAsync(PromotionRedemption redemption)
-        {
-            await _context.PromotionRedemptions.AddAsync(redemption);
-        }
-
-        /// <summary>
-        /// Lưu thay đổi
-        /// </summary>
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
-        /// <summary>
-        /// Áp dụng khuyến mãi cho một đơn hàng đã tạo
+        /// Áp dụng khuyến mãi cho một đơn hàng đã tạo (alternative method for POS)
         /// </summary>
         public async Task ApplyPromotionAsync(Order order)
         {
-            if (!order.PromotionId.HasValue) return; // không có khuyến mãi thì thôi
+            if (!order.PromotionId.HasValue) return;
 
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                // 1. Lấy khuyến mãi
                 var promo = await GetByIdAsync(order.PromotionId.Value);
                 if (promo == null)
                     throw new Exception("Khuyến mãi không tồn tại");
 
-                // 2. Kiểm tra giới hạn sử dụng
                 if (promo.UsageLimit.HasValue && promo.UsedCount >= promo.UsageLimit.Value)
                     throw new Exception("Khuyến mãi đã hết lượt sử dụng");
 
-                // 3. Tăng số lần dùng
                 promo.UsedCount += 1;
                 _context.Promotions.Update(promo);
 
-                // 4. Tạo bản ghi redemption
                 var redemption = new PromotionRedemption
                 {
                     PromotionId = promo.Id,
@@ -251,12 +191,9 @@ namespace backend.Repository
                     OrderId = order.Id,
                     RedeemedAt = DateTime.UtcNow
                 };
-                await AddRedemptionAsync(redemption);
+                await _context.PromotionRedemptions.AddAsync(redemption);
 
-                // 5. Lưu tất cả
-                await SaveChangesAsync();
-
-                // 6. Commit transaction
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
             }
             catch
@@ -264,7 +201,6 @@ namespace backend.Repository
                 await transaction.RollbackAsync();
                 throw;
             }
->>>>>>> 856fce17931302786087e0e4743c12a98924e27b
         }
     }
 }

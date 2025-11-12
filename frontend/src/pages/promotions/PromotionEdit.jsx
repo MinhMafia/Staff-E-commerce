@@ -83,12 +83,12 @@ export default function PromotionEdit({ promotion, onCancel, onSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/5 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 p-6 rounded-t-xl">
+        <div className="bg-blue-600 p-6 rounded-t-xl">
           <h2 className="text-2xl font-bold text-white">Chỉnh sửa khuyến mãi</h2>
-          <p className="text-blue-100 mt-1 font-mono">{formData.code}</p>
+          <p className="text-white mt-1 font-mono">{formData.code}</p>
         </div>
 
         {/* Form */}
@@ -268,7 +268,7 @@ export default function PromotionEdit({ promotion, onCancel, onSuccess }) {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-blue-600 text-gray-900 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-semibold"
             >
               {loading ? "Đang cập nhật..." : "Cập nhật"}
             </button>
