@@ -523,3 +523,13 @@ VALUES
 (28, 2609123.00, 'card', NULL, 'completed', NOW()),
 (29, 1925033.60, 'cash', NULL, 'completed', NOW()),
 (30, 2912134.00, 'card', NULL, 'completed', NOW());
+
+ALTER TABLE promotions 
+ADD COLUMN max_discount DECIMAL(12, 2) NULL;
+
+ALTER TABLE promotions 
+ADD COLUMN description VARCHAR(1000) NULL;
+ 
+ALTER TABLE promotions
+ADD COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0 AFTER updated_at,
+ADD COLUMN deleted_at DATETIME NULL AFTER is_deleted;

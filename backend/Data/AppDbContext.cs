@@ -153,6 +153,10 @@ namespace backend.Data
                 .HasForeignKey(pr => pr.OrderId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            // Global query filters
+            modelBuilder.Entity<Promotion>()
+                .HasQueryFilter(p => !p.IsDeleted);
+
             // Customer -> Orders
             modelBuilder.Entity<Customer>()
                 .HasMany(c => c.Orders)

@@ -30,6 +30,9 @@ namespace backend.Models
         [Column("min_order_amount", TypeName = "decimal(12,2)")]
         public decimal MinOrderAmount { get; set; } = 0m;
 
+        [Column("max_discount", TypeName = "decimal(12,2)")]
+        public decimal? MaxDiscount { get; set; }
+
         [Column("start_date")]
         public DateTime? StartDate { get; set; }
 
@@ -45,11 +48,22 @@ namespace backend.Models
         [Column("active")]
         public bool Active { get; set; } = true;
 
+        [Column("description")]
+        [StringLength(1000)]
+        public string? Description { get; set; }
+
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; }
+
+        // Soft delete
+        [Column("is_deleted")]
+        public bool IsDeleted { get; set; } = false;
+
+        [Column("deleted_at")]
+        public DateTime? DeletedAt { get; set; }
 
         // Navigation
         public virtual ICollection<Order>? Orders { get; set; }

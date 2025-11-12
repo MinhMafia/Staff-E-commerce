@@ -1,0 +1,163 @@
+using backend.Data;
+using backend.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace backend.Repository
+{
+    public class PromotionRepository
+    {
+        private readonly AppDbContext _context;
+
+        public PromotionRepository(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        // Get all promotions
+        public async Task<List<Promotion>> GetAllAsync()
+        {
+            return await _context.Promotions
+                .AsNoTracking()
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+        }
+
+        // Get paginated promotions
+        public async Task<PaginationResult<Promotion>> GetPaginatedAsync(int page, int pageSize)
+        {
+            if (page < 1) page = 1;
+            if (pageSize <= 0) pageSize = 20;
+
+            var totalItems = await _context.Promotions.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var items = await _context.Promotions
+                .AsNoTracking()
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PaginationResult<Promotion>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalPages = totalPages,
+                HasPrevious = page > 1,
+                HasNext = page < totalPages
+            };
+        }
+
+        // Get promotion by ID
+        public async Task<Promotion?> GetByIdAsync(int id)
+        {
+            return await _context.Promotions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
+        // Get promotion by code
+        public async Task<Promotion?> GetByCodeAsync(string code)
+        {
+            return await _context.Promotions
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Code == code);
+        }
+
+        // Create promotion
+        public async Task<Promotion> CreateAsync(Promotion promotion)
+        {
+            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            
+            promotion.CreatedAt = vietnamTime;
+            promotion.UpdatedAt = vietnamTime;
+
+            _context.Promotions.Add(promotion);
+            await _context.SaveChangesAsync();
+            return promotion;
+        }
+
+        // Update promotion
+        public async Task<Promotion> UpdateAsync(Promotion promotion)
+        {
+            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            
+            promotion.UpdatedAt = vietnamTime;
+            _context.Promotions.Update(promotion);
+            await _context.SaveChangesAsync();
+            return promotion;
+        }
+
+        // Soft delete promotion
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var promotion = await _context.Promotions.FirstOrDefaultAsync(p => p.Id == id);
+            if (promotion == null) return false;
+
+            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+
+            promotion.IsDeleted = true;
+            promotion.DeletedAt = vietnamTime;
+            _context.Promotions.Update(promotion);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Get active promotions
+        public async Task<List<Promotion>> GetActivePromotionsAsync()
+        {
+            var now = DateTime.UtcNow;
+            return await _context.Promotions
+                .AsNoTracking()
+                .Where(p => p.Active &&
+                           (p.StartDate == null || p.StartDate <= now) &&
+                           (p.EndDate == null || p.EndDate >= now) &&
+                           (p.UsageLimit == null || p.UsedCount < p.UsageLimit))
+                .ToListAsync();
+        }
+
+        // Get redemptions for a promotion
+        public async Task<List<PromotionRedemption>> GetRedemptionsAsync(int promotionId)
+        {
+            return await _context.PromotionRedemptions
+                .AsNoTracking()
+                .Where(pr => pr.PromotionId == promotionId)
+                .Include(pr => pr.Customer)
+                .Include(pr => pr.Order)
+                .OrderByDescending(pr => pr.RedeemedAt)
+                .ToListAsync();
+        }
+
+        // Increment used count
+        public async Task<bool> IncrementUsedCountAsync(int promotionId)
+        {
+            var promotion = await _context.Promotions.FindAsync(promotionId);
+            if (promotion == null) return false;
+
+            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            
+            promotion.UsedCount++;
+            promotion.UpdatedAt = vietnamTime;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // Add redemption record
+        public async Task<PromotionRedemption> AddRedemptionAsync(PromotionRedemption redemption)
+        {
+            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            
+            redemption.RedeemedAt = vietnamTime;
+            _context.PromotionRedemptions.Add(redemption);
+            await _context.SaveChangesAsync();
+            return redemption;
+        }
+    }
+}

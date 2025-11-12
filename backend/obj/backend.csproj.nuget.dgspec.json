@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Nam4_HK1\\.Net\\store-management\\backend\\backend.csproj": {}
+    "D:\\Staff-E-commerce\\backend\\backend.csproj": {}
   },
   "projects": {
-    "D:\\Nam4_HK1\\.Net\\store-management\\backend\\backend.csproj": {
+    "D:\\Staff-E-commerce\\backend\\backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Nam4_HK1\\.Net\\store-management\\backend\\backend.csproj",
+        "projectUniqueName": "D:\\Staff-E-commerce\\backend\\backend.csproj",
         "projectName": "backend",
-        "projectPath": "D:\\Nam4_HK1\\.Net\\store-management\\backend\\backend.csproj",
-        "packagesPath": "C:\\Users\\Minglee04\\.nuget\\packages\\",
-        "outputPath": "D:\\Nam4_HK1\\.Net\\store-management\\backend\\obj\\",
+        "projectPath": "D:\\Staff-E-commerce\\backend\\backend.csproj",
+        "packagesPath": "C:\\Users\\HOME\\.nuget\\packages\\",
+        "outputPath": "D:\\Staff-E-commerce\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Minglee04\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\HOME\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
@@ -38,7 +38,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "9.0.100"
       },
       "frameworks": {
         "net9.0": {
@@ -92,7 +92,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.111/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

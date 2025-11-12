@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Builder;
 using backend.Data;
 using backend.Repository;
 using backend.Services;
@@ -42,6 +43,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Register repositories and services
 builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<ProductService>();
+builder.Services.AddScoped<PromotionRepository>();
+builder.Services.AddScoped<PromotionService>();
+builder.Services.AddScoped<StatisticsRepository>();
+builder.Services.AddScoped<StatisticsService>();
 
 // CORS configuration for React
 builder.Services.AddCors(options =>
