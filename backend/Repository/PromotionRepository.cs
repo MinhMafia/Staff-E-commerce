@@ -13,12 +13,37 @@ namespace backend.Repository
             _context = context;
         }
 
-        // Get all promotions
+        // Lấy tất cả khuyến mãi chưa xóa
         public async Task<List<Promotion>> GetAllAsync()
         {
             return await _context.Promotions
                 .AsNoTracking()
                 .Where(p => !p.IsDeleted)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync();
+        }
+
+        // Lấy khuyến mãi đang hoạt động, chưa hết lượt, chưa dùng bởi khách
+        public async Task<List<Promotion>> GetActivePromotionsAsync(int? customerId = null)
+        {
+            var now = DateTime.UtcNow;
+
+            var query = _context.Promotions
+                .Where(p => p.Active &&
+                            (!p.StartDate.HasValue || p.StartDate <= now) &&
+                            (!p.EndDate.HasValue || p.EndDate >= now) &&
+                            (!p.UsageLimit.HasValue || p.UsedCount < p.UsageLimit.Value))
+                .AsQueryable();
+
+            if (customerId.HasValue && customerId.Value > 0)
+            {
+                query = query.Where(p =>
+                    !_context.PromotionRedemptions
+                        .Any(r => r.PromotionId == p.Id && r.CustomerId == customerId.Value)
+                );
+            }
+
+            return await query
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
@@ -52,7 +77,6 @@ namespace backend.Repository
             };
         }
 
-        // Get promotion by ID
         public async Task<Promotion?> GetByIdAsync(int id)
         {
             return await _context.Promotions
@@ -60,7 +84,6 @@ namespace backend.Repository
                 .FirstOrDefaultAsync(p => p.Id == id && !p.IsDeleted);
         }
 
-        // Get promotion by code
         public async Task<Promotion?> GetByCodeAsync(string code)
         {
             return await _context.Promotions
@@ -68,12 +91,11 @@ namespace backend.Repository
                 .FirstOrDefaultAsync(p => p.Code == code && !p.IsDeleted);
         }
 
-        // Create promotion
         public async Task<Promotion> CreateAsync(Promotion promotion)
         {
             var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            
+
             promotion.CreatedAt = vietnamTime;
             promotion.UpdatedAt = vietnamTime;
 
@@ -82,19 +104,17 @@ namespace backend.Repository
             return promotion;
         }
 
-        // Update promotion
         public async Task<Promotion> UpdateAsync(Promotion promotion)
         {
             var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
             var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            
+
             promotion.UpdatedAt = vietnamTime;
             _context.Promotions.Update(promotion);
             await _context.SaveChangesAsync();
             return promotion;
         }
 
-        // Soft delete promotion
         public async Task<bool> DeleteAsync(int id)
         {
             var promotion = await _context.Promotions.FirstOrDefaultAsync(p => p.Id == id);
@@ -110,21 +130,6 @@ namespace backend.Repository
             return true;
         }
 
-        // Get active promotions
-        public async Task<List<Promotion>> GetActivePromotionsAsync()
-        {
-            var now = DateTime.UtcNow;
-            return await _context.Promotions
-                .AsNoTracking()
-                .Where(p => !p.IsDeleted &&
-                           p.Active &&
-                           (p.StartDate == null || p.StartDate <= now) &&
-                           (p.EndDate == null || p.EndDate >= now) &&
-                           (p.UsageLimit == null || p.UsedCount < p.UsageLimit))
-                .ToListAsync();
-        }
-
-        // Get redemptions for a promotion
         public async Task<List<PromotionRedemption>> GetRedemptionsAsync(int promotionId)
         {
             return await _context.PromotionRedemptions
@@ -136,70 +141,61 @@ namespace backend.Repository
                 .ToListAsync();
         }
 
-        // Increment used count
-        public async Task<bool> IncrementUsedCountAsync(int promotionId)
+        // Áp dụng khuyến mãi hoặc tăng số lần sử dụng
+        public async Task<bool> ApplyOrChangePromotionAsync(Order order = null, int? promotionId = null, int? customerId = null, int? orderId = null)
         {
-            var promotion = await _context.Promotions.FindAsync(promotionId);
-            if (promotion == null) return false;
-
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            
-            promotion.UsedCount++;
-            promotion.UpdatedAt = vietnamTime;
-            await _context.SaveChangesAsync();
-            return true;
-        }
-
-        // Add redemption record
-        public async Task<PromotionRedemption> AddRedemptionAsync(PromotionRedemption redemption)
-        {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            
-            redemption.RedeemedAt = vietnamTime;
-            _context.PromotionRedemptions.Add(redemption);
-            await _context.SaveChangesAsync();
-            return redemption;
-        }
-
-        /// <summary>
-        /// Áp dụng khuyến mãi cho một đơn hàng đã tạo (alternative method for POS)
-        /// </summary>
-        public async Task ApplyPromotionAsync(Order order)
-        {
-            if (!order.PromotionId.HasValue) return;
-
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                var promo = await GetByIdAsync(order.PromotionId.Value);
-                if (promo == null)
-                    throw new Exception("Khuyến mãi không tồn tại");
+                Promotion promo = null;
 
-                if (promo.UsageLimit.HasValue && promo.UsedCount >= promo.UsageLimit.Value)
-                    throw new Exception("Khuyến mãi đã hết lượt sử dụng");
-
-                promo.UsedCount += 1;
-                _context.Promotions.Update(promo);
-
-                var redemption = new PromotionRedemption
+                if (order != null && order.PromotionId.HasValue)
                 {
-                    PromotionId = promo.Id,
-                    CustomerId = order.CustomerId,
-                    OrderId = order.Id,
-                    RedeemedAt = DateTime.UtcNow
-                };
-                await _context.PromotionRedemptions.AddAsync(redemption);
+                    // ApplyPromotionAsync
+                    promo = await GetByIdAsync(order.PromotionId.Value);
+                    if (promo == null) throw new Exception("Khuyến mãi không tồn tại");
+                    if (promo.UsageLimit.HasValue && promo.UsedCount >= promo.UsageLimit.Value)
+                        throw new Exception("Khuyến mãi đã hết lượt sử dụng");
+
+                    promo.UsedCount += 1;
+                    _context.Promotions.Update(promo);
+
+                    var redemption = new PromotionRedemption
+                    {
+                        PromotionId = promo.Id,
+                        CustomerId = customerId,
+                        OrderId = order.Id,
+                        RedeemedAt = DateTime.UtcNow
+                    };
+                    await _context.PromotionRedemptions.AddAsync(redemption);
+                }
+                else if (promotionId.HasValue && orderId.HasValue)
+                {
+                    // ChangePromotionAsync
+                    promo = await _context.Promotions.FirstOrDefaultAsync(p => p.Id == promotionId.Value);
+                    promo.UsedCount += 1;
+                    _context.Promotions.Update(promo);
+
+                    var redemption = new PromotionRedemption
+                    {
+                        PromotionId = promo.Id,
+                        CustomerId = customerId,
+                        OrderId = orderId.Value,
+                        RedeemedAt = DateTime.UtcNow
+                    };
+                    await _context.PromotionRedemptions.AddAsync(redemption);
+                }
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
+                return true;
             }
-            catch
+            catch (Exception ex)
             {
                 await transaction.RollbackAsync();
-                throw;
+                Console.WriteLine($"[ApplyOrChangePromotionAsync] Lỗi: {ex.Message}");
+                return false;
             }
         }
     }

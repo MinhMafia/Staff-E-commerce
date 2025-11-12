@@ -1,6 +1,7 @@
 using backend.DTO;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using backend.Models;
 
 namespace backend.Controllers
 {
@@ -77,5 +78,17 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Lỗi khi xử lý callback MoMo", error = ex.Message });
             }
         }
+
+        // POST: api/payment
+        [HttpPost("offlinepayment")]   // hoặc "create-offline"
+        public async Task<IActionResult> CreateOfflinePayment([FromBody] Payment payment)
+        {
+            var savedPayment = await _paymentService.CreatePaymentAsync(payment);
+            return Ok(savedPayment);
+        }
+
+
+
+
     }
 }

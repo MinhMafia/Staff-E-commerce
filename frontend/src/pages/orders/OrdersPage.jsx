@@ -28,7 +28,9 @@ export default function OrdersPage() {
     selectedProduct, 
     setSelectedProduct,
     promotion,
-    setPromotion
+    setPromotion,
+    click_buttonCreateNewOrder,
+  
 
  
 
@@ -95,6 +97,7 @@ export default function OrdersPage() {
           Lọc
         </button>
       </div>
+      
 
       {/* Form đơn hàng */}
       {showOrderModal && <OrdersForm 
@@ -112,6 +115,8 @@ export default function OrdersPage() {
       setSelectedProduct={setSelectedProduct}
       promotion={promotion}
       setPromotion={setPromotion}
+      click_buttonCreateNewOrder={click_buttonCreateNewOrder}
+     
 
 
       

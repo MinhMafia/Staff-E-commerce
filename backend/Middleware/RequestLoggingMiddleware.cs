@@ -4,91 +4,112 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace backend.Middlewares
 {
-    /// <summary>
-    /// Middleware tự động ghi log cho các request POST, PUT, DELETE.
-    /// - Tự động xác định hành động (CREATE/UPDATE/DELETE)
-    /// - Ghi log vào DB + file thông qua ActivityLogService
-    /// </summary>
     public class RequestLoggingMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly ActivityLogService _logService;
+        private readonly IServiceProvider _serviceProvider;
 
-        public RequestLoggingMiddleware(RequestDelegate next, ActivityLogService logService)
+        public RequestLoggingMiddleware(RequestDelegate next, IServiceProvider serviceProvider)
         {
             _next = next;
-            _logService = logService;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var request = context.Request;
-            string method = request.Method.ToUpper();
-
-            // Chỉ log các request có thể làm thay đổi dữ liệu
-            if (method == "POST" || method == "PUT" || method == "DELETE")
+            try
             {
-                request.EnableBuffering();
-                string bodyText = string.Empty;
+                var request = context.Request;
+                string method = request.Method.ToUpper();
 
-                try
+                if (method == "POST" || method == "PUT" || method == "DELETE")
                 {
-                    using (var reader = new StreamReader(request.Body, Encoding.UTF8, leaveOpen: true))
+                    request.EnableBuffering();
+                    string bodyText = string.Empty;
+
+                    try
                     {
+                        using var reader = new StreamReader(request.Body, Encoding.UTF8, leaveOpen: true);
                         bodyText = await reader.ReadToEndAsync();
                         request.Body.Position = 0;
                     }
+                    catch
+                    {
+                        bodyText = "[Unreadable Body]";
+                    }
+
+                    string path = request.Path.ToString();
+                    string entityName = ExtractEntityName(path);
+                    string entityId = ExtractEntityId(path);
+                    string action = method switch
+                    {
+                        "POST" => $"CREATE_{entityName}",
+                        "PUT" => $"UPDATE_{entityName}",
+                        "DELETE" => $"DELETE_{entityName}",
+                        _ => $"HTTP_{method}_{entityName}"
+                    };
+
+                    string ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+                    int userId = 2; // TODO: lấy từ JWT nếu có
+                    string userName = context.User?.Identity?.Name ?? "anonymous";
+                    string payload = $"User: {userName} | Body: {bodyText}";
+
+                    Console.WriteLine($"[RequestLoggingMiddleware] Logging {action} for {entityName}#{entityId}");
+
+                    // 🔹 Tạo scope cho request để resolve scoped service
+                    try
+                    {
+                        using var scope = _serviceProvider.CreateScope();
+                        var logService = scope.ServiceProvider.GetRequiredService<ActivityLogService>();
+                        await logService.LogAsync(userId, action, entityName, entityId, payload, ip);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[RequestLoggingMiddleware] LogAsync failed: {ex.Message}");
+                    }
                 }
-                catch
-                {
-                    bodyText = "[Unreadable Body]";
-                }
 
-                // Lấy path và entity name (ví dụ: /api/products/5 -> products)
-                string path = request.Path.ToString();
-                string entityName = ExtractEntityName(path);
-
-                // Tự động xác định hành động
-                string action = method switch
-                {
-                    "POST" => $"CREATE_{entityName}",
-                    "PUT" => $"UPDATE_{entityName}",
-                    "DELETE" => $"DELETE_{entityName}",
-                    _ => $"HTTP_{method}_{entityName}"
-                };
-
-                string ip = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-
-                // UserId tạm thời (sẽ lấy từ JWT sau này)
-                int userId = 0;
-                string userName = context.User?.Identity?.Name ?? "anonymous";
-
-                string payload = $"User: {userName} | Body: {bodyText}";
-
-                await _logService.LogAsync(
-                    userId,
-                    action,
-                    "API",
-                    path,
-                    payload,
-                    ip
-                );
+                await _next(context);
             }
-
-            await _next(context);
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[RequestLoggingMiddleware] Unexpected error: {ex.Message}");
+                await _next(context);
+            }
         }
 
-        /// <summary>
-        /// Trích tên entity từ URL (ví dụ: /api/products/5 -> products)
-        /// </summary>
         private string ExtractEntityName(string path)
         {
-            // Tìm phần đầu tiên sau /api/
-            var match = Regex.Match(path, @"^/api/([^/]+)");
-            return match.Success ? match.Groups[1].Value.ToUpper() : "UNKNOWN";
+            try
+            {
+                var match = Regex.Match(path, @"^/api/([^/]+)");
+                if (!match.Success || string.IsNullOrEmpty(match.Groups[1].Value))
+                    return "Unknown";
+
+                string name = match.Groups[1].Value;
+                return char.ToUpper(name[0]) + (name.Length > 1 ? name.Substring(1).ToLower() : "");
+            }
+            catch
+            {
+                return "Unknown";
+            }
+        }
+
+        private string ExtractEntityId(string path)
+        {
+            try
+            {
+                var match = Regex.Match(path, @"^/api/[^/]+/([^/]+)");
+                return match.Success && !string.IsNullOrEmpty(match.Groups[1].Value) ? match.Groups[1].Value : "0";
+            }
+            catch
+            {
+                return "0";
+            }
         }
     }
 }

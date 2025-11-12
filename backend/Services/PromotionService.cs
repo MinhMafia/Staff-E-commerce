@@ -369,13 +369,12 @@ namespace backend.Services
         /// <summary>
         /// Áp dụng khuyến mãi cho đơn hàng đã tạo
         /// </summary>
-        public async Task ApplyPromotionAsync(Order order)
+        public async Task ChangePromotionAsync(int promotionId, int? customerId, int orderId)
         {
-            if (!order.PromotionId.HasValue) return; // không có khuyến mãi thì thôi
 
             try
             {
-                await _promotionRepository.ApplyPromotionAsync(order);
+                await _promotionRepository.ChangePromotionAsync(promotionId,customerId,orderId);
             }
             catch (Exception ex)
             {

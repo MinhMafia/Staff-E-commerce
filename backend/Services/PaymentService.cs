@@ -22,7 +22,7 @@ namespace backend.Services
             _logService = logService;
             _config = config;
         }
-        //Tạo một payment tạm để gủi 
+       
 
 
         // Hàm băm SHA256 để tạo chữ ký gửi MoMo
@@ -158,6 +158,14 @@ namespace backend.Services
             }
 
             return true;
+        }
+
+        // Hàm lưu một payment nếu là thanh toán trực tiếp 
+        // Lưu Payment (Cash, Card, ECard,...)
+        public async Task<Payment> CreatePaymentAsync(Payment payment)
+        {
+            
+            return await _paymentRepo.AddPaymentAsync(payment);
         }
 
 

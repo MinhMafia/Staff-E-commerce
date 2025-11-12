@@ -51,7 +51,7 @@ namespace backend.Services
             string userName = user?.FullName ?? "Nhân viên #2";
 
             // Lấy thông tin Customer (khách vãng lai) từ DB
-            int customerId = 0; 
+            int customerId = 0;
             var customer = await _customerRepo.GetByIdAsync(customerId);
             string customerName = customer?.FullName ?? "Khách vãng lai";
 
@@ -76,6 +76,12 @@ namespace backend.Services
             };
 
             return tempOrder;
+        }
+        
+        // Lưu đơn hàng (frontend đã gửi đủ dữ liệu)
+        public async Task<Order> SaveOrderAsync(Order order)
+        {
+            return await _orderRepo.CreateOrderAsync(order);
         }
 
 

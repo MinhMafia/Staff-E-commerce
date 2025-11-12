@@ -16,7 +16,8 @@ export default function OrdersForm({
       selectedProduct,
       setSelectedProduct,
       promotion,
-      setPromotion
+      setPromotion,
+      click_buttonCreateNewOrder
       }) {
 
   const formMode = mode ;
@@ -203,7 +204,7 @@ export default function OrdersForm({
               Ghi chú
             </label>
             <textarea
-              
+              onChange={(e) => setCurrentOrder({ ...currentOrder, note: e.target.value })}
               value={currentOrder?.note}
               rows="2"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg"
@@ -297,7 +298,9 @@ export default function OrdersForm({
           {/* Nút hành động */}
           <div className="flex flex-wrap gap-4 justify-end">
             {formMode =="create" &&(
-              <button className="px-7 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg">
+              <button 
+              onClick={click_buttonCreateNewOrder}
+              className="px-7 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg">
                 Tạo Đơn Hàng
               </button>
             )}

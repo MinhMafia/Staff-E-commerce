@@ -3,66 +3,65 @@ using Microsoft.AspNetCore.Builder;
 using backend.Data;
 using backend.Repository;
 using backend.Services;
-using System.Text.Json.Serialization;
-using System.Text.Json;
+using backend.Middlewares;
 using Microsoft.Extensions.FileProviders;
-using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
+// -------------------------
+// Configure Services
+// -------------------------
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        // ✅ Ignore circular references
+        // Giữ cả ReferenceHandler.IgnoreCycles (bạn bè) và PropertyNamingPolicy (cả 2)
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        options.JsonSerializerOptions.WriteIndented = true;
-
-        // ✅ Alternative: Use preserve references
-        // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-
-        // ✅ Configure property naming
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-
-        // ✅ Add this for better React compatibility
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+
+        // Nếu muốn, có thể dùng ReferenceHandler.Preserve
+        // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
     });
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Database configuration
+// Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-//    .EnableSensitiveDataLogging() // For development only
-//    .LogTo(Console.WriteLine, LogLevel.Information));
+    // .EnableSensitiveDataLogging() // Dev only
 );
 
-// Register repositories and services
-
-
-// Register repositories
+// -------------------------
+// Register Repositories
+// -------------------------
 builder.Services.AddScoped<ProductRepository>();
 builder.Services.AddScoped<OrderRepository>();
 builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<CustomerRepository>();
 builder.Services.AddScoped<ActivityLogRepository>();
 builder.Services.AddScoped<PromotionRepository>();
-builder.Services.AddScoped<StatisticsRepository>();
+builder.Services.AddScoped<StatisticsRepository>();   // từ bạn bè
+builder.Services.AddScoped<OrderItemRepository>();     // từ bạn
 
-
-// Register services
+// -------------------------
+// Register Services
+// -------------------------
 builder.Services.AddScoped<ProductService>();
 builder.Services.AddScoped<OrderService>();
 builder.Services.AddScoped<ActivityLogService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PromotionService>();
-builder.Services.AddScoped<StatisticsService>();
+builder.Services.AddScoped<StatisticsService>();      // từ bạn bè
+builder.Services.AddScoped<OrderItemService>();       // từ bạn
 
-// CORS configuration for React
+// -------------------------
+// Configure CORS for React
+// -------------------------
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReact", policy =>
@@ -81,28 +80,34 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
+// -------------------------
+// Middleware pipeline
+// -------------------------
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// ✅ Use CORS before other middleware
-app.UseCors("AllowReact");
+app.UseRouting();
 
+// Bật middleware logging ngay sau routing
+app.UseMiddleware<RequestLoggingMiddleware>();
+
+app.UseCors("AllowReact");
 app.UseHttpsRedirection();
 app.UseAuthorization();
+
 app.MapControllers();
 
-// Serve Vite-built frontend (production)
+// -------------------------
+// Serve frontend SPA (Vite)
+// -------------------------
 var frontendDist = Path.Combine(Directory.GetCurrentDirectory(), "../frontend/dist");
 if (Directory.Exists(frontendDist))
 {
     var fileProvider = new PhysicalFileProvider(frontendDist);
 
-
-    // Serve static files from frontend/dist
     app.UseDefaultFiles(new DefaultFilesOptions
     {
         FileProvider = fileProvider,
@@ -114,16 +119,14 @@ if (Directory.Exists(frontendDist))
         RequestPath = ""
     });
 
-
-    // Fallback to index.html for SPA routes (except API)
+    // Fallback SPA routing (cho các route không phải API và không có file extension)
     app.Use(async (context, next) =>
     {
         await next();
 
-
         if (context.Response.StatusCode == 404 &&
-    !Path.HasExtension(context.Request.Path.Value) &&
-    !context.Request.Path.Value.StartsWith("/api"))
+            !Path.HasExtension(context.Request.Path.Value) &&
+            !context.Request.Path.Value.StartsWith("/api"))
         {
             context.Request.Path = "/index.html";
             context.Response.StatusCode = 200;
@@ -131,8 +134,7 @@ if (Directory.Exists(frontendDist))
         }
     });
 
-
-    // Make sure static files middleware can serve the fallback file
+    // Serve fallback file
     app.UseStaticFiles(new StaticFileOptions
     {
         FileProvider = fileProvider,

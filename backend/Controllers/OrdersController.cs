@@ -1,6 +1,7 @@
 using backend.DTO;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using backend.Models;
 
 namespace backend.Controllers
 {
@@ -28,6 +29,25 @@ namespace backend.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        
+        // POST: api/Order/create
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateOrder([FromBody] Order order)
+        {
+            if (order == null)
+                return BadRequest(false); 
+
+            try
+            {
+                var savedOrder = await _orderService.SaveOrderAsync(order);
+                return Ok(true); 
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, false); 
+            }
+        }
+
       
     }
 }

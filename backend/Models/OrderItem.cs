@@ -11,6 +11,7 @@ namespace backend.Models
     public class OrderItem
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
         public int Id { get; set; }
 
