@@ -124,115 +124,129 @@ const postJSON = async (url, data) => {
     }
   }
 
-  async function changePromotion(promotionId, customerId, orderId) {
+  // src/api/promotionApi.js
+
+  async function applyPromotion(promotionId, orderId, customerId) {
     try {
-      const response = await fetch("http://localhost:5099/api/promotions/apply", {
+      const res = await fetch("http://localhost:5099/api/promotions/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          promotionId,
-          customerId,
-          orderId,
-        }),
+          PromotionId: promotionId,   // phải đúng tên property
+          OrderId: orderId,
+          CustomerId: customerId
+        })
       });
 
-      if (!response.ok) {
-        console.error("Lỗi HTTP:", response.status);
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("Apply Promotion failed:", errorData);
         return false;
       }
 
-      const data = await response.json();
-
-      if (data.success) {
-        console.log("Áp dụng khuyến mãi thành công:", data.message);
-        return true;
-      } else {
-        console.warn(" Áp dụng thất bại:", data.message);
-        return false;
-      }
-    } catch (error) {
-      console.error("Lỗi khi gọi API khuyến mãi:", error);
+      return true;
+    } catch (err) {
+      console.error("Fetch error:", err);
       return false;
     }
   }
 
-    const pay = async (method = "offline") => {
+
+
+  const pay = async (method = "offline") => {
     if (!currentOrder) return;
 
+    const baseUrl = "http://localhost:5099/api/payment";
+
     if (method === "momo") {
-      
+      // URL frontend để redirect sau khi MoMo thanh toán xong
       const currentPageUrl = window.location.href;
 
       const body = {
         orderId: currentOrder.order_id,
         amount: currentOrder.total_amount,
-        customerId: currentOrder.customer_id,
-        returnUrl: currentPageUrl, 
-        notifyUrl: "http://localhost:5000/api/payment/momo/notify", // backend nhận IPN
+        returnUrl: currentPageUrl,             
+        notifyUrl: `${baseUrl}/momo/ipn`,      
       };
 
-      const res = await postJSON("http://localhost:5099/api/payment/momo/create", body);
+      try {
+        const res = await postJSON(`${baseUrl}/momo/create`, body);
 
-      if (res) {
-        // Nếu người dùng vừa redirect về trang này, alert ngay
-        const params = new URLSearchParams(window.location.search);
-        const orderId = params.get("orderId");
-        if (orderId === String(currentOrder.order_id)) {
-          alert(`Thanh toán MoMo cho đơn ${orderId} thành công!`);
+        if (res?.payUrl) {
+          // Redirect người dùng tới MoMo để thanh toán
+          window.location.href = res.payUrl;
         } else {
-          alert("Thanh toán MoMo thành công! Kiểm tra backend để cập nhật trạng thái.");
+          alert("Tạo payment MoMo thất bại. Kiểm tra backend logs.");
         }
+
+        return res;
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi khi gọi API thanh toán MoMo");
+        return null;
       }
-      return res;
     } else {
       // Thanh toán offline / cash / card
       const body = {
         orderId: currentOrder.order_id,
         amount: currentOrder.total_amount,
         customerId: currentOrder.customer_id,
-        method: payment.method,
-        transactionRef: payment.transaction_ref || null,
+        method: method,                         // method có thể là "cash", "card", ...
+        transactionRef: null                     // optional nếu có
       };
 
-      const res = await postJSON("http://localhost:5099/api/payment/offlinepayment", body);
-      if (res) alert("Thanh toán trực tiếp thành công!");
-      return res;
+      try {
+        const res = await postJSON(`${baseUrl}/offlinepayment`, body);
+        if (res) alert("Thanh toán trực tiếp thành công!");
+        return res;
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi khi thanh toán trực tiếp");
+        return null;
+      }
     }
   };
 
+
     const click_buttonCreateNewOrder = async () => {
-    console.log("===== 🧾 THÔNG TIN ĐƠN HÀNG HIỆN TẠI =====");
-    console.log("Đơn hàng:", currentOrder);
-    console.log("Sản phẩm trong đơn:", listOrderProducts);
-    console.log("Khuyến mãi:", promotion);
-    console.log("Thanh toán:", payment);
+      console.log("===== THÔNG TIN ĐƠN HÀNG HIỆN TẠI =====");
+      console.log("Đơn hàng:", currentOrder);
+      console.log("Sản phẩm trong đơn:", listOrderProducts);
+      console.log("Khuyến mãi:", promotion);
+      console.log("Thanh toán:", payment);
 
-    if (listOrderProducts.length === 0) {
-      alert("Vui lòng thêm sản phẩm vào đơn hàng!");
-      return;
-    }
-
-
-    const orderData = orderObject(currentOrder, promotion);
-    const listOrderItem = listOrderItemObject (listOrderProducts, currentOrder);
-
-    const success = await createOrder(orderData);
-    if (success) {
-      const success1= await createOrderItems(listOrderItem);
-      if(success1){
-
-        alert("Lưu đơn lên database thành công");
-      }else{
-        alert("Lưu item thất bại");
+      if (listOrderProducts.length === 0) {
+        alert("Vui lòng thêm sản phẩm vào đơn hàng!");
+        return;
       }
-      
-    } else {
-      alert("Lưu đơn thất bại");
-    }
 
 
-    
+      const orderData = orderObject(currentOrder, promotion);
+      const listOrderItem = listOrderItemObject (listOrderProducts, currentOrder);
 
+      const success = await createOrder(orderData);
+      if (success) {
+        console.log("Đã thành công lưu Order vào băng");
+        const success1= await createOrderItems(listOrderItem);
+        if(success1){
+          console.log("Đã thành công lưu OrderItem vào băng");
+          const success2 = await applyPromotion(
+            promotion.id,         // promotionId
+            currentOrder.id,      // orderId
+            currentOrder.customerId // customerId
+          );
+          if(success2){
+            console.log("Đã thành công lưu Promotion vào băng");
+            alert("Lưu đơn lên database thành công");
+          }
+          
+        }else{
+          alert("Lưu item thất bại");
+        }
+        
+      } else {
+        alert("Lưu đơn thất bại");
+      }
 
   };
 
@@ -277,7 +291,7 @@ const postJSON = async (url, data) => {
     ProductId: product.id,
     Quantity: product.pty,
     UnitPrice: product.price,
-    total_price: product.total,
+    TotalPrice: product.total,
     CreatedAt: new Date().toISOString() 
   }));
   }
@@ -316,7 +330,7 @@ const postJSON = async (url, data) => {
     updateCustomer,
     createOrder,
     createOrderItems,
-    changePromotion,
+    applyPromotion,
     pay,
     click_buttonCreateNewOrder, 
     orderObject,

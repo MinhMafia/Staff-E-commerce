@@ -1,6 +1,6 @@
 using backend.Models;
-using backend.Repository;
 using backend.DTO;
+using backend.Repository;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 
@@ -15,9 +15,17 @@ namespace backend.Services
         {
             _logRepo = logRepo;
             _config = config;
+
+            // 🔹 Tạo thư mục Logs root khi service khởi tạo
+            string logRoot = Path.Combine(AppContext.BaseDirectory, "Logs");
+            if (!Directory.Exists(logRoot))
+            {
+                Directory.CreateDirectory(logRoot);
+                Console.WriteLine($"[ActivityLogService] Created root log directory: {logRoot}");
+            }
         }
 
-         public async Task LogAsync(
+        public async Task LogAsync(
             int userId,
             string action,
             string entityType,
@@ -38,24 +46,25 @@ namespace backend.Services
             };
             await _logRepo.AddLogAsync(log);
 
-            // 2️⃣ Xác định file log
+            // 2️⃣ Lấy file log từ config
             string logPath = _config[$"LogFiles:{entityType}"];
             if (string.IsNullOrEmpty(logPath))
                 logPath = _config["LogFiles:Default"] ?? "Logs/activity_log.txt";
 
+            // 3️⃣ Tạo thư mục nếu chưa tồn tại
             string logDir = Path.GetDirectoryName(logPath) ?? "Logs";
             if (!Directory.Exists(logDir))
             {
-                Console.WriteLine($"[ActivityLogService] Creating log directory: {logDir}");
                 Directory.CreateDirectory(logDir);
+                Console.WriteLine($"[ActivityLogService] Created log directory: {logDir}");
             }
 
-            // 3️⃣ Ghi log vào file
+            // 4️⃣ Ghi log vào file
             string logLine = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [User:{userId}] [Action:{action}] [Entity:{entityType}#{entityId}] [IP:{ipAddress}] {payload}";
             await File.AppendAllTextAsync(logPath, logLine + Environment.NewLine, Encoding.UTF8);
             Console.WriteLine($"[ActivityLogService] Logged to {logPath}");
 
-            // 4️⃣ Xoay log nếu quá lớn hoặc quá cũ
+            // 5️⃣ Xoay log nếu quá lớn/quá cũ
             CleanUpOldLogs(logPath);
         }
 
@@ -89,8 +98,8 @@ namespace backend.Services
                 Console.WriteLine($"[ActivityLogService] Log cleanup error: {ex.Message}");
             }
         }
-        
-         /// <summary>
+
+                 /// <summary>
         /// Lấy danh sách log có phân trang.
         /// </summary>
         public async Task<(List<ActivityLogCreateDTO> Logs, int TotalCount)> GetPagedLogsAsync(int page, int size)
@@ -118,5 +127,9 @@ namespace backend.Services
 
             return await _logRepo.GetFilteredLogsAsync(page, size, userId, startDate, endDate);
         }
+
+
+        
+
     }
 }

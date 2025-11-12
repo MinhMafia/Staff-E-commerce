@@ -236,7 +236,7 @@ namespace backend.Services
         }
 
         // Apply promotion to order
-        public async Task<bool> ApplyPromotionAsync(int promotionId, int orderId, int? customerId)
+        public async Task<bool> ApplyPromotionByIdsAsync(int promotionId, int orderId, int? customerId)
         {
             var promotion = await _promotionRepository.GetByIdAsync(promotionId);
             if (promotion == null) return false;
@@ -346,35 +346,18 @@ namespace backend.Services
             };
         }
 
-        /// <summary>
-        /// Lấy danh sách khuyến mãi cho khách hàng
-        /// customerId = 0 hoặc null => khách vãng lai
-        /// customerId > 0 => khách thân quen, lọc khuyến mãi chưa dùng
-        /// </summary>
-        public async Task<List<Promotion>> GetPromotionsForCustomerAsync(int? customerId = null)
-        {
-            var promotions = await _promotionRepository.GetActivePromotionsAsync();
-            
-            // Filter by customerId if needed (customer already used promotion)
-            if (customerId.HasValue && customerId.Value > 0)
-            {
-                var usedPromotionIds = await _promotionRepository.GetRedemptionsAsync(0)
-                    .ContinueWith(t => t.Result.Where(r => r.CustomerId == customerId).Select(r => r.PromotionId).ToList());
-                promotions = promotions.Where(p => !usedPromotionIds.Contains(p.Id)).ToList();
-            }
-            
-            return promotions;
-        }
+
 
         /// <summary>
         /// Áp dụng khuyến mãi cho đơn hàng đã tạo
         /// </summary>
-        public async Task ChangePromotionAsync(int promotionId, int? customerId, int orderId)
+        public async Task ApplyPromotionAsync(Order order)
         {
+            if (!order.PromotionId.HasValue) return; // không có khuyến mãi thì thôi
 
             try
             {
-                await _promotionRepository.ChangePromotionAsync(promotionId,customerId,orderId);
+                await _promotionRepository.ApplyPromotionAsync(order);
             }
             catch (Exception ex)
             {

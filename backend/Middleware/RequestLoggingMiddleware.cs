@@ -43,7 +43,7 @@ namespace backend.Middlewares
                     }
 
                     string path = request.Path.ToString();
-                    string entityName = ExtractEntityName(path);
+                    string entityName = NormalizeEntityName(ExtractEntityName(path));
                     string entityId = ExtractEntityId(path);
                     string action = method switch
                     {
@@ -60,7 +60,7 @@ namespace backend.Middlewares
 
                     Console.WriteLine($"[RequestLoggingMiddleware] Logging {action} for {entityName}#{entityId}");
 
-                    // 🔹 Tạo scope cho request để resolve scoped service
+                    // 🔹 Tạo scope để resolve ActivityLogService
                     try
                     {
                         using var scope = _serviceProvider.CreateScope();
@@ -97,6 +97,16 @@ namespace backend.Middlewares
             {
                 return "Unknown";
             }
+        }
+
+        private string NormalizeEntityName(string entityName)
+        {
+            // Chuẩn hóa để trùng key trong appsettings.json
+            return entityName switch
+            {
+                "Inventoryadjustment" => "Inventory_Adjustment",
+                _ => entityName
+            };
         }
 
         private string ExtractEntityId(string path)
