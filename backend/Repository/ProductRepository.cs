@@ -39,6 +39,18 @@ namespace backend.Repository
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
+        public async Task<Product?> GetByIdForUpdateAsync(int id)
+{
+        return await _context.Products
+            .AsNoTracking() // tránh tracking conflict
+            .Select(p => new Product 
+            {
+                Id = p.Id,
+                CreatedAt = p.CreatedAt
+            })  
+            .FirstOrDefaultAsync(p => p.Id == id);
+}
+
         // Pagination cơ bản
         public async Task<PaginationResult<Product>> GetPaginatedAsync(int page, int pageSize)
         {
@@ -204,7 +216,7 @@ namespace backend.Repository
                 query = query.Where(p =>
                     p.ProductName.Contains(s) ||
                     (p.Sku != null && p.Sku.Contains(s)) ||
-                    (p.Barcode != null && p.Barcode.Contains(s)) ||
+                    // (p.Barcode != null && p.Barcode.Contains(s)) ||
                     (p.Supplier != null && p.Supplier.Name.Contains(s))
                 );
             }

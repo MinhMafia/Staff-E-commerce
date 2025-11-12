@@ -9,10 +9,9 @@ namespace backend.DTO
 
         public string? Sku { get; set; }
 
-        [JsonPropertyName("product_name")]
         public string ProductName { get; set; } = string.Empty;
 
-        public string? Barcode { get; set; }
+        // public string? Barcode { get; set; }
 
         public int? CategoryId { get; set; }
 

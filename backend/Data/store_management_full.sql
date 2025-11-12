@@ -283,9 +283,9 @@ VALUES
 ('Công ty XYZ', NULL, '0912123456', 'xyz@gmail.com', 'TP HCM', NOW()),
 ('Công ty 123', NULL, '0933123456', '123@gmail.com', 'Đà Nẵng', NOW());
 
--- ===== PRODUCTS (category_id, supplier_id, product_name, barcode, price, unit) =====
+-- ===== PRODUCTS (category_id, supplier_id, product_name, sku, price, unit) =====
 -- NOTE: price inserted as decimal with 2 decimals (original values used integers; we store as .00)
-INSERT INTO products (category_id, supplier_id, product_name, barcode, price, unit, created_at)
+INSERT INTO products (category_id, supplier_id, product_name, sku, price, unit, created_at)
 VALUES
 (2, 1, 'Coca Cola lon', '8900000000001', 314838.00, 'hộp', NOW()),
 (1, 3, 'Pepsi lon', '8900000000002', 114807.00, 'cái', NOW()),

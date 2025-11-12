@@ -148,7 +148,7 @@ namespace backend.Controllers
                 {
                     ProductName = productDto.ProductName,
                     Sku = productDto.Sku,
-                    Barcode = productDto.Barcode,
+                    // Barcode = productDto.Barcode,
                     CategoryId = productDto.CategoryId,
                     SupplierId = productDto.SupplierId,
                     Price = productDto.Price,
@@ -171,6 +171,26 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult<ProductDTO>> UpdateProduct(int id, [FromBody] Product product)
+        {
+            try
+            {
+                product.Id = id;
+        
+                var updatedProduct = await _productService.UpdateProductAsync(product);
+                return updatedProduct;
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Lỗi server khi cập nhật sản phẩm");
             }
         }
 
@@ -197,6 +217,20 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            try
+            {
+                var result = await _productService.DeleteProductAsync(id);
+                return result ? Ok("Xóa thành công") : NotFound("Không tìm thấy sản phẩm");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
             }
         }
     }

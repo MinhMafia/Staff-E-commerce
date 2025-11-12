@@ -31,7 +31,7 @@ export function setCurrentUserId(id) {
   }
 }
 
-async function request(path, options = {}) {
+export async function request(path, options = {}) {
   const url = `${BASE_URL}${path}`;
   const defaultHeaders = {
     "Content-Type": "application/json",

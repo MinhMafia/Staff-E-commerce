@@ -84,7 +84,7 @@ namespace backend.Services
 
         public async Task<ProductDTO> UpdateProductAsync(Product product)
         {
-            var existing = await _productRepository.GetByIdAsync(product.Id);
+            var existing = await _productRepository.GetByIdForUpdateAsync(product.Id);
             if (existing == null)
                 throw new ArgumentException("Product not found", nameof(product.Id));
 
@@ -150,7 +150,7 @@ namespace backend.Services
                 Id = p.Id,
                 Sku = p.Sku,
                 ProductName = p.ProductName,
-                Barcode = p.Barcode,
+                // Barcode = p.Barcode,
                 CategoryId = p.CategoryId,
                 SupplierId = p.SupplierId,
                 Price = p.Price,

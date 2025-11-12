@@ -37,10 +37,10 @@ namespace backend.Data
                 .IsUnique()
                 .HasDatabaseName("ux_products_sku");
 
-            modelBuilder.Entity<Product>()
-                .HasIndex(p => p.Barcode)
-                .IsUnique()
-                .HasDatabaseName("ux_products_barcode");
+            // modelBuilder.Entity<Product>()
+                // .HasIndex(p => p.Barcode)
+                // .IsUnique()
+                // .HasDatabaseName("ux_products_barcode");
 
             modelBuilder.Entity<Product>()
                 .HasIndex(p => p.CategoryId)

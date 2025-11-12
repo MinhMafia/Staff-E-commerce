@@ -3,12 +3,7 @@ import React from "react";
 
 export default function ProductCard({ product }) {
   // Map product fields depending on your API (adjust if names differ)
-  const name =
-    product.productName ??
-    product.product_name ??
-    product.model ??
-    product.ProductName ??
-    "No name";
+  const name = product.productName;
   const price = product.price ?? product.Price ?? product.price_usd ?? 0;
   const image = product.imageUrl ?? product.image_url ?? product.image ?? null;
   const unit = product.unit ?? product.Unit ?? "";
