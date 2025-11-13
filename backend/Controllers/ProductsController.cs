@@ -233,5 +233,35 @@ namespace backend.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("available")]
+        public async Task<ActionResult<PaginationResult<ProductDTO>>> GetAvailableProducts(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20
+        )
+        {
+            try
+            {
+                // Validate page & pageSize
+                if (page < 1) page = 1;
+                if (pageSize < 1 || pageSize > 100) pageSize = 20;
+
+                // Gọi service lấy sản phẩm còn hàng
+                var result = await _productService.GetAvailableProductsAsync(page, pageSize);
+
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                // Lỗi liên quan tới input
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Lỗi server
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

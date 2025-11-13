@@ -172,4 +172,5 @@ export async function changeMyPassword(payload) {
   });
 }
 
-export { BASE_URL, request, getCurrentUserId };
+export { BASE_URL, getCurrentUserId };
+

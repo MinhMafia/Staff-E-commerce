@@ -21,12 +21,13 @@ export default function ProductModal({ onClose, selectedProduct, setSelectedProd
         url = `/api/products/search?${params.toString()}`;
       } else {
         const params = new URLSearchParams({ page, pageSize });
-        url = `/api/products/paginated?${params.toString()}`;
+        url = `/api/products/available?${params.toString()}`;
       }
 
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch products");
       const data = await res.json();
+      
 
       if (searchMode) {
         setProducts(data || []);
@@ -56,8 +57,7 @@ export default function ProductModal({ onClose, selectedProduct, setSelectedProd
       const normalized = {
         id: selectedProduct.id,
         name: selectedProduct.name,
-        price: Number(selectedProduct.price ?? 0),
-        stock: selectedProduct.stock ?? 0,
+        price: Number(selectedProduct.price ?? 0)
       };
       setSelectedProduct(normalized); // Cập nhật lên component cha
       onClose(); // Đóng modal
@@ -128,7 +128,7 @@ export default function ProductModal({ onClose, selectedProduct, setSelectedProd
               <table className="w-full text-sm">
                 <thead className="bg-gray-100 sticky top-0">
                   <tr>
-                    <th className="px-4 py-2 text-left">Mã Barcode</th>
+                    <th className="px-4 py-2 text-left">Mã </th>
                     <th className="px-4 py-2 text-left">Tên SP</th>
                     <th className="px-4 py-2 text-right">Giá</th>
                     <th className="px-4 py-2 text-center">Chọn</th>
@@ -148,10 +148,10 @@ export default function ProductModal({ onClose, selectedProduct, setSelectedProd
                         className={`hover:bg-gray-50 cursor-pointer ${
                           selectedProduct?.id === p.id ? "bg-blue-50" : ""
                         }`}
-                        onClick={() => setSelectedProduct({ id: p.id, name: p.product_name, price: p.price, stock: p.stock })}
+                        onClick={() => setSelectedProduct({ id: p.id, name: p.product_name, price: p.price})}
                       >
-                        <td className="px-4 py-2">{p.barcode}</td>
-                        <td className="px-4 py-2">{p.product_name}</td>
+                        <td className="px-4 py-2">{p.id}</td>
+                        <td className="px-4 py-2">{p.productName}</td>
                         <td className="px-4 py-2 text-right font-bold">
                           {p.price?.toLocaleString()}₫
                         </td>
@@ -160,7 +160,7 @@ export default function ProductModal({ onClose, selectedProduct, setSelectedProd
                             type="radio"
                             name="selectedProduct"
                             checked={selectedProduct?.id === p.id}
-                            onChange={() => setSelectedProduct({ id: p.id, name: p.product_name, price: p.price, stock: p.stock })}
+                            onChange={() => setSelectedProduct({ id: p.id, name: p.productName, price: p.price})}
                           />
                         </td>
                       </tr>

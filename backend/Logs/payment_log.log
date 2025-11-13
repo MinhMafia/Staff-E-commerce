@@ -1,0 +1,13 @@
+﻿[2025-11-13 10:09:04] [User:2] [Action:CREATE_Payment] [Entity:Payment#offlinepayment] [IP:::1] {"OrderId":55,"Amount":350911,"TransactionRef":null,"Status":"completed","CreatedAt":"2025-11-13T03:09:03.997Z"}
+[2025-11-13 10:41:19] [User:2] [Action:CREATE_Payment] [Entity:Payment#momo] [IP:::1] {"OrderId":56,"Amount":26616,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}
+[2025-11-13 10:41:20] [User:1] [Action:CREATE_PAYMENT] [Entity:Payment#d25b8f83-3ff1-495e-a752-f1815f606b2a] [IP:system] {"OrderId":56,"Amount":26616.0,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}
+[2025-11-13 10:47:08] [User:2] [Action:CREATE_Payment] [Entity:Payment#momo] [IP:::1] {"OrderId":57,"Amount":230083}
+[2025-11-13 10:47:08] [User:1] [Action:CREATE_PAYMENT] [Entity:Payment#b71422da-fce7-425e-ae4b-4d1ece644877] [IP:system] {"OrderId":57,"Amount":230083.0,"ReturnUrl":"","NotifyUrl":""}
+[2025-11-13 10:54:13] [User:2] [Action:CREATE_Payment] [Entity:Payment#momo] [IP:::1] {"OrderId":58,"Amount":43415,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}
+[2025-11-13 10:54:13] [User:1] [Action:CREATE_PAYMENT] [Entity:Payment#ad2c8b14-4dcc-416b-9073-0a1f4bd34d35] [IP:system] {"OrderId":58,"Amount":43415.0,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}
+[2025-11-13 11:01:18] [User:2] [Action:CREATE_Payment] [Entity:Payment#momo] [IP:::1] {"OrderId":59,"Amount":350911,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}
+[2025-11-13 11:01:18] [User:1] [Action:CREATE_PAYMENT] [Entity:Payment#59] [IP:system] {"OrderId":59,"Amount":350911.0,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}
+[2025-11-13 11:06:56] [User:2] [Action:CREATE_Payment] [Entity:Payment#momo] [IP:::1] {"OrderId":60,"Amount":26616,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}
+[2025-11-13 11:06:56] [User:1] [Action:CREATE_PAYMENT] [Entity:Payment#60] [IP:system] {"OrderId":60,"Amount":26616.0,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}
+[2025-11-13 11:13:36] [User:2] [Action:CREATE_Payment] [Entity:Payment#momo] [IP:::1] {"OrderId":61,"Amount":230083,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}
+[2025-11-13 11:13:36] [User:1] [Action:CREATE_PAYMENT] [Entity:Payment#order_61] [IP:system] {"OrderId":61,"Amount":230083.0,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}

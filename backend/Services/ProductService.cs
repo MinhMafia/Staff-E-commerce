@@ -198,5 +198,11 @@ namespace backend.Services
 
             return dto;
         }
+        public async Task<PaginationResult<Product>> GetAvailableProductsAsync(int page, int pageSize)
+        {
+            return await _productRepository.GetAvailableProductsPaginatedAsync(page, pageSize);
+        }
+
+
     }
 }

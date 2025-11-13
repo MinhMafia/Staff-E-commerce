@@ -44,8 +44,11 @@ builder.Services.AddScoped<UserRepository>();
 builder.Services.AddScoped<CustomerRepository>();
 builder.Services.AddScoped<ActivityLogRepository>();
 builder.Services.AddScoped<PromotionRepository>();
-builder.Services.AddScoped<StatisticsRepository>();   // từ bạn bè
-builder.Services.AddScoped<OrderItemRepository>();     // từ bạn
+builder.Services.AddScoped<StatisticsRepository>();
+builder.Services.AddScoped<OrderItemRepository>();
+builder.Services.AddScoped<InventoryRepository>();
+builder.Services.AddScoped<PaymentRepository>();
+    
 
 // -------------------------
 // Register Services
@@ -56,9 +59,10 @@ builder.Services.AddScoped<ActivityLogService>();
 builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PromotionService>();
-builder.Services.AddScoped<StatisticsService>();      // từ bạn bè
-builder.Services.AddScoped<OrderItemService>();       // từ bạn
-
+builder.Services.AddScoped<StatisticsService>();
+builder.Services.AddScoped<OrderItemService>();       
+builder.Services.AddScoped<InventoryService>();
+builder.Services.AddScoped<PaymentService>();
 // -------------------------
 // Configure CORS for React
 // -------------------------
