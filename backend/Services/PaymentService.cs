@@ -53,7 +53,20 @@ namespace backend.Services
             string amountStr = Math.Round(req.Amount).ToString("0");
 
             // Tạo signature chuẩn MoMo
-            string rawSignature = $"accessKey={accessKey}&amount={amountStr}&extraData=&ipnUrl={ipnUrl}&orderId={orderId}&orderInfo={orderInfo}&partnerCode={partnerCode}&redirectUrl={redirectUrl}&requestId={requestId}&requestType=captureMoMoWallet";
+            string requestType = "captureWallet"; // dùng chuẩn sandbox
+
+            string rawSignature =
+                $"accessKey={accessKey}" +
+                $"&amount={amountStr}" +
+                $"&extraData=" +
+                $"&ipnUrl={ipnUrl}" +
+                $"&orderId={orderId}" +
+                $"&orderInfo={orderInfo}" +
+                $"&partnerCode={partnerCode}" +
+                $"&redirectUrl={redirectUrl}" +
+                $"&requestId={requestId}" +
+                $"&requestType={requestType}";
+
             string signature = SignSHA256(rawSignature, secretKey);
 
             var body = new
@@ -67,7 +80,7 @@ namespace backend.Services
                 redirectUrl,
                 ipnUrl,
                 extraData = "",
-                requestType = "captureMoMoWallet",
+                requestType =  requestType ,
                 signature
             };
 

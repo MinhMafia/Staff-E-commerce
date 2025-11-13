@@ -57,15 +57,31 @@ export const useOrders = () => {
 
 
 
-  const openOrderModal = (mode = "create", order = null, products = [], payment = [], selectedProduct=null) => {
+  const openOrderModal = (mode = "create", 
+    order = null, 
+    products = [], 
+    payment = {
+    method: "cash",
+    transaction_ref: "",
+    status: "pending",
+  }, 
+  selectedProduct=null,
+  promotion={
+    
+      id: null,
+      code: "",
+      type: "",
+      value: 0
+
+    
+  }) => {
     setOrdersFormMode(mode);
     setCurrentOrder(order);
-    setListOrderProducts([]);
     setSelectedProduct(selectedProduct);
     setListOrderProducts(products);
     setPayment(payment)
-    setPayment(payment);
     setShowOrderModal(true);
+    setPromotion(promotion);
   };
   const closeOrderModal = () => setShowOrderModal(false);
 
@@ -222,11 +238,11 @@ const pay = async (method = "cash") => {
 
     try {
       const res = await postJSON(`${baseUrl}/offlinepayment`, body);
-      if (res) alert("Thanh toán trực tiếp thành công!");
+      if (res) console.log("Thanh toán trực tiếp thành công!");
       return res;
     } catch (err) {
       console.error(err);
-      alert("Lỗi khi thanh toán trực tiếp");
+      console.log("Lỗi khi thanh toán trực tiếp");
       return null;
     }
   }
@@ -292,12 +308,17 @@ const click_buttonCreateNewOrder = async () => {
     const paymentResult = await pay(payment.method);
     if (paymentResult) {
       console.log("Thanh toán thành công:", paymentResult);
+      alert("Thanh toán thành công");
+      closeOrderModal();
     } else {
       console.log("Thanh toán thất bại hoặc bị hủy");
+      closeOrderModal();
+
     }
   } catch (err) {
     console.error("Lỗi khi thanh toán:", err);
     alert("Thanh toán gặp lỗi");
+    closeOrderModal();
   }
 
 };
