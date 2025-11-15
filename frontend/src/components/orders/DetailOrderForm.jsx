@@ -101,7 +101,7 @@ export default function DetailOrderForm({
               <input
                 readOnly
                 placeholder="Chưa chọn sản phẩm..."
-                value={current.product}
+                value={current.product || "Lỗi không hiện tên"}
                 className="flex-1 px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-sm font-medium"
               />
               <button

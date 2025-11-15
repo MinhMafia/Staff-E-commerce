@@ -9,8 +9,21 @@ export default function AuditPage() {
         showAuditDetailModal,
         openAuditDetailModal,
         closeAuditDetailModal,
+        listuser,
+        setSelectedUser,
+        setEndDate,
+        setStartDate,
+        listActivityLog,
+        setSelectedActivityLog,
+        selectedActivityLog,
+        page,
+        totalPages,
+        fetchListActivity,
+  
+   
+
+        
     } = useAudit();
-    
 
     return (
         <div className="max-w-7xl mx-auto p-4 sm:p-6">
@@ -37,61 +50,73 @@ export default function AuditPage() {
                 </p>
             </div>
 
-            {/* Hàng 1: Nút Xuất CSV */}
-            <div className="flex justify-end mb-4">
-                <button className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow transition">
-                    Xuất CSV
-                </button>
-            </div>
-
-            {/* Hàng 2: Tìm kiếm */}
-            <div className="flex gap-3 mb-4">
-                <input
-                    type="text"
-                    placeholder="Tìm tên nhân viên ...."
-                    className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-                <button className="px-6 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700">
-                    Tìm Kiếm
-                </button>
-            </div>
+    
 
             {/* Hàng 3: Bộ lọc chi tiết */}
             <div className="bg-white rounded-xl shadow-md p-5 mb-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-700 mb-1 ">
+                            Nhân Viên
+                        </label>
+                        <select
+                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                            onChange={(e) => {
+                            const selectedId = e.target.value;
+                            const user = listuser.find(u => u.id.toString() === selectedId);
+                            setSelectedUser(user);
+                            console.log("Nhân viên đang được chọn:", user);
+                            }}
+
+                            >
+                            <option value="">-- Chọn user --</option>
+                            {listuser.map(user => (
+                                <option key={user.id} value={user.id}>
+                                {user.fullName}
+                                </option>
+                            ))}
+                        </select>
+
+                        
+                    </div>
                     {/* Ngày bắt đầu */}
                     <div>
-                        <label className="block text-xs font-bold text-gray-700 mb-1 ">
+                        <label className="block text-xs font-bold text-gray-700 mb-1">
                             Ngày Bắt Đầu
                         </label>
-                        <input
+                        <input 
                             type="date"
-                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none "
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                         />
-                    </div>
+                        </div>
 
-                    {/* Ngày kết thúc */}
-                    <div>
+                        {/* Ngày kết thúc */}
+                        <div>
                         <label className="block text-xs font-bold text-gray-700 mb-1">
                             Ngày Kết Thúc
                         </label>
                         <input
                             type="date"
-                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none "
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="w-full px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                         />
                     </div>
 
+
                     {/* Nút lọc */}
                     <div className="flex items-end">
-                        <button className="w-full px-6 py-2.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700">
+                        <button 
+                        onClick={() => fetchListActivity(1)}
+                        className="w-full px-6 py-2.5 bg-green-600 text-white rounded-lg font-bold hover:bg-green-700">
                             Lọc
                         </button>
                     </div>
                 </div>
                 
             </div>
-            <AuditTable openAuditDetailModal={openAuditDetailModal}/>
-            {showAuditDetailModal&&<AuditDetail onClose={closeAuditDetailModal}/>}
+            <AuditTable openAuditDetailModal={openAuditDetailModal} listActivityLog={listActivityLog} setSelectedActivityLog={setSelectedActivityLog} page={page} totalPages={totalPages} fetchListActivity ={fetchListActivity } />
+            {showAuditDetailModal&&<AuditDetail onClose={closeAuditDetailModal} selectedActivityLog={selectedActivityLog}/>}
 
         </div>
     );

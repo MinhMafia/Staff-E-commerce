@@ -42,14 +42,31 @@ namespace backend.Services
             string partnerCode = _config["Momo:PartnerCode"];
             string accessKey = _config["Momo:AccessKey"];
             string secretKey = _config["Momo:SecretKey"];
-            string redirectUrl = _config["Momo:RedirectUrl"];
-            string ipnUrl = _config["Momo:IpnUrl"];
+            string redirectUrl = req.ReturnUrl;
+            string ipnUrl = req.NotifyUrl;
 
-            string orderId = Guid.NewGuid().ToString(); // MoMo order ID
-            string requestId = Guid.NewGuid().ToString();
+
+            // MoMo yêu cầu orderId và requestId dạng string
+            string orderId = "order_" + req.OrderId;
+            string requestId = "req_" + Guid.NewGuid().ToString("N");
             string orderInfo = $"Thanh toán đơn hàng {req.OrderId}";
+            string amountStr = Math.Round(req.Amount).ToString("0");
 
-            string rawSignature = $"accessKey={accessKey}&amount={req.Amount}&extraData=&ipnUrl={ipnUrl}&orderId={orderId}&orderInfo={orderInfo}&partnerCode={partnerCode}&redirectUrl={redirectUrl}&requestId={requestId}&requestType=captureMoMoWallet";
+            // Tạo signature chuẩn MoMo
+            string requestType = "captureWallet"; // dùng chuẩn sandbox
+
+            string rawSignature =
+                $"accessKey={accessKey}" +
+                $"&amount={amountStr}" +
+                $"&extraData=" +
+                $"&ipnUrl={ipnUrl}" +
+                $"&orderId={orderId}" +
+                $"&orderInfo={orderInfo}" +
+                $"&partnerCode={partnerCode}" +
+                $"&redirectUrl={redirectUrl}" +
+                $"&requestId={requestId}" +
+                $"&requestType={requestType}";
+
             string signature = SignSHA256(rawSignature, secretKey);
 
             var body = new
@@ -57,34 +74,38 @@ namespace backend.Services
                 partnerCode,
                 accessKey,
                 requestId,
-                amount = req.Amount.ToString(),
+                amount = amountStr,
                 orderId,
                 orderInfo,
                 redirectUrl,
                 ipnUrl,
                 extraData = "",
-                requestType = "captureMoMoWallet",
+                requestType =  requestType ,
                 signature
             };
 
             using var client = new HttpClient();
             var resp = await client.PostAsync(endpoint, new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json"));
             var content = await resp.Content.ReadAsStringAsync();
+            Console.WriteLine("MoMo Response: " + content);
+
             dynamic json = JsonConvert.DeserializeObject(content);
             string payUrl = json?.payUrl ?? "";
             bool success = !string.IsNullOrEmpty(payUrl);
 
+            // Lưu payment vào DB
             var payment = new Payment
             {
                 OrderId = req.OrderId,
                 Amount = req.Amount,
-                Method = "momo",
+                Method = "other",
                 TransactionRef = orderId,
                 Status = success ? "pending" : "failed",
                 CreatedAt = DateTime.UtcNow
             };
             await _paymentRepo.AddPaymentAsync(payment);
 
+            // Log activity
             await _logService.LogAsync(userId, "CREATE_PAYMENT", "Payment", orderId, JsonConvert.SerializeObject(req), "system");
 
             return new MomoPaymentResponseDTO
@@ -102,6 +123,7 @@ namespace backend.Services
             string accessKey = _config["Momo:AccessKey"];
             string secretKey = _config["Momo:SecretKey"];
 
+            // Signature kiểm tra callback
             string rawSignature =
                 $"accessKey={accessKey}" +
                 $"&amount={callback.Amount}" +
@@ -118,11 +140,16 @@ namespace backend.Services
                 $"&transId={callback.TransId}";
 
             string expected = SignSHA256(rawSignature, secretKey);
-            if (callback.Signature != expected) return false;
+            if (callback.Signature != expected)
+            {
+                await _logService.LogAsync(0, "INVALID_SIGNATURE", "Payment", callback.OrderId ?? "", "Chữ ký MoMo không hợp lệ", "system");
+                return false;
+            }
 
             if (callback.ResultCode == 0)
             {
-                var payment = await _paymentRepo.GetByOrderIdAsync(int.Parse(callback.OrderId ?? "0"));
+                // Cập nhật payment + order
+                var payment = await _paymentRepo.GetByOrderIdAsync(int.Parse(callback.OrderId.Replace("order_", "")));
                 if (payment != null)
                 {
                     payment.Status = "completed";
@@ -134,6 +161,7 @@ namespace backend.Services
 
             return true;
         }
+
     }
 }
 

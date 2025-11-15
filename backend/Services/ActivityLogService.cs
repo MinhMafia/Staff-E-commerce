@@ -10,18 +10,22 @@ namespace backend.Services
     {
         private readonly ActivityLogRepository _logRepo;
         private readonly IConfiguration _config;
+        private readonly string _projectRootLogs; // Đường dẫn tuyệt đối đến backend/Logs
 
         public ActivityLogService(ActivityLogRepository logRepo, IConfiguration config)
         {
             _logRepo = logRepo;
             _config = config;
 
-            // 🔹 Tạo thư mục Logs root khi service khởi tạo
-            string logRoot = Path.Combine(AppContext.BaseDirectory, "Logs");
-            if (!Directory.Exists(logRoot))
+            // Tính đường dẫn gốc dự án (lên 3 cấp từ bin/Debug/net8.0)
+            string binDir = AppContext.BaseDirectory;
+            _projectRootLogs = Path.GetFullPath(Path.Combine(binDir, "..", "..", "..", "Logs"));
+
+            // Tạo thư mục Logs ở gốc dự án
+            if (!Directory.Exists(_projectRootLogs))
             {
-                Directory.CreateDirectory(logRoot);
-                Console.WriteLine($"[ActivityLogService] Created root log directory: {logRoot}");
+                Directory.CreateDirectory(_projectRootLogs);
+                Console.WriteLine($"[ActivityLogService] Created root log directory: {_projectRootLogs}");
             }
         }
 
@@ -33,7 +37,7 @@ namespace backend.Services
             string? payload,
             string ipAddress)
         {
-            // 1️⃣ Ghi vào database
+            // 1. Ghi vào database
             var log = new ActivityLog
             {
                 UserId = userId,
@@ -46,25 +50,29 @@ namespace backend.Services
             };
             await _logRepo.AddLogAsync(log);
 
-            // 2️⃣ Lấy file log từ config
-            string logPath = _config[$"LogFiles:{entityType}"];
-            if (string.IsNullOrEmpty(logPath))
-                logPath = _config["LogFiles:Default"] ?? "Logs/activity_log.txt";
+            // 2. Lấy tên file từ config (ví dụ: "Logs/product_log.log")
+            string relativePath = _config[$"LogFiles:{entityType}"];
+            if (string.IsNullOrEmpty(relativePath))
+                relativePath = _config["LogFiles:Default"] ?? "Logs/activity_log.log";
 
-            // 3️⃣ Tạo thư mục nếu chưa tồn tại
-            string logDir = Path.GetDirectoryName(logPath) ?? "Logs";
+            // 3. Tạo đường dẫn tuyệt đối từ gốc dự án
+            string logPath = Path.Combine(_projectRootLogs, Path.GetFileName(relativePath));
+            string logDir = Path.GetDirectoryName(logPath)!;
+
             if (!Directory.Exists(logDir))
             {
                 Directory.CreateDirectory(logDir);
                 Console.WriteLine($"[ActivityLogService] Created log directory: {logDir}");
             }
 
-            // 4️⃣ Ghi log vào file
+            // 4. Ghi log
             string logLine = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] [User:{userId}] [Action:{action}] [Entity:{entityType}#{entityId}] [IP:{ipAddress}] {payload}";
             await File.AppendAllTextAsync(logPath, logLine + Environment.NewLine, Encoding.UTF8);
-            Console.WriteLine($"[ActivityLogService] Logged to {logPath}");
 
-            // 5️⃣ Xoay log nếu quá lớn/quá cũ
+            // In đường dẫn tuyệt đối để debug
+            Console.WriteLine($"[ActivityLogService] Logged to: {Path.GetFullPath(logPath)}");
+
+            // 5. Xoay log
             CleanUpOldLogs(logPath);
         }
 
@@ -75,22 +83,25 @@ namespace backend.Services
                 var fileInfo = new FileInfo(logPath);
                 if (!fileInfo.Exists) return;
 
-                TimeSpan maxAge = TimeSpan.FromDays(7);
-                long maxSize = 5 * 1024 * 1024; // 5 MB
+                const long MaxSize = 5 * 1024 * 1024; // 5 MB
+                var maxAge = TimeSpan.FromDays(7);
 
                 bool tooOld = DateTime.Now - fileInfo.LastWriteTime > maxAge;
-                bool tooBig = fileInfo.Length > maxSize;
+                bool tooBig = fileInfo.Length > MaxSize;
 
                 if (tooOld || tooBig)
                 {
                     string archiveDir = Path.Combine(fileInfo.DirectoryName!, "Archive");
                     Directory.CreateDirectory(archiveDir);
 
-                    string archiveFile = Path.Combine(archiveDir, $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}_{DateTime.Now:yyyyMMdd_HHmmss}.txt");
-                    File.Move(logPath, archiveFile, true);
+                    string archiveFile = Path.Combine(
+                        archiveDir,
+                        $"{Path.GetFileNameWithoutExtension(fileInfo.Name)}_{DateTime.Now:yyyyMMdd_HHmmss}.txt"
+                    );
 
-                    File.WriteAllText(logPath, $"[System] Log rotated at {DateTime.Now}\n");
-                    Console.WriteLine($"[ActivityLogService] Log rotated to {archiveFile}");
+                    File.Move(logPath, archiveFile, true);
+                    File.WriteAllText(logPath, $"[System] Log rotated at {DateTime.Now:yyyy-MM-dd HH:mm:ss}\n");
+                    Console.WriteLine($"[ActivityLogService] Log rotated → {archiveFile}");
                 }
             }
             catch (Exception ex)
@@ -99,37 +110,20 @@ namespace backend.Services
             }
         }
 
-                 /// <summary>
-        /// Lấy danh sách log có phân trang.
-        /// </summary>
+        // Các method khác giữ nguyên
         public async Task<(List<ActivityLogCreateDTO> Logs, int TotalCount)> GetPagedLogsAsync(int page, int size)
-        {
-            return await _logRepo.GetPagedLogsAsync(page, size);
-        }
+            => await _logRepo.GetPagedLogsAsync(page, size);
 
-        /// <summary>
-        /// Lọc log theo user + khoảng thời gian (có phân trang).
-        /// </summary>
         public async Task<(List<ActivityLogCreateDTO> Logs, int TotalCount)> GetFilteredLogsAsync(
-            int page,
-            int size,
-            int? userId,
-            DateTime? startDate,
-            DateTime? endDate)
+            int page, int size, int? userId, DateTime? startDate, DateTime? endDate)
         {
-            // Validation: nếu chỉ có endDate mà không có startDate → lỗi
             if (endDate.HasValue && !startDate.HasValue)
                 throw new ArgumentException("Bạn cần chọn ngày bắt đầu nếu đã chọn ngày kết thúc.");
 
-            // Validation: ngày bắt đầu > ngày kết thúc → lỗi
             if (startDate.HasValue && endDate.HasValue && startDate > endDate)
                 throw new ArgumentException("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
 
             return await _logRepo.GetFilteredLogsAsync(page, size, userId, startDate, endDate);
         }
-
-
-        
-
     }
 }
