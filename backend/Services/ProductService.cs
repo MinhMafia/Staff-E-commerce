@@ -17,33 +17,19 @@ namespace backend.Services
             _productRepository = productRepository;
         }
 
-        public async Task<List<ProductDTO>> GetAllProductsAsync()
-        {
-            var products = await _productRepository.GetAllAsync();
-            return products.Select(MapToProductDto).ToList();
-        }
+        
 
-        public async Task<List<ProductDTO>> GetFeaturedProductsAsync(int limit)
+        public async Task<PaginationResult<ProductDTO>> GetPaginatedProductsAsync(
+            int page = 1, 
+            int pageSize = 12, 
+            string? search = null, 
+            int? categoryId = null, 
+            int? supplierId = null, 
+            decimal? minPrice = null, 
+            decimal? maxPrice = null, 
+            string? sortBy = "newest")
         {
-            var products = await _productRepository.GetFeaturedProductsAsync(limit);
-            return products.Select(MapToProductDto).ToList();
-        }
-
-        public async Task<List<ProductDTO>> GetBestSellerAsync(int limit)
-        {
-            var products = await _productRepository.GetBestSellerAsync(limit);
-            return products.Select(MapToProductDto).ToList();
-        }
-
-        public async Task<List<ProductDTO>> GetBudgetProductAsync(int limit, decimal threshold = 1000m)
-        {
-            var products = await _productRepository.GetBudgetProductAsync(limit, threshold);
-            return products.Select(MapToProductDto).ToList();
-        }
-
-        public async Task<PaginationResult<ProductDTO>> GetPaginatedProductsAsync(int page, int pageSize)
-        {
-            var result = await _productRepository.GetPaginatedAsync(page, pageSize);
+            var result = await _productRepository.GetFilteredAsync(page, pageSize,  supplierId, categoryId, minPrice, maxPrice, sortBy, search);
 
             return new PaginationResult<ProductDTO>
             {
@@ -74,6 +60,11 @@ namespace backend.Services
             if (product.Price <= 0)
                 throw new ArgumentException("Product price must be greater than 0", nameof(product.Price));
 
+            // if ((product?.Inventory.Quantity ?? 0) == 0)
+            // {
+            //     product.IsActive = false;
+            // }
+    
             // set timestamps (repository may override)
             product.CreatedAt = DateTime.UtcNow;
             product.UpdatedAt = DateTime.UtcNow;
@@ -100,44 +91,6 @@ namespace backend.Services
         {
             if (id <= 0) throw new ArgumentException("Product ID must be greater than 0", nameof(id));
             return await _productRepository.DeleteAsync(id);
-        }
-
-        public async Task<List<ProductDTO>> GetProductsBySupplierAsync(int supplierId)
-        {
-            var products = await _productRepository.GetBySupplierAsync(supplierId);
-            return products.Select(MapToProductDto).ToList();
-        }
-
-        // Search using repository filtered query for efficiency
-        public async Task<List<ProductDTO>> SearchProductsAsync(string keyword, int maxResults = 50)
-        {
-            if (string.IsNullOrWhiteSpace(keyword)) return new List<ProductDTO>();
-
-            // use filtered API: page=1, pageSize=maxResults, search=keyword
-            var filtered = await _productRepository.GetFilteredAsync(1, maxResults, null, null, null, null, null, keyword);
-            return filtered.Items.Select(MapToProductDto).ToList();
-        }
-
-        public async Task<PaginationResult<ProductDTO>> GetFilteredProductsAsync(
-            int page, int pageSize,
-            int? supplierId, int? categoryId,
-            decimal? minPrice, decimal? maxPrice,
-            string? sortBy, string? search)
-        {
-            var result = await _productRepository.GetFilteredAsync(
-                page, pageSize, supplierId, categoryId, minPrice, maxPrice, sortBy, search
-            );
-
-            return new PaginationResult<ProductDTO>
-            {
-                Items = result.Items.Select(MapToProductDto).ToList(),
-                TotalItems = result.TotalItems,
-                CurrentPage = result.CurrentPage,
-                PageSize = result.PageSize,
-                TotalPages = result.TotalPages,
-                HasPrevious = result.HasPrevious,
-                HasNext = result.HasNext
-            };
         }
 
         // Mapping: Product -> ProductDTO
@@ -198,5 +151,69 @@ namespace backend.Services
 
             return dto;
         }
+
+
+        // Thừa
+        // public async Task<List<ProductDTO>> GetAllProductsAsync()
+        // {
+        //     var products = await _productRepository.GetAllAsync();
+        //     return products.Select(MapToProductDto).ToList();
+        // }
+
+        // public async Task<List<ProductDTO>> GetFeaturedProductsAsync(int limit)
+        // {
+        //     var products = await _productRepository.GetFeaturedProductsAsync(limit);
+        //     return products.Select(MapToProductDto).ToList();
+        // }
+
+        // public async Task<List<ProductDTO>> GetBestSellerAsync(int limit)
+        // {
+        //     var products = await _productRepository.GetBestSellerAsync(limit);
+        //     return products.Select(MapToProductDto).ToList();
+        // }
+
+        // public async Task<List<ProductDTO>> GetBudgetProductAsync(int limit, decimal threshold = 1000m)
+        // {
+        //     var products = await _productRepository.GetBudgetProductAsync(limit, threshold);
+        //     return products.Select(MapToProductDto).ToList();
+        // }
+
+        // public async Task<List<ProductDTO>> GetProductsBySupplierAsync(int supplierId)
+        // {
+        //     var products = await _productRepository.GetBySupplierAsync(supplierId);
+        //     return products.Select(MapToProductDto).ToList();
+        // }
+
+        // // Search using repository filtered query for efficiency
+        // public async Task<List<ProductDTO>> SearchProductsAsync(string keyword, int maxResults = 50)
+        // {
+        //     if (string.IsNullOrWhiteSpace(keyword)) return new List<ProductDTO>();
+
+        //     // use filtered API: page=1, pageSize=maxResults, search=keyword
+        //     var filtered = await _productRepository.GetFilteredAsync(1, maxResults, null, null, null, null, null, keyword);
+        //     return filtered.Items.Select(MapToProductDto).ToList();
+        // }
+
+        // public async Task<PaginationResult<ProductDTO>> GetFilteredProductsAsync(
+        //     int page, int pageSize,
+        //     int? supplierId, int? categoryId,
+        //     decimal? minPrice, decimal? maxPrice,
+        //     string? sortBy, string? search)
+        // {
+        //     var result = await _productRepository.GetFilteredAsync(
+        //         page, pageSize, supplierId, categoryId, minPrice, maxPrice, sortBy, search
+        //     );
+
+        //     return new PaginationResult<ProductDTO>
+        //     {
+        //         Items = result.Items.Select(MapToProductDto).ToList(),
+        //         TotalItems = result.TotalItems,
+        //         CurrentPage = result.CurrentPage,
+        //         PageSize = result.PageSize,
+        //         TotalPages = result.TotalPages,
+        //         HasPrevious = result.HasPrevious,
+        //         HasNext = result.HasNext
+        //     };
+        // }
     }
 }

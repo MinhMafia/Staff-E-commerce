@@ -17,33 +17,27 @@ namespace backend.Controllers
         }
 
         // GET api/products/paginated
+        // GET api/products/paginated - ENDPOINT CHÍNH
         [HttpGet("paginated")]
         public async Task<ActionResult<PaginationResult<ProductDTO>>> GetPaginatedProducts(
             [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 8
-        )
+            [FromQuery] int pageSize = 12,
+            [FromQuery] string? search = null,
+            [FromQuery] int? categoryId = null,
+            [FromQuery] int? supplierId = null,
+            [FromQuery] decimal? minPrice = null,
+            [FromQuery] decimal? maxPrice = null,
+            [FromQuery] string? sortBy = "newest")
         {
             if (page < 1) page = 1;
-            if (pageSize < 1 || pageSize > 100) pageSize = 8;
+            if (pageSize < 1 || pageSize > 100) pageSize = 12;
 
-            var result = await _productService.GetPaginatedProductsAsync(page, pageSize);
+            var result = await _productService.GetPaginatedProductsAsync(
+                page, pageSize, search, categoryId, supplierId, minPrice, maxPrice, sortBy);
             return Ok(result);
         }
 
-        // GET api/products
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetProducts()
-        {
-            try
-            {
-                var products = await _productService.GetAllProductsAsync();
-                return Ok(products);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+
 
         // GET api/products/{id}
         [HttpGet("{id}")]
@@ -60,69 +54,6 @@ namespace backend.Controllers
             catch (ArgumentException ex)
             {
                 return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // GET api/products/featured
-        [HttpGet("featured")]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetFeaturedProducts([FromQuery] int limit = 8)
-        {
-            try
-            {
-                var products = await _productService.GetFeaturedProductsAsync(limit);
-                return Ok(products);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // GET api/products/bestsellers
-        [HttpGet("bestsellers")]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetBestSellers([FromQuery] int limit = 8)
-        {
-            try
-            {
-                var products = await _productService.GetBestSellerAsync(limit);
-                return Ok(products);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // GET api/products/budget
-        [HttpGet("budget")]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> GetBudgetProducts([FromQuery] int limit = 8)
-        {
-            try
-            {
-                var products = await _productService.GetBudgetProductAsync(limit);
-                return Ok(products);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
-        // GET api/products/search?keyword=...
-        [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<ProductDTO>>> SearchProducts([FromQuery] string keyword)
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(keyword))
-                    return BadRequest("Search keyword is required");
-
-                var products = await _productService.SearchProductsAsync(keyword);
-                return Ok(products);
             }
             catch (Exception ex)
             {
@@ -180,7 +111,8 @@ namespace backend.Controllers
             try
             {
                 product.Id = id;
-        
+                product.UpdatedAt = DateTime.UtcNow;
+                
                 var updatedProduct = await _productService.UpdateProductAsync(product);
                 return updatedProduct;
             }
@@ -194,32 +126,7 @@ namespace backend.Controllers
             }
         }
 
-        // GET api/products/filter? ... (note: use supplierId not brandId)
-        [HttpGet("filter")]
-        public async Task<ActionResult<PaginationResult<ProductDTO>>> GetFilteredProducts(
-            [FromQuery] int page = 1,
-            [FromQuery] int pageSize = 12,
-            [FromQuery] int? supplierId = null,
-            [FromQuery] int? categoryId = null,
-            [FromQuery] decimal? minPrice = null,
-            [FromQuery] decimal? maxPrice = null,
-            [FromQuery] string? sortBy = "newest",
-            [FromQuery] string? search = null
-        )
-        {
-            try
-            {
-                var result = await _productService.GetFilteredProductsAsync(
-                    page, pageSize, supplierId, categoryId, minPrice, maxPrice, sortBy, search
-                );
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
-
+        
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
@@ -233,5 +140,71 @@ namespace backend.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        // thừa 
+
+        // GET api/products/search?keyword=...
+        // [HttpGet("search")]
+        // public async Task<ActionResult<IEnumerable<ProductDTO>>> SearchProducts([FromQuery] string keyword)
+        // {
+        //     try
+        //     {
+        //         if (string.IsNullOrWhiteSpace(keyword))
+        //             return BadRequest("Search keyword is required");
+
+        //         var products = await _productService.SearchProductsAsync(keyword);
+        //         return Ok(products);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, $"Internal server error: {ex.Message}");
+        //     }
+        // }
+
+        //         // GET api/products/featured
+        // [HttpGet("featured")]
+        // public async Task<ActionResult<IEnumerable<ProductDTO>>> GetFeaturedProducts([FromQuery] int limit = 8)
+        // {
+        //     try
+        //     {
+        //         var products = await _productService.GetFeaturedProductsAsync(limit);
+        //         return Ok(products);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, $"Internal server error: {ex.Message}");
+        //     }
+        // }
+
+        // GET api/products/bestsellers
+
+        // [HttpGet("bestsellers")]
+        // public async Task<ActionResult<IEnumerable<ProductDTO>>> GetBestSellers([FromQuery] int limit = 8)
+        // {
+        //     try
+        //     {
+        //         var products = await _productService.GetBestSellerAsync(limit);
+        //         return Ok(products);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, $"Internal server error: {ex.Message}");
+        //     }
+        // }
+
+        // // GET api/products/budget
+        // [HttpGet("budget")]
+        // public async Task<ActionResult<IEnumerable<ProductDTO>>> GetBudgetProducts([FromQuery] int limit = 8)
+        // {
+        //     try
+        //     {
+        //         var products = await _productService.GetBudgetProductAsync(limit);
+        //         return Ok(products);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         return StatusCode(500, $"Internal server error: {ex.Message}");
+        //     }
+        // }
     }
 }

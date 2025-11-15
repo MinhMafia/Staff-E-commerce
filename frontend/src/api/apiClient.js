@@ -100,19 +100,31 @@ export async function request(path, options = {}) {
 
 // Products -------------------------------------------------------------
 
-export async function getProductsAll() {
-  return request("/products");
-}
+// export async function getProductsAll() {
+//   return request("/products");
+// }
 
 export async function getProductsPaginated(
   page = 1,
-  pageSize = 12,
-  search = ""
+  pageSize = 10,
+  search = "",
+  categoryId = null,
+  supplierId = null,
+  minPrice = null,
+  maxPrice = null,
+  sortBy = "newest"
 ) {
-  const q = `?page=${page}&pageSize=${pageSize}${
-    search ? `&search=${encodeURIComponent(search)}` : ""
-  }`;
-  return request(`/products/paginated${q}`);
+  const params = new URLSearchParams({
+    page: page.toString(),
+    pageSize: pageSize.toString(),
+    ...(search && { search }),
+    ...(categoryId && { categoryId: categoryId.toString() }),
+    ...(supplierId && { supplierId: supplierId.toString() }),
+    ...(minPrice && { minPrice: minPrice.toString() }),
+    ...(maxPrice && { maxPrice: maxPrice.toString() }),
+    ...(sortBy && { sortBy }),
+  });
+  return request(`/products/paginated?${params}`);
 }
 
 // Users -------------------------------------------------------------
@@ -172,4 +184,5 @@ export async function changeMyPassword(payload) {
   });
 }
 
-export { BASE_URL, request, getCurrentUserId };
+// export { BASE_URL, request, getCurrentUserId };
+export { BASE_URL, getCurrentUserId };
