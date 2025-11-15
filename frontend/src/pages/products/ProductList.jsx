@@ -5,7 +5,11 @@ import { formatPrice } from "../../utils/formatPrice";
 import ProductModal from "../../components/products/ProductModal";
 
 export default function ProductList() {
+  // --- state
   const [items, setItems] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+
   const [meta, setMeta] = useState({
     totalItems: 0,
     currentPage: 1,
@@ -16,11 +20,14 @@ export default function ProductList() {
   });
   const [page, setPage] = useState(1);
   const [pageSize] = useState(12);
+
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // modal state - thay thế editing, viewing bằng 1 state duy nhất
+  // modal state
   const [modalState, setModalState] = useState({
     open: false,
     mode: null, // 'view' | 'edit' | 'create'
@@ -29,45 +36,57 @@ export default function ProductList() {
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState(null);
 
-  // debounce search
-  const searchRef = useRef(null);
+  // --- debounce search: chỉ cập nhật debouncedSearch (reset page về 1)
   useEffect(() => {
-    if (searchRef.current) clearTimeout(searchRef.current);
-    searchRef.current = setTimeout(() => {
+    const t = setTimeout(() => {
+      // khi debounce hoàn tất, đặt debouncedSearch và reset page 1
+      setDebouncedSearch(search.trim());
       setPage(1);
-      fetchProducts(1, pageSize, search);
     }, 450);
-    return () => clearTimeout(searchRef.current);
-  }, [search, pageSize]);
 
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // --- fetchProducts: stable function, nhận params (p, ps, q)
+  const fetchProducts = useCallback(
+    async (p = 1, ps = pageSize, q = "") => {
+      // small UX: show loader only if request > 150ms to avoid flicker
+      let showLoader = true;
+      const loaderTimer = setTimeout(() => {
+        if (showLoader) setLoading(true);
+      }, 150);
+
+      setError(null);
+      try {
+        const data = await getProductsPaginated(p, ps, q);
+        const itemsArr = data.items ?? data.Items ?? [];
+        setItems(itemsArr);
+        setMeta({
+          totalItems: data.totalItems ?? data.TotalItems ?? itemsArr.length,
+          currentPage: data.currentPage ?? data.CurrentPage ?? p,
+          pageSize: data.pageSize ?? data.PageSize ?? ps,
+          totalPages: data.totalPages ?? data.TotalPages ?? 1,
+          hasNext: !!(data.hasNext ?? data.HasNext),
+          hasPrevious: !!(data.hasPrevious ?? data.HasPrevious),
+        });
+      } catch (err) {
+        console.error(err);
+        setError(err.message || "Lỗi khi tải sản phẩm");
+      } finally {
+        showLoader = false;
+        clearTimeout(loaderTimer);
+        setLoading(false);
+      }
+    },
+    [pageSize]
+  );
+
+  // --- gọi fetch chỉ 1 chỗ: khi page / pageSize / debouncedSearch thay đổi
   useEffect(() => {
-    fetchProducts(page, pageSize, search);
-  }, [page, pageSize, search]);
+    fetchProducts(page, pageSize, debouncedSearch);
+  }, [page, pageSize, debouncedSearch, fetchProducts]);
 
-  async function fetchProducts(p = 1, ps = 12, q = "") {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getProductsPaginated(p, ps, q);
-      const itemsArr = data.items ?? [];
-      setItems(itemsArr);
-      setMeta({
-        totalItems: data.totalItems ?? itemsArr.length,
-        currentPage: data.currentPage ?? p,
-        pageSize: data.pageSize ?? ps,
-        totalPages: data.totalPages ?? 1,
-        hasNext: !!data.hasNext,
-        hasPrevious: !!data.hasPrevious,
-      });
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Lỗi khi tải sản phẩm");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  // Mở modal với các chế độ khác nhau
+  // --- Mở modal
   const openModal = useCallback((mode, product = null) => {
     setModalState({
       open: true,
@@ -76,7 +95,7 @@ export default function ProductList() {
     });
   }, []);
 
-  // Đóng modal
+  // --- Đóng modal
   const closeModal = useCallback(() => {
     setModalState({
       open: false,
@@ -85,14 +104,14 @@ export default function ProductList() {
     });
   }, []);
 
-  // Xử lý xóa sản phẩm
+  // --- Xóa (sử dụng debouncedSearch để refresh consistent)
   const handleDelete = async (id) => {
     if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) return;
     try {
       setLoading(true);
       await request(`/products/${id}`, { method: "DELETE" });
       setNotification({ type: "success", message: "Xóa sản phẩm thành công" });
-      await fetchProducts(page, pageSize, search);
+      await fetchProducts(page, pageSize, debouncedSearch);
     } catch (err) {
       console.error(err);
       setNotification({
@@ -104,13 +123,12 @@ export default function ProductList() {
     }
   };
 
-  // Xử lý lưu (cho cả create và edit)
+  // --- Lưu (create / edit)
   const handleSave = async (productData, mode) => {
     setSaving(true);
     setNotification(null);
     try {
       if (mode === "create") {
-        // Tạo mới sản phẩm
         await request(`/products`, {
           method: "POST",
           body: JSON.stringify(productData),
@@ -120,13 +138,11 @@ export default function ProductList() {
           message: "Thêm sản phẩm thành công",
         });
       } else {
-        // Cập nhật sản phẩm
         const payload = {
           id: productData.id,
           productName: productData.productName,
           price: Number(productData.price ?? 0),
           sku: productData.sku,
-          // barcode: productData.barcode,
           unit: productData.unit,
           categoryId: productData.categoryId,
           supplierId: productData.supplierId,
@@ -145,7 +161,7 @@ export default function ProductList() {
       }
 
       closeModal();
-      await fetchProducts(page, pageSize, search);
+      await fetchProducts(page, pageSize, debouncedSearch);
     } catch (err) {
       console.error(err);
       setNotification({
@@ -158,12 +174,10 @@ export default function ProductList() {
     }
   };
 
-  // Helper functions
-  const getName = (p) => p.productName;
-  const getPrice = (p) => p.price;
-  const getQty = (p) => {
-    return p.inventory?.quantity ?? 0;
-  };
+  // --- helpers
+  const getName = (p) => p.productName ?? p.product_name ?? p.model ?? "—";
+  const getPrice = (p) => p.price ?? p.Price ?? 0;
+  const getQty = (p) => p.inventory?.quantity ?? p.Quantity ?? 0;
 
   return (
     <div className="p-6">
@@ -175,7 +189,7 @@ export default function ProductList() {
 
           <div className="flex items-center gap-3">
             <input
-              type="search"
+              type="  "
               placeholder="Tìm kiếm sản phẩm..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}

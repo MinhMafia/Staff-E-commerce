@@ -1,7 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-
 /**
  * Nếu bạn không dùng react-router, thay NavLink bằng <a href="..."> và className active logic
  */
@@ -95,9 +94,7 @@ export default function Sidebar({ collapsed, onClose }) {
         </NavLink>
 
         <NavLink to="/users" className={linkClass}>
-          <span className="w-5 h-5">
-            👥
-          </span>
+          <span className="w-5 h-5">👥</span>
           <span className="text-sm">Quản lý Nhân Viên</span>
         </NavLink>
 
@@ -105,6 +102,18 @@ export default function Sidebar({ collapsed, onClose }) {
         <NavLink to="/customers" className={linkClass}>
           <span className="w-5 h-5">👥</span>
           <span className="text-sm">Quản lý Khách hàng</span>
+        </NavLink>
+
+        {/* Categories */}
+        <NavLink to="/categories" className={linkClass}>
+          <span className="w-5 h-5">👥</span>
+          <span className="text-sm">Quản lý danh mục</span>
+        </NavLink>
+
+        {/* Units */}
+        <NavLink to="/units" className={linkClass}>
+          <span className="w-5 h-5">👥</span>
+          <span className="text-sm">Quản lý đơn vị</span>
         </NavLink>
 
         {/* Promotions */}

@@ -15,8 +15,8 @@ import "./App.css";
 function App() {
   return (
     <BrowserRouter>
-      <AppLayout>
-        <Routes>
+      <Routes>
+        <Route element={<AppLayout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<ProductList />} />
@@ -24,16 +24,15 @@ function App() {
           <Route path="/audit" element={<AuditPage />} />
           <Route path="/users" element={<UserManagement />} />
           <Route path="/profile" element={<ProfilePage />} />
-          
+
           {/* Promotion Routes */}
           <Route path="/promotions" element={<PromotionList />} />
           <Route path="/promotions/create" element={<PromotionCreate />} />
           <Route path="/promotions/:id" element={<PromotionDetail />} />
           <Route path="/promotions/:id/edit" element={<PromotionEdit />} />
-
           <Route path="*" element={<h1>404 - Page not found</h1>} />
-        </Routes>
-      </AppLayout>
+        </Route>
+      </Routes>
     </BrowserRouter>
   );
 }
