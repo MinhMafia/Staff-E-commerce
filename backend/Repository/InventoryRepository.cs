@@ -19,6 +19,14 @@ namespace backend.Repository{
                                 .Include(i => i.Product)
                                 .FirstOrDefaultAsync(i => i.ProductId == productId);
         }
+        //Tạo mới inventory mới khi tạo mới product
+        public async Task<Inventory> CreateAsync(Inventory inventory)
+        {
+            inventory.UpdatedAt = DateTime.UtcNow;
+            _context.Inventory.Add(inventory);
+            await _context.SaveChangesAsync();
+            return inventory;
+        }
 
         public async Task UpdateAsync(Inventory inventory)
         {

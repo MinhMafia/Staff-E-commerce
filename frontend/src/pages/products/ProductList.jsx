@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import { getProductsPaginated, request } from "../../api/apiClient";
 import { formatPrice } from "../../utils/formatPrice";
 import ProductModal from "../../components/products/ProductModal";
+import ImportModal from "../../components/import/ImportModal";
 
 export default function ProductList() {
   // --- state
@@ -35,6 +36,9 @@ export default function ProductList() {
   });
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState(null);
+  
+  // Import modal state
+  const [importModalOpen, setImportModalOpen] = useState(false);
 
   // --- debounce search: chỉ cập nhật debouncedSearch (reset page về 1)
   useEffect(() => {
@@ -203,6 +207,12 @@ export default function ProductList() {
               }}
             >
               Tìm kiếm
+            </button>
+            <button
+              className="px-3 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700"
+              onClick={() => setImportModalOpen(true)}
+            >
+              Import
             </button>
             <button
               className="px-3 py-2 rounded-md bg-green-500 text-white hover:bg-green-700"
@@ -411,6 +421,21 @@ export default function ProductList() {
           saving={saving}
         />
       )}
+
+      {/* Import Modal */}
+      <ImportModal
+        isOpen={importModalOpen}
+        onClose={() => setImportModalOpen(false)}
+        onSuccess={() => {
+          // Refresh product list after successful import
+          fetchProducts(page, pageSize, debouncedSearch);
+          setNotification({
+            type: "success",
+            message: "Import sản phẩm thành công",
+          });
+        }}
+        type="products"
+      />
     </div>
   );
 }

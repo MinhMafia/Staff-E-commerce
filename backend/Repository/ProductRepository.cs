@@ -42,6 +42,16 @@
                 .FirstOrDefaultAsync(p => p.Id == id);
     }
 
+            // Lấy theo SKU (dùng cho import)
+            public async Task<Product?> GetBySkuAsync(string? sku)
+            {
+                if (string.IsNullOrWhiteSpace(sku))
+                    return null;
+                    
+                return await _context.Products
+                    .FirstOrDefaultAsync(p => p.Sku == sku);
+            }
+
             
 
             public async Task<Product> CreateAsync(Product product)

@@ -7,6 +7,7 @@ using backend.Middlewares;
 using Microsoft.Extensions.FileProviders;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Http.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,6 +64,14 @@ builder.Services.AddScoped<StatisticsService>();
 builder.Services.AddScoped<OrderItemService>();       
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<ImportService>();
+
+// Configure file upload size limit
+builder.Services.Configure<FormOptions>(options =>
+{
+    options.MultipartBodyLengthLimit = 10485760; // 10MB
+});
+
 // -------------------------
 // Configure CORS for React
 // -------------------------
