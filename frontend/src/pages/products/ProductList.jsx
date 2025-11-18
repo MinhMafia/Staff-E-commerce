@@ -1,5 +1,5 @@
 // src/pages/products/ProductList.jsx
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { getProductsPaginated, request } from "../../api/apiClient";
 import { formatPrice } from "../../utils/formatPrice";
 import ProductModal from "../../components/products/ProductModal";
@@ -19,7 +19,13 @@ export default function ProductList() {
     hasPrevious: false,
   });
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(12);
+  const [pageSize] = useState(10);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedSupplier, setSelectedSupplier] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [sortBy, setSortBy] = useState("id");
+  const [status, setStatus] = useState("");
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -35,6 +41,26 @@ export default function ProductList() {
   });
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState(null);
+
+  // Hàm fetch categories
+  const fetchCategories = async () => {
+    try {
+      const data = await request("/categories");
+      setCategories(data);
+    } catch (error) {
+      console.error("Lỗi khi tải danh mục:", error);
+    }
+  };
+
+  // Hàm fetch suppliers
+  const fetchSuppliers = async () => {
+    try {
+      const data = await request("/suppliers");
+      setSuppliers(data);
+    } catch (error) {
+      console.error("Lỗi khi tải nhà cung cấp:", error);
+    }
+  };
 
   // --- debounce search: chỉ cập nhật debouncedSearch (reset page về 1)
   useEffect(() => {
@@ -58,7 +84,17 @@ export default function ProductList() {
 
       setError(null);
       try {
-        const data = await getProductsPaginated(p, ps, q);
+        const data = await getProductsPaginated(
+          p,
+          ps,
+          q,
+          selectedCategory || null,
+          selectedSupplier || null,
+          minPrice || null,
+          maxPrice || null,
+          sortBy,
+          status || null
+        );
         const itemsArr = data.items ?? data.Items ?? [];
         setItems(itemsArr);
         setMeta({
@@ -78,13 +114,34 @@ export default function ProductList() {
         setLoading(false);
       }
     },
-    [pageSize]
+    [
+      pageSize,
+      selectedCategory,
+      selectedSupplier,
+      minPrice,
+      maxPrice,
+      sortBy,
+      status,
+    ]
   );
 
   // --- gọi fetch chỉ 1 chỗ: khi page / pageSize / debouncedSearch thay đổi
   useEffect(() => {
     fetchProducts(page, pageSize, debouncedSearch);
+    fetchCategories(); // Load categories khi component mount
+    fetchSuppliers(); // Load suppliers khi component mount
   }, [page, pageSize, debouncedSearch, fetchProducts]);
+
+  const resetFilters = () => {
+    setSearch("");
+    setSelectedCategory("");
+    setSelectedSupplier("");
+    setMinPrice("");
+    setMaxPrice("");
+    setSortBy("newest");
+    setStatus("");
+    setPage(1);
+  };
 
   // --- Mở modal
   const openModal = useCallback((mode, product = null) => {
@@ -105,18 +162,30 @@ export default function ProductList() {
   }, []);
 
   // --- Xóa (sử dụng debouncedSearch để refresh consistent)
-  const handleDelete = async (id) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) return;
+  const handleDelete = async (id, isActive) => {
+    if (
+      !window.confirm(
+        `Bạn có chắc chắn muốn ${
+          isActive ? "vô hiệu" : "kích hoạt"
+        } sản phẩm này?`
+      )
+    )
+      return;
     try {
       setLoading(true);
       await request(`/products/${id}`, { method: "DELETE" });
-      setNotification({ type: "success", message: "Xóa sản phẩm thành công" });
+      setNotification({
+        type: "success",
+        message: `${isActive ? "Vô hiệu" : "Kích hoạt"} sản phẩm thành công`,
+      });
       await fetchProducts(page, pageSize, debouncedSearch);
     } catch (err) {
       console.error(err);
       setNotification({
         type: "error",
-        message: "Xóa không thành công: " + err.message,
+        message:
+          `${isActive ? "Vô hiệu" : "Kích hoạt"} sản phẩm không thành công` +
+          err.message,
       });
     } finally {
       setLoading(false);
@@ -129,10 +198,25 @@ export default function ProductList() {
     setNotification(null);
     try {
       if (mode === "create") {
-        await request(`/products`, {
+        const response = await request(`/products`, {
           method: "POST",
           body: JSON.stringify(productData),
         });
+
+        // Nếu có imageFile, upload sau khi tạo product
+        if (productData.imageFile && response.id) {
+          const formData = new FormData();
+          formData.append("image", productData.imageFile);
+
+          await fetch(
+            `http://localhost:5099/api/products/upload-image?productId=${response.id}`,
+            {
+              method: "POST",
+              body: formData,
+            }
+          );
+        }
+
         setNotification({
           type: "success",
           message: "Thêm sản phẩm thành công",
@@ -148,12 +232,14 @@ export default function ProductList() {
           supplierId: productData.supplierId,
           isActive: !!productData.isActive,
           description: productData.description,
+          imageUrl: productData.imageUrl, // Lưu URL đã upload
         };
 
         await request(`/products/${productData.id}`, {
           method: "PUT",
           body: JSON.stringify(payload),
         });
+
         setNotification({
           type: "success",
           message: "Cập nhật sản phẩm thành công",
@@ -173,7 +259,6 @@ export default function ProductList() {
       setSaving(false);
     }
   };
-
   // --- helpers
   const getName = (p) => p.productName ?? p.product_name ?? p.model ?? "—";
   const getPrice = (p) => p.price ?? p.Price ?? 0;
@@ -210,6 +295,142 @@ export default function ProductList() {
             >
               Thêm sản phẩm
             </button>
+          </div>
+        </div>
+
+        {/* BỘ LỌC */}
+        <div className="bg-white p-4 rounded-md shadow-sm mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3">
+            {/* Danh mục */}
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">
+                Danh mục
+              </label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => {
+                  setSelectedCategory(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-indigo-300 text-sm"
+              >
+                <option value="">Tất cả danh mục</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Nhà cung cấp */}
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">
+                Nhà cung cấp
+              </label>
+              <select
+                value={selectedSupplier}
+                onChange={(e) => {
+                  setSelectedSupplier(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-indigo-300 text-sm"
+              >
+                <option value="">Tất cả nhà cung cấp</option>
+                {suppliers.map((supplier) => (
+                  <option key={supplier.id} value={supplier.id}>
+                    {supplier.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Giá từ */}
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">Giá từ</label>
+              <input
+                type="number"
+                placeholder="0"
+                value={minPrice}
+                onChange={(e) => {
+                  setMinPrice(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-indigo-300 text-sm"
+              />
+            </div>
+
+            {/* Giá đến */}
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">
+                Giá đến
+              </label>
+              <input
+                type="number"
+                placeholder="9999999"
+                value={maxPrice}
+                onChange={(e) => {
+                  setMaxPrice(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-indigo-300 text-sm"
+              />
+            </div>
+
+            {/* Sắp xếp */}
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">
+                Sắp xếp
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => {
+                  setSortBy(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-indigo-300 text-sm"
+              >
+                <option value="">Mặc định</option>
+                <option value="newest">Mới nhất</option>
+                <option value="oldest">Cũ nhất</option>
+                <option value="price_asc">Giá tăng dần</option>
+                <option value="price_desc">Giá giảm dần</option>
+                <option value="name_asc">Tên A-Z</option>
+                <option value="name_desc">Tên Z-A</option>
+                <option value="featured">Nổi bật</option>
+                <option value="bestsellers">Bán chạy</option>
+                <option value="budget">Giá thấp</option>
+              </select>
+            </div>
+
+            {/* Trạng thái */}
+            <div>
+              <label className="block text-xs text-gray-600 mb-1">
+                Trạng thái
+              </label>
+              <select
+                value={status}
+                onChange={(e) => {
+                  setStatus(e.target.value);
+                  setPage(1);
+                }}
+                className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-indigo-300 text-sm"
+              >
+                <option value="">Mặc định</option>
+                <option value="1"> Hoạt động</option>
+                <option value="0"> Vô hiệu</option>
+              </select>
+            </div>
+
+            {/* Nút reset filters */}
+            <div className="flex justify-end mt-3">
+              <button
+                onClick={resetFilters}
+                className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-50"
+              >
+                Xóa bộ lọc
+              </button>
+            </div>
           </div>
         </div>
 
@@ -330,10 +551,14 @@ export default function ProductList() {
                           Sửa
                         </button>
                         <button
-                          onClick={() => handleDelete(p.id)}
-                          className="px-2 py-1 bg-red-100 rounded text-red-800 hover:bg-red-200"
+                          onClick={() => handleDelete(p.id, p.isActive)}
+                          className={`px-2 py-1  rounded ${
+                            p.isActive
+                              ? "bg-red-100 text-red-800 hover:bg-red-200"
+                              : "text-green-800 bg-green-100 hover:bg-green-200"
+                          } `}
                         >
-                          Xóa
+                          {p.isActive ? "Vô hiệu" : "Kích hoạt"}
                         </button>
                       </div>
                     </td>
@@ -409,6 +634,8 @@ export default function ProductList() {
             }
           }}
           saving={saving}
+          categories={categories}
+          suppliers={suppliers}
         />
       )}
     </div>

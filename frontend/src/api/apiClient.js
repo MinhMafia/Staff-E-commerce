@@ -112,7 +112,8 @@ export async function getProductsPaginated(
   supplierId = null,
   minPrice = null,
   maxPrice = null,
-  sortBy = "newest"
+  sortBy = "",
+  status = null
 ) {
   const params = new URLSearchParams({
     page: page.toString(),
@@ -123,6 +124,7 @@ export async function getProductsPaginated(
     ...(minPrice && { minPrice: minPrice.toString() }),
     ...(maxPrice && { maxPrice: maxPrice.toString() }),
     ...(sortBy && { sortBy }),
+    ...(status && { status: status.toString() }),
   });
   return request(`/products/paginated?${params}`);
 }

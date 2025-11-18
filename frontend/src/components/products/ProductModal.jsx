@@ -8,6 +8,8 @@ const ProductModal = ({
   onCancel,
   onDelete,
   saving = false,
+  categories = [],
+  suppliers = [],
 }) => {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
@@ -37,6 +39,7 @@ const ProductModal = ({
         description: product.description || "",
         imageUrl: product.imageUrl || "",
         isActive: product.isActive !== undefined ? product.isActive : true,
+        createdAt: product.created_at || "",
       });
     }
   }, [mode, product]);
@@ -55,6 +58,23 @@ const ProductModal = ({
 
     if (!formData.productName?.trim()) {
       newErrors.productName = "Tên sản phẩm không được để trống";
+    } else {
+      // try Unicode letter check; fallback to ascii letters if not supported
+      const name = formData.productName || "";
+
+      const hasLetter = (() => {
+        try {
+          return /\p{L}/u.test(name);
+        } catch {
+          return /[A-Za-zÀ-ỹ]/.test(name); // rough fallback
+        }
+      })();
+
+      if (!hasLetter) {
+        newErrors.productName = "Tên sản phẩm phải chứa ít nhất một chữ cái";
+      } else if (/^\d+$/.test(name)) {
+        newErrors.productName = "Tên sản phẩm không được chỉ gồm chữ số";
+      }
     }
 
     if (
@@ -65,7 +85,9 @@ const ProductModal = ({
       newErrors.price = "Giá phải là số lớn hơn 0";
     }
 
-    if (formData.sku && !/^[a-zA-Z0-9_-]+$/.test(formData.sku)) {
+    if (!formData.sku?.trim()) {
+      newErrors.sku = "SKU không được để trống";
+    } else if (formData.sku && !/^[a-zA-Z0-9_-]+$/.test(formData.sku)) {
       newErrors.sku = "SKU chỉ được chứa chữ, số, gạch dưới hoặc gạch ngang";
     }
 
@@ -87,6 +109,13 @@ const ProductModal = ({
       newErrors.supplierId = "Nhà cung cấp ID phải là số hợp lệ";
     }
 
+    const hasSupplier = !!formData.supplierId && formData.supplierId !== "";
+    const hasCategory = !!formData.categoryId && formData.categoryId !== "";
+    if (!hasSupplier && !hasCategory) {
+      newErrors.supplierOrCategory =
+        "Phải chọn ít nhất Nhà cung cấp hoặc Danh mục";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -99,41 +128,57 @@ const ProductModal = ({
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: null }));
     }
+
+    // Nếu người dùng nhập URL thì reset imageFile về null
+    if (field === "imageUrl" && value) {
+      setFormData((prev) => ({ ...prev, imageFile: null }));
+    }
   };
 
   const handleSave = async () => {
     if (mode === "view") return;
     if (!validate()) return;
 
-    const saveData = {
-      ...formData,
-      price: Number(formData.price) || 0,
-      categoryId: formData.categoryId ? Number(formData.categoryId) : null,
-      supplierId: formData.supplierId ? Number(formData.supplierId) : null,
-      ...(mode === "edit" && product?.id && { id: product.id }),
-    };
+    let finalImageUrl = formData.imageUrl;
 
-    // Xử lý upload ảnh nếu có file
+    // Nếu có file upload từ máy
     if (formData.imageFile) {
       try {
-        const imageUrl = await uploadImage(formData.imageFile);
-        saveData.imageUrl = imageUrl;
+        // Truyền productId nếu đang ở mode edit
+        const productId = mode === "edit" && product?.id ? product.id : null;
+        const uploadedUrl = await uploadImage(formData.imageFile, productId);
+        finalImageUrl = uploadedUrl;
       } catch (error) {
         console.error("Lỗi upload ảnh:", error);
         alert("Lỗi upload ảnh. Vui lòng thử lại.");
         return;
       }
     }
+    // Nếu không có file upload, giữ nguyên imageUrl (có thể là URL từ internet)
+
+    const saveData = {
+      ...formData,
+      price: Number(formData.price) || 0,
+      categoryId: formData.categoryId ? Number(formData.categoryId) : null,
+      supplierId: formData.supplierId ? Number(formData.supplierId) : null,
+      imageUrl: finalImageUrl,
+      ...(mode === "edit" && product?.id && { id: product.id }),
+    };
 
     onSave?.(saveData, mode);
   };
 
-  // Hàm upload ảnh (cần implement)
-  const uploadImage = async (file) => {
+  // Hàm upload ảnh với productId
+  const uploadImage = async (file, productId = null) => {
     const formData = new FormData();
     formData.append("image", file);
 
-    const response = await fetch("/api/upload", {
+    // Thêm productId vào query string nếu có
+    const url = productId
+      ? `http://localhost:5099/api/products/upload-image?productId=${productId}`
+      : "http://localhost:5099/api/products/upload-image";
+
+    const response = await fetch(url, {
       method: "POST",
       body: formData,
     });
@@ -142,6 +187,48 @@ const ProductModal = ({
     const data = await response.json();
     return data.imageUrl;
   };
+
+  // Hàm getImageUrl để hiển thị ảnh
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) {
+      return "http://localhost:5099/assets/images/products/default.jpg";
+    }
+
+    // Nếu là đường dẫn tương đối từ backend
+    if (imageUrl.startsWith("/assets/")) {
+      return `http://localhost:5099${imageUrl}`;
+    }
+
+    // Nếu là blob URL (preview khi chọn file từ máy)
+    if (imageUrl.startsWith("blob:")) {
+      return imageUrl;
+    }
+
+    // Nếu là URL đầy đủ từ internet
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+      return imageUrl;
+    }
+
+    return "http://localhost:5099/assets/images/products/default.jpg";
+  };
+
+  function getImageSource() {
+    // 1) Nếu có imageUrl trong formData
+    if (formData.imageUrl && formData.imageUrl.trim() !== "") {
+      return getImageUrl(formData.imageUrl);
+    }
+
+    // 2) Nếu có product.id, thử load ảnh theo pattern product-{id}.jpg
+    if (product?.id) {
+      // Thêm timestamp để force reload ảnh mới sau khi upload
+      return `http://localhost:5099/assets/images/products/product-${
+        product.id
+      }.jpg?t=${Date.now()}`;
+    }
+
+    // 3) Fallback - ảnh mặc định
+    return "http://localhost:5099/assets/images/products/default.jpg";
+  }
 
   const isEditing = mode === "edit" || mode === "create";
   const isView = mode === "view";
@@ -168,25 +255,36 @@ const ProductModal = ({
               Hình ảnh sản phẩm
             </label>
             {isView ? (
-              <div className="border rounded bg-gray-50 aspect-square flex items-center justify-center">
-                {formData.imageUrl ? (
+              <div children>
+                <div className="border rounded bg-gray-50 aspect-square flex items-center justify-center">
                   <img
-                    src={formData.imageUrl}
+                    // src={getImageSource()}
+                    src={getImageSource()}
                     alt={formData.productName}
                     className="w-full h-full object-cover rounded"
+                    onError={(e) => {
+                      // fallback cuối nếu ảnh không tồn tại
+                      e.target.src =
+                        "http://localhost:5099/assets/images/products/default.jpg";
+                    }}
                   />
-                ) : (
-                  <div className="text-gray-400 text-sm">Không có ảnh</div>
-                )}
+                </div>
+                <label className="text-xs text-gray-600 mb-2 block">
+                  Ngày tạo: {formData.createdAt}
+                </label>
               </div>
             ) : (
               <div className="space-y-2">
                 <div className="border rounded bg-gray-50 aspect-square flex items-center justify-center">
                   {formData.imageUrl ? (
                     <img
-                      src={formData.imageUrl}
-                      alt={formData.productName}
+                      src={getImageUrl(formData.imageUrl)}
+                      alt={formData.productName || "Preview"}
                       className="w-full h-full object-cover rounded"
+                      onError={(e) => {
+                        e.target.src =
+                          "http://localhost:5099/assets/images/products/default.jpg";
+                      }}
                     />
                   ) : (
                     <div className="text-gray-400 text-sm">Chưa có ảnh</div>
@@ -233,23 +331,51 @@ const ProductModal = ({
                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
                       />
                     </svg>
-                    Chọn ảnh từ máy
+                    {formData.imageFile ? "Chọn ảnh khác" : "Chọn ảnh từ máy"}
                   </div>
                 </button>
+
                 <div className="relative">
                   <input
                     type="text"
                     className="w-full border px-2 py-1 rounded text-sm pr-20"
                     placeholder="Hoặc nhập URL ảnh..."
-                    value={formData.imageUrl || ""}
+                    value={
+                      formData.imageFile
+                        ? ""
+                        : formData.imageUrl?.startsWith("blob:")
+                        ? ""
+                        : formData.imageUrl || ""
+                    }
                     onChange={(e) =>
                       handleFieldChange("imageUrl", e.target.value)
                     }
+                    disabled={!!formData.imageFile}
                   />
                   <div className="absolute right-1 top-1 text-xs text-gray-400">
                     URL
                   </div>
                 </div>
+
+                {formData.imageFile && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // Revoke blob URL để tránh memory leak
+                      if (formData.imageUrl?.startsWith("blob:")) {
+                        URL.revokeObjectURL(formData.imageUrl);
+                      }
+                      setFormData((prev) => ({
+                        ...prev,
+                        imageFile: null,
+                        imageUrl: product?.imageUrl || "", // Reset về ảnh cũ nếu có
+                      }));
+                    }}
+                    className="w-full text-xs text-red-600 hover:text-red-800"
+                  >
+                    Xóa file đã chọn
+                  </button>
+                )}
 
                 <p className="text-xs text-gray-500">
                   Chọn ảnh từ máy hoặc nhập URL hình ảnh
@@ -362,56 +488,76 @@ const ProductModal = ({
                 )}
               </div>
 
-              {/* --- NHÀ CUNG CẤP ID --- */}
+              {/* --- NHÀ CUNG CẤP --- */}
               <div>
-                <label className="text-xs text-gray-600">
-                  Nhà cung cấp (ID)
-                </label>
+                <label className="text-xs text-gray-600">Nhà cung cấp *</label>
                 {isView ? (
                   <div className="p-2 border rounded bg-gray-50">
-                    {formData.supplierId}
+                    {suppliers.find((s) => s.id === formData.supplierId)
+                      ?.name || "—"}
                   </div>
                 ) : (
                   <>
-                    <input
+                    <select
                       className={`w-full border px-2 py-1 rounded ${
-                        errors.supplierId ? "border-red-500" : ""
+                        errors.supplierId || errors.supplierOrCategory
+                          ? "border-red-500"
+                          : ""
                       }`}
-                      value={formData.supplierId ?? ""}
+                      value={formData.supplierId || ""}
                       onChange={(e) =>
                         handleFieldChange("supplierId", e.target.value)
                       }
-                    />
-                    {errors.supplierId && (
+                    >
+                      <option value="">-- Chọn nhà cung cấp --</option>
+
+                      {suppliers.map((supplier) => (
+                        <option key={supplier.id} value={supplier.id}>
+                          {supplier.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.supplierOrCategory && (
                       <p className="text-xs text-red-500 mt-1">
-                        {errors.supplierId}
+                        {errors.supplierOrCategory}
                       </p>
                     )}
                   </>
                 )}
               </div>
 
-              {/* --- DANH MỤC ID --- */}
+              {/* --- DANH MỤC --- */}
               <div>
-                <label className="text-xs text-gray-600">Danh mục (ID)</label>
+                <label className="text-xs text-gray-600">Danh mục *</label>
                 {isView ? (
                   <div className="p-2 border rounded bg-gray-50">
-                    {formData.categoryId}
+                    {categories.find((c) => c.id === formData.categoryId)
+                      ?.name || "—"}
                   </div>
                 ) : (
                   <>
-                    <input
+                    <select
                       className={`w-full border px-2 py-1 rounded ${
-                        errors.categoryId ? "border-red-500" : ""
+                        errors.categoryId || errors.supplierOrCategory
+                          ? "border-red-500"
+                          : ""
                       }`}
-                      value={formData.categoryId ?? ""}
+                      value={formData.categoryId || ""}
                       onChange={(e) =>
                         handleFieldChange("categoryId", e.target.value)
                       }
-                    />
-                    {errors.categoryId && (
+                    >
+                      <option value="">-- Chọn danh mục --</option>
+
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                          {category.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.supplierOrCategory && (
                       <p className="text-xs text-red-500 mt-1">
-                        {errors.categoryId}
+                        {errors.supplierOrCategory}
                       </p>
                     )}
                   </>

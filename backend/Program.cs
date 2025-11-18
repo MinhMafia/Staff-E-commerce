@@ -32,7 +32,7 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-    // .EnableSensitiveDataLogging() // Dev only
+// .EnableSensitiveDataLogging() // Dev only
 );
 
 // -------------------------
@@ -48,7 +48,10 @@ builder.Services.AddScoped<StatisticsRepository>();
 builder.Services.AddScoped<OrderItemRepository>();
 builder.Services.AddScoped<InventoryRepository>();
 builder.Services.AddScoped<PaymentRepository>();
-    
+builder.Services.AddScoped<CategoryRepository>();
+builder.Services.AddScoped<SupplierRepository>();
+
+
 
 // -------------------------
 // Register Services
@@ -60,9 +63,11 @@ builder.Services.AddScoped<CustomerService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<PromotionService>();
 builder.Services.AddScoped<StatisticsService>();
-builder.Services.AddScoped<OrderItemService>();       
+builder.Services.AddScoped<OrderItemService>();
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<PaymentService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<SupplierService>();
 // -------------------------
 // Configure CORS for React
 // -------------------------
@@ -103,6 +108,14 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")),
+    RequestPath = "", // Để trống để serve trực tiếp /assets/...
+    ServeUnknownFileTypes = false // Bảo mật: chỉ serve các MIME types đã biết
+});
 
 // -------------------------
 // Serve frontend SPA (Vite)

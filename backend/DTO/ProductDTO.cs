@@ -26,7 +26,7 @@ namespace backend.DTO
 
         public string? Description { get; set; }
 
-        [JsonPropertyName("image_url")]
+        // [JsonPropertyName("image_url")]
         public string? ImageUrl { get; set; }
 
         public bool IsActive { get; set; } = true;
