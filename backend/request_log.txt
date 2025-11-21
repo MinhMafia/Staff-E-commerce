@@ -61,3 +61,48 @@
 2025-11-13 21:49:21 | User:anonymous | Action:CREATE_Inventory | Entity:Inventory#reduce-multiple | IP:::1 | Payload:[{"ProductId":43,"Quantity":1}]
 2025-11-13 21:49:21 | User:anonymous | Action:CREATE_Payment | Entity:Payment#momo | IP:::1 | Payload:{"OrderId":65,"Amount":26616,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"http://localhost:5099/api/payment/momo/ipn"}
 2025-11-13 21:53:00 | User:anonymous | Action:CREATE_Payment | Entity:Payment#momo | IP:::1 | Payload:{"partnerCode":"MOMO","orderId":"order_62","requestId":"req_test123","amount":"407779","orderInfo":"Thanh to\u00E1n \u0111\u01A1n h\u00E0ng 62","orderType":"momo_wallet","transId":123456,"resultCode":0,"message":"Success","payType":"qr","extraData":"","signature":"chu_ky_tao_theo_secretKey"}
+2025-11-21 20:03:05 | User:anonymous | Action:CREATE_Customers | Entity:Customers#0 | IP:::1 | Payload:{}
+2025-11-21 20:06:39 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":""}
+2025-11-21 20:10:02 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":""}
+2025-11-21 20:10:25 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":""}
+2025-11-21 20:11:01 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":""}
+2025-11-21 20:11:29 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{}
+2025-11-21 20:11:53 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":""}
+2025-11-21 20:12:57 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:15:00 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:17:55 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-21 20:18:00 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:18:12 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"isActive":false}
+2025-11-21 20:23:54 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":""}
+2025-11-21 20:24:00 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:24:59 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:26:41 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"isActive":false}
+2025-11-21 20:27:26 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"isActive":false}
+2025-11-21 20:28:24 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:29:01 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:34:04 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:35:06 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#set-active | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:35:22 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#set-active | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:37:19 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#set-active | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:38:06 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:39:41 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:40:26 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:41:16 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:42:09 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:42:27 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:43:50 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:44:33 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":true}
+2025-11-21 20:45:06 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:45:13 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:47:05 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":true}
+2025-11-21 20:47:15 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 20:47:34 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#1 | IP:::1 | Payload:{"IsActive":true}
+2025-11-21 23:07:46 | User:anonymous | Action:CREATE_Customers | Entity:Customers#0 | IP:::1 | Payload:{"fullName":"\u00CDch Tr\u00E1c Huy Long","email":null,"phone":"0912345679","address":null}
+2025-11-21 23:15:36 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#21 | IP:::1 | Payload:{"isActive":false}
+2025-11-21 23:19:36 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#21 | IP:::1 | Payload:{"isActive":true}
+2025-11-21 23:22:21 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#21 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 23:25:19 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#16 | IP:::1 | Payload:{"IsActive":false}
+2025-11-21 23:25:39 | User:anonymous | Action:UPDATE_Customers | Entity:Customers#21 | IP:::1 | Payload:{"IsActive":true}
+2025-11-22 00:00:02 | User:anonymous | Action:CREATE_Categories | Entity:Categories#0 | IP:::1 | Payload:{"name":"Th\u1EE9c \u0103n nhanh","description":null}
+2025-11-22 00:00:08 | User:anonymous | Action:UPDATE_Categories | Entity:Categories#6 | IP:::1 | Payload:{"IsActive":false}
+2025-11-22 00:00:21 | User:anonymous | Action:UPDATE_Categories | Entity:Categories#6 | IP:::1 | Payload:{"IsActive":true}

@@ -81,5 +81,92 @@ namespace backend.Repository
 
             return await q.AnyAsync();
         }
+
+        // Lấy category theo slug
+        public async Task<Category?> GetBySlugAsync(string slug)
+        {
+            return await _context.Categories
+                .FirstOrDefaultAsync(c => c.Slug == slug);
+        }
+
+        // Kiểm tra tồn tại theo Id
+        public async Task<bool> ExistsAsync(int id)
+        {
+            return await _context.Categories.AnyAsync(c => c.Id == id);
+        }
+
+        // Đếm tổng số categories
+        public async Task<int> CountAsync()
+        {
+            return await _context.Categories.CountAsync();
+        }
+
+        // Lấy categories có phân trang và filter
+        public async Task<List<Category>> FindCategoriesByFilteredAndPaginatedAsync(
+            int skip,
+            int pageSize,
+            string? keyword = null,
+            string? status = null)
+        {
+            var query = _context.Categories.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var trimmedKeyword = keyword.Trim();
+                query = query.Where(c =>
+                    c.Name.Contains(trimmedKeyword) ||
+                    (c.Description != null && c.Description.Contains(trimmedKeyword)) ||
+                    (c.Slug != null && c.Slug.Contains(trimmedKeyword)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (status.ToLower() == "active")
+                {
+                    query = query.Where(c => c.IsActive);
+                }
+                else if (status.ToLower() == "inactive")
+                {
+                    query = query.Where(c => !c.IsActive);
+                }
+            }
+
+            return await query
+                .OrderByDescending(c => c.CreatedAt)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        // Đếm categories với filter
+        public async Task<int> CountFilteredAndPaginatedAsync(
+            string? keyword = null,
+            string? status = null)
+        {
+            var query = _context.Categories.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var trimmedKeyword = keyword.Trim();
+                query = query.Where(c =>
+                    c.Name.Contains(trimmedKeyword) ||
+                    (c.Description != null && c.Description.Contains(trimmedKeyword)) ||
+                    (c.Slug != null && c.Slug.Contains(trimmedKeyword)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (status.ToLower() == "active")
+                {
+                    query = query.Where(c => c.IsActive);
+                }
+                else if (status.ToLower() == "inactive")
+                {
+                    query = query.Where(c => !c.IsActive);
+                }
+            }
+
+            return await query.CountAsync();
+        }
     }
 }

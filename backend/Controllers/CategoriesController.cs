@@ -16,7 +16,75 @@ namespace backend.Controllers
             _service = service;
         }
 
-        // GET api/categories/paginated
+        // GET api/categories?page=1&pageSize=10&keyword=...&status=active
+        [HttpGet("")]
+        public async Task<ActionResult> GetFilteredAndPaginatedCategories(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? keyword = null,
+            [FromQuery] string? status = null)
+        {
+            var result = await _service.GetFilteredAndPaginatedAsync(page, pageSize, keyword, status);
+            return Ok(result);
+        }
+
+        // GET api/categories/{id}
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult> GetCategoryById(int id)
+        {
+            var result = await _service.GetCategoryByIdAsync(id);
+            if (!result.Success && result.StatusCode == 404)
+            {
+                return NotFound(result.Errors);
+            }
+            return Ok(result.Data);
+        }
+
+        // POST api/categories
+        [HttpPost("")]
+        public async Task<ActionResult> CreateNewCategory([FromBody] CategoryCreateDTO createDto)
+        {
+            var result = await _service.CreateCategoryWithDtoAsync(createDto);
+            if (!result.Success && result.StatusCode == 409)
+            {
+                return Conflict(result.Errors);
+            }
+            return StatusCode(201, result.Data);
+        }
+
+        // PATCH api/categories/{id}
+        [HttpPatch("{id:int}")]
+        public async Task<ActionResult> UpdateCategoryInfo(int id, [FromBody] CategoryUpdateDTO updateDto)
+        {
+            var result = await _service.UpdateCategoryWithDtoAsync(id, updateDto);
+            if (!result.Success && result.StatusCode == 404)
+            {
+                return NotFound(result.Errors);
+            }
+            if (!result.Success && result.StatusCode == 409)
+            {
+                return Conflict(result.Errors);
+            }
+            if (!result.Success)
+            {
+                return BadRequest(result.Errors);
+            }
+            return Ok(result.Data);
+        }
+
+        // PUT api/categories/{id}
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult> UpdateActiveCategoryStatus(int id, [FromBody] CategoryUpdateActiveDTO activeDto)
+        {
+            var result = await _service.UpdateActiveCategoryAsync(id, activeDto.IsActive);
+            if (!result.Success && result.StatusCode == 404)
+            {
+                return NotFound(result.Errors);
+            }
+            return Ok(result.Data);
+        }
+
+        // GET api/categories/paginated (endpoint cũ - giữ lại cho backward compatibility)
         [HttpGet("paginated")]
         public async Task<ActionResult<PaginationResult<CategoryDTO>>> GetPaginated(
             [FromQuery] int page = 1,
@@ -30,85 +98,12 @@ namespace backend.Controllers
             return Ok(result);
         }
 
-        // GET api/categories
-        [HttpGet]
+        // GET api/categories/all (đổi routing để tránh conflict)
+        [HttpGet("all")]
         public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetAll()
         {
             var list = await _service.GetAllAsync();
             return Ok(list);
-        }
-
-        // GET api/categories/{id}
-        [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryDTO>> GetById(int id)
-        {
-            var dto = await _service.GetByIdAsync(id);
-            if (dto == null) return NotFound("Category not found");
-            return Ok(dto);
-        }
-
-        // POST api/categories
-        [HttpPost]
-        public async Task<ActionResult<CategoryDTO>> Create([FromBody] CategoryDTO dto)
-        {
-            if (dto == null) return BadRequest("Payload required");
-            if (string.IsNullOrWhiteSpace(dto.Name)) return BadRequest("Category name required");
-
-            try
-            {
-                var category = new Category
-                {
-                    Name = dto.Name,
-                    IsActive = dto.IsActive,
-                };
-
-                var created = await _service.CreateCategoryAsync(category);
-                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Server error: {ex.Message}");
-            }
-        }
-
-        // PUT api/categories/{id}
-        [HttpPut("{id}")]
-        public async Task<ActionResult<CategoryDTO>> Update(int id, [FromBody] CategoryDTO dto)
-        {
-            if (dto == null) return BadRequest("Payload required");
-            try
-            {
-                var category = new Category
-                {
-                    Id = id,
-                    Name = dto.Name,
-                    IsActive = dto.IsActive
-                };
-
-                var updated = await _service.UpdateCategoryAsync(category);
-                return Ok(updated);
-            }
-            catch (ArgumentException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, "Server error updating category");
-            }
-        }
-
-        // DELETE api/categories/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var ok = await _service.DeleteCategoryAsync(id);
-            if (!ok) return NotFound("Category not found");
-            return Ok("Deleted");
         }
     }
 }

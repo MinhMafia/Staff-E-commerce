@@ -43,7 +43,7 @@ export default function Sidebar({ collapsed, onClose }) {
     <aside
       className={`bg-white border-r border-gray-200 w-64 ${
         collapsed ? "hidden md:block" : "block"
-      } h-screen fixed`}
+      } h-screen fixed z-999`}
     >
       <div className="flex items-center gap-3 px-4 py-4 border-b">
         <div className="w-8 h-8 rounded-md bg-indigo-600 text-white flex items-center justify-center font-bold">

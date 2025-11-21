@@ -64,46 +64,163 @@ namespace backend.Services
             };
         }
 
-        public async Task<CategoryDTO> CreateCategoryAsync(Category category)
-        {
-            if (string.IsNullOrWhiteSpace(category.Name))
-                throw new ArgumentException("Category name is required");
 
-            // check duplicate
-            var exists = await _repo.ExistsByNameAsync(category.Name);
+        // Lấy category với filter và phân trang (ServiceResultDTO)
+        public async Task<ResultPaginatedDTO<CategoryResponseDTO>> GetFilteredAndPaginatedAsync(
+            int page,
+            int pageSize,
+            string? keyword = null,
+            string? status = null)
+        {
+            if (page < 1) page = 1;
+            if (pageSize < 1 || pageSize > 100) pageSize = 10;
+            var skip = (page - 1) * pageSize;
+
+            var categories = await _repo.FindCategoriesByFilteredAndPaginatedAsync(skip, pageSize, keyword, status);
+            var totalItems = await _repo.CountFilteredAndPaginatedAsync(keyword, status);
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            var dtos = categories.Select(MapToCategoryResponseDto).ToList();
+
+            return new ResultPaginatedDTO<CategoryResponseDTO>
+            {
+                Items = dtos,
+                CurrentPage = page,
+                TotalPages = totalPages,
+                TotalItems = totalItems
+            };
+        }
+
+        // Lấy category by Id với ServiceResultDTO
+        public async Task<ServiceResultDTO<CategoryResponseDTO>> GetCategoryByIdAsync(int id)
+        {
+            var category = await _repo.GetByIdAsync(id);
+            if (category == null)
+            {
+                return ServiceResultDTO<CategoryResponseDTO>.CreateFailureResult(404, "Category not found.");
+            }
+
+            return ServiceResultDTO<CategoryResponseDTO>.CreateSuccessResult(MapToCategoryResponseDto(category), 200);
+        }
+
+        // Tạo category mới với ServiceResultDTO
+        public async Task<ServiceResultDTO<CategoryResponseDTO>> CreateCategoryWithDtoAsync(CategoryCreateDTO createDto)
+        {
+            // Kiểm tra trùng tên
+            var exists = await _repo.ExistsByNameAsync(createDto.Name);
             if (exists)
-                throw new ArgumentException("Category name already exists");
+            {
+                return ServiceResultDTO<CategoryResponseDTO>.CreateFailureResult(409, "Category name already exists.");
+            }
 
-            category.CreatedAt = DateTime.UtcNow;
+            var category = new Category
+            {
+                Name = createDto.Name,
+                Description = createDto.Description,
+                Slug = GenerateSlug(createDto.Name),
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var newCategory = await _repo.CreateAsync(category);
+            return ServiceResultDTO<CategoryResponseDTO>.CreateSuccessResult(MapToCategoryResponseDto(newCategory), 201);
+        }
+
+        // Cập nhật category với ServiceResultDTO
+        public async Task<ServiceResultDTO<CategoryResponseDTO>> UpdateCategoryWithDtoAsync(int id, CategoryUpdateDTO updateDto)
+        {
+            var category = await _repo.GetByIdAsync(id);
+            if (category == null)
+            {
+                return ServiceResultDTO<CategoryResponseDTO>.CreateFailureResult(404, "Category not found.");
+            }
+
+            var hasChanges = false;
+
+            if (updateDto.Name != null && updateDto.Name != category.Name)
+            {
+                // Kiểm tra trùng tên
+                var duplicate = await _repo.ExistsByNameAsync(updateDto.Name, id);
+                if (duplicate)
+                {
+                    return ServiceResultDTO<CategoryResponseDTO>.CreateFailureResult(409, "Category name already exists.");
+                }
+
+                category.Name = updateDto.Name;
+                category.Slug = GenerateSlug(updateDto.Name);
+                hasChanges = true;
+            }
+
+            if (updateDto.Description != null && updateDto.Description != category.Description)
+            {
+                category.Description = updateDto.Description;
+                hasChanges = true;
+            }
+
+            if (!hasChanges)
+            {
+                return ServiceResultDTO<CategoryResponseDTO>.CreateFailureResult(400, "No changes detected.");
+            }
+
             category.UpdatedAt = DateTime.UtcNow;
-            var created = await _repo.CreateAsync(category);
-            return MapToDto(created);
+
+            var updatedCategory = await _repo.UpdateAsync(category);
+            return ServiceResultDTO<CategoryResponseDTO>.CreateSuccessResult(
+                MapToCategoryResponseDto(updatedCategory),
+                200
+            );
         }
 
-        public async Task<CategoryDTO> UpdateCategoryAsync(Category category)
+        // Toggle active status với ServiceResultDTO
+        public async Task<ServiceResultDTO<CategoryResponseDTO>> UpdateActiveCategoryAsync(int id, bool isActive)
         {
-            var existing = await _repo.GetByIdAsync(category.Id);
-            if (existing == null)
-                throw new ArgumentException("Category not found");
+            var category = await _repo.GetByIdAsync(id);
+            if (category == null)
+            {
+                return ServiceResultDTO<CategoryResponseDTO>.CreateFailureResult(404, "Category not found.");
+            }
 
-            if (string.IsNullOrWhiteSpace(category.Name))
-                throw new ArgumentException("Category name is required");
+            if (category.IsActive == isActive)
+            {
+                return ServiceResultDTO<CategoryResponseDTO>.CreateFailureResult(400, "No changes detected.");
+            }
 
-            var duplicate = await _repo.ExistsByNameAsync(category.Name, category.Id);
-            if (duplicate)
-                throw new ArgumentException("Category name already exists");
+            category.IsActive = isActive;
+            category.UpdatedAt = DateTime.UtcNow;
 
-            existing.Name = category.Name;
-            existing.IsActive = category.IsActive;
-            existing.UpdatedAt = DateTime.UtcNow;
-
-            var updated = await _repo.UpdateAsync(existing);
-            return MapToDto(updated);
+            var updatedCategory = await _repo.UpdateAsync(category);
+            return ServiceResultDTO<CategoryResponseDTO>.CreateSuccessResult(MapToCategoryResponseDto(updatedCategory), 200);
         }
 
-        public async Task<bool> DeleteCategoryAsync(int id)
+        // Map sang CategoryResponseDTO
+        public CategoryResponseDTO MapToCategoryResponseDto(Category category)
         {
-            return await _repo.DeleteAsync(id);
+            return new CategoryResponseDTO
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Slug = category.Slug,
+                Description = category.Description,
+                IsActive = category.IsActive,
+                CreatedAt = category.CreatedAt,
+                UpdatedAt = category.UpdatedAt
+            };
+        }
+
+        // Tạo slug từ name
+        private string GenerateSlug(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return string.Empty;
+
+            // Chuyển thành lowercase và thay khoảng trắng bằng dấu gạch ngang
+            var slug = name.Trim().ToLower()
+                .Replace(" ", "-")
+                .Replace(".", "")
+                .Replace(",", "");
+
+            return slug;
         }
     }
 }

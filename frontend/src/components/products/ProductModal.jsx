@@ -588,32 +588,36 @@ const ProductModal = ({
                 <label className="text-xs text-gray-600">
                   Trạng thái hoạt động
                 </label>
-                {isView ? (
-                  <div className="flex items-center gap-2 p-2 py-2.5 border rounded bg-gray-50">
-                    <div
-                      className={`w-3 h-3 rounded-full ${
-                        formData.isActive ? "bg-green-500" : "bg-red-500"
-                      }`}
-                    ></div>
-                    <span className="text-sm">
-                      {formData.isActive ? "Đang hoạt động" : "Ngừng hoạt động"}
-                    </span>
-                  </div>
-                ) : (
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.isActive || false}
-                      onChange={(e) =>
-                        handleFieldChange("isActive", e.target.checked)
-                      }
-                      className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
-                    />
-                    <span className="text-sm text-gray-700">
-                      Đang hoạt động
-                    </span>
-                  </label>
-                )}
+                {(() => {
+                  const statusColor = formData.isActive
+                    ? "bg-green-500"
+                    : "bg-red-500";
+                  const statusText = formData.isActive
+                    ? "Đang hoạt động"
+                    : "Ngừng hoạt động";
+                  return isView ? (
+                    <div className="flex items-center gap-2 p-2 py-2.5 border rounded bg-gray-50">
+                      <div
+                        className={`w-3 h-3 rounded-full ${statusColor}`}
+                      ></div>
+                      <span className="text-sm">{statusText}</span>
+                    </div>
+                  ) : (
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={formData.isActive || false}
+                        onChange={(e) =>
+                          handleFieldChange("isActive", e.target.checked)
+                        }
+                        className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+                      />
+                      <span className="text-sm text-gray-700">
+                        Đang hoạt động
+                      </span>
+                    </label>
+                  );
+                })()}
               </div>
 
               {/* --- BUTTONS --- */}

@@ -40,7 +40,10 @@ namespace backend.Models
         [Column("updated_at")]
         public DateTime UpdatedAt { get; set; }
 
-        // Navigation: one customer -> many orders, many promotion redemptions
+        [Column("is_active")]
+        public bool IsActive { get; set; } = true;
+
+        // Navigation: one customer -> many orders, many promotion redemptions, many point histories
         public virtual ICollection<Order>? Orders { get; set; }
         public virtual ICollection<PromotionRedemption>? PromotionRedemptions { get; set; }
     }

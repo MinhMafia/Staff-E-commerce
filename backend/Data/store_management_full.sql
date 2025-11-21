@@ -535,3 +535,6 @@ ADD COLUMN description VARCHAR(1000) NULL;
 ALTER TABLE promotions
 ADD COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0 AFTER updated_at,
 ADD COLUMN deleted_at DATETIME NULL AFTER is_deleted;
+
+ALTER TABLE customers
+ADD COLUMN is_active boolean NOT NULL DEFAULT TRUE
