@@ -43,3 +43,14 @@
 [2025-11-13 21:49:21] [User:2] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":65,"OrderNumber":"d5bd7ff4-1c48-4adf-81e8-c037739d7af5","CustomerId":0,"UserId":2,"Status":"pending","Subtotal":26616,"Discount":0,"TotalAmount":26616,"PromotionId":null,"Note":"m\u00F4m","CreatedAt":"2025-11-13T14:49:21.200Z","UpdatedAt":"2025-11-13T14:49:21.200Z"}
 [2025-11-13 21:49:21] [User:2] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":65,"ProductId":43,"Quantity":1,"UnitPrice":26616,"TotalPrice":26616,"CreatedAt":"2025-11-13T14:49:21.201Z"}]
 [2025-11-13 21:49:21] [User:2] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":43,"Quantity":1}]
+[2025-11-21 15:26:24] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-21 21:42:00] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-21 21:43:56] [User:2] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":66,"OrderNumber":"087091b2-8106-45a6-ade5-1f9c0598b61a","CustomerId":0,"UserId":2,"Status":"completed","Subtotal":372095,"Discount":50000,"TotalAmount":322095,"PromotionId":2,"Note":"TEST L\u1EA0I \u0110\u01A0N H\u00C0NG","CreatedAt":"2025-11-21T14:43:56.285Z","UpdatedAt":"2025-11-21T14:43:56.286Z"}
+[2025-11-21 21:43:56] [User:2] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":66,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-21T14:43:56.286Z"},{"OrderId":66,"ProductId":48,"Quantity":1,"UnitPrice":43415,"TotalPrice":43415,"CreatedAt":"2025-11-21T14:43:56.286Z"}]
+[2025-11-21 21:43:56] [User:2] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":50,"Quantity":1},{"ProductId":48,"Quantity":1}]
+[2025-11-21 21:43:56] [User:2] [Action:CREATE_Promotions] [Entity:Promotions#apply] [IP:::1] {"PromotionId":2,"OrderId":66,"CustomerId":0}
+[2025-11-21 21:44:05] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-21 21:44:51] [User:2] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":67,"OrderNumber":"0a9e8b12-098b-42e8-8230-1fb81e083892","CustomerId":9,"UserId":2,"Status":"pending","Subtotal":230083,"Discount":23008,"TotalAmount":207075,"PromotionId":1,"Note":"TEST MOMO L\u1EA0I L\u1EA6N N\u1EEEA","CreatedAt":"2025-11-21T14:44:51.159Z","UpdatedAt":"2025-11-21T14:44:51.159Z"}
+[2025-11-21 21:44:51] [User:2] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":67,"ProductId":46,"Quantity":1,"UnitPrice":230083,"TotalPrice":230083,"CreatedAt":"2025-11-21T14:44:51.159Z"}]
+[2025-11-21 21:44:51] [User:2] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":46,"Quantity":1}]
+[2025-11-21 21:44:51] [User:2] [Action:CREATE_Promotions] [Entity:Promotions#apply] [IP:::1] {"PromotionId":1,"OrderId":67,"CustomerId":9}
