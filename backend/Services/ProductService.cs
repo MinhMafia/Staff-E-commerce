@@ -243,5 +243,23 @@ namespace backend.Services
 
             return dto;
         }
+
+
+        // lÀM ƠN ĐỪUNG XÓA CỦA => LẤY DANH SÁCH SẢN PHẨM CÒN HÀNG TRONG CỬA HÀNG
+        public async Task<PaginationResult<Product>> GetAvailableProductsAsync(int page, int pageSize)
+        {
+            return await _productRepository.GetAvailableProductsPaginatedAsync(page, pageSize);
+        }
+
+        // Search using repository filtered query for efficiency
+        public async Task<List<ProductDTO>> SearchProductsAsync(string keyword, int maxResults = 50)
+        {
+            if (string.IsNullOrWhiteSpace(keyword)) return new List<ProductDTO>();
+
+            // use filtered API: page=1, pageSize=maxResults, search=keyword
+            var filtered = await _productRepository.GetFilteredAsync(1, maxResults, null, null, null, null, null, keyword);
+            return filtered.Items.Select(MapToProductDto).ToList();
+        }
+
     }
 }

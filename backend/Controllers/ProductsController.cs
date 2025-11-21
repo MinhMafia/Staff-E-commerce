@@ -204,5 +204,58 @@ namespace backend.Controllers
                 return StatusCode(500, new { message = "Error uploading file", error = ex.Message });
             }
         }
+
+
+        // ĐỪNG XÓA LÀM ƠN = lẤY DANH SÁCH SẢN PHẨM CÒN HÀNG TRONG CỬA HÀNG
+
+        [HttpGet("available")]
+        public async Task<ActionResult<PaginationResult<ProductDTO>>> GetAvailableProducts(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20
+        )
+        {
+            try
+            {
+                // Validate page & pageSize
+                if (page < 1) page = 1;
+                if (pageSize < 1 || pageSize > 100) pageSize = 20;
+
+                // Gọi service lấy sản phẩm còn hàng
+                var result = await _productService.GetAvailableProductsAsync(page, pageSize);
+
+                return Ok(result);
+            }
+            catch (ArgumentException ex)
+            {
+                // Lỗi liên quan tới input
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                // Lỗi server
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // TÌM KIẾM
+         // GET api/products/search?keyword=...
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<ProductDTO>>> SearchProducts([FromQuery] string keyword)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(keyword))
+                    return BadRequest("Search keyword is required");
+
+                var products = await _productService.SearchProductsAsync(keyword);
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+       
     }
 }

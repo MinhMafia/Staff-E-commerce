@@ -184,5 +184,39 @@ namespace backend.Repository
             return await q.AnyAsync();
         }
 
+        // LÀM ƠN ĐỪNG XÓA => LẤY DANH SÁCH SẢN PHẨM CÒN HÀNG TRONG CỬA HÀNG
+         public async Task<PaginationResult<Product>> GetAvailableProductsPaginatedAsync(int page, int pageSize)
+        {
+            if (page < 1) page = 1;
+            if (pageSize <= 0) pageSize = 20;
+
+            IQueryable<Product> query = _context.Products
+                .AsNoTracking()
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .Include(p => p.Inventory)
+                .Where(p => p.Inventory != null && p.Inventory.Quantity > 0);
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var items = await query
+                .OrderByDescending(p => p.CreatedAt)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PaginationResult<Product>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalPages = totalPages,
+                HasPrevious = page > 1,
+                HasNext = page < totalPages
+            };
+        }
+
     }
 }
