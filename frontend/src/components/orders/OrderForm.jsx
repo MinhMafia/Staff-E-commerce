@@ -2,44 +2,38 @@ import React from "react";
 import DetailOrderForm from "./DetailOrderForm";
 import PromotionSection from "./PromotionSection";
 
-export default function OrdersForm({ 
-      onClose,
-      openCustomerModal,
-      openProductModal,
-      mode ,
-      currentOrder,
-      setCurrentOrder,
-      payment,
-      setPayment,
-      listOrderProducts,
-      setListOrderProducts,
-      selectedProduct,
-      setSelectedProduct,
-      promotion,
-      setPromotion,
-      click_buttonCreateNewOrder
-      }) {
+export default function OrdersForm({
+  onClose,
+  openCustomerModal,
+  openProductModal,
+  mode,
+  currentOrder,
+  setCurrentOrder,
+  payment,
+  setPayment,
+  listOrderProducts,
+  setListOrderProducts,
+  selectedProduct,
+  setSelectedProduct,
+  promotion,
+  setPromotion,
+  click_buttonCreateNewOrder,
+}) {
+  const formMode = mode;
 
-  const formMode = mode ;
- 
-
-
-  
-  
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-      onClick={onClose} 
+      onClick={onClose}
     >
       <div
         className="bg-white rounded-xl shadow-xl p-6 mb-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()} 
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex justify-between items-center mb-6 border-b pb-4">
           <h1 className="text-3xl font-bold text-gray-800">
-            {formMode !="create" ? "CHI TIẾT ĐƠN HÀNG" : "ĐƠN HÀNG MỚI"}
-            
+            {formMode != "create" ? "CHI TIẾT ĐƠN HÀNG" : "ĐƠN HÀNG MỚI"}
           </h1>
           <button
             className="text-gray-500 hover:text-gray-700"
@@ -82,19 +76,24 @@ export default function OrdersForm({
             </label>
             <div className="flex gap-2">
               <input
-                value={`${currentOrder?.customerName || "Khách Hàng"} (${currentOrder?.customerId ?? 0})`}
+                value={`${currentOrder?.customerName || "Khách Hàng"} (${
+                  currentOrder?.customerId ?? 0
+                })`}
                 readOnly
                 className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
               />
-              {formMode=="create" && (
-                <button className="px-3 py-2.5 bg-gray-200 rounded-lg hover:bg-gray-300" onClick={openCustomerModal}>
+              {formMode == "create" && (
+                <button
+                  className="px-3 py-2.5 bg-gray-200 rounded-lg hover:bg-gray-300"
+                  onClick={openCustomerModal}
+                >
                   {/* Nút mở modal khách hàng */}
                   <svg
                     className="w-5 h-5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
->
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -104,7 +103,6 @@ export default function OrdersForm({
                   </svg>
                 </button>
               )}
-             
             </div>
           </div>
 
@@ -113,15 +111,19 @@ export default function OrdersForm({
             <label className="block text-sm font-bold text-gray-700 mb-1">
               Nhân viên
             </label>
-            <input
-              value={
+            {(() => {
+              const staffName =
                 currentOrder?.userName && currentOrder?.userId
                   ? `${currentOrder.userName} (${currentOrder.userId})`
-                  : "Nhân Viên"
-              }
-              readOnly
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
-            />
+                  : "Nhân Viên";
+              return (
+                <input
+                  value={staffName}
+                  readOnly
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
+                />
+              );
+            })()}
           </div>
 
           {/* Ngày lập phiếu */}
@@ -130,18 +132,18 @@ export default function OrdersForm({
               Ngày lập phiếu
             </label>
             <input
-                value={
-                  currentOrder?.createdAt
-                    ? new Date(currentOrder.createdAt).toLocaleString("vi-VN", {
-                        timeZone: "Asia/Ho_Chi_Minh",
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : ""
-                }
+              value={
+                currentOrder?.createdAt
+                  ? new Date(currentOrder.createdAt).toLocaleString("vi-VN", {
+                      timeZone: "Asia/Ho_Chi_Minh",
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : ""
+              }
               readOnly
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
             />
@@ -153,50 +155,43 @@ export default function OrdersForm({
               Ngày chỉnh sửa
             </label>
             <input
-                value={
-                  currentOrder?.updatedAt
-                    ? new Date(currentOrder.updatedAt).toLocaleString("vi-VN", {
-                        timeZone: "Asia/Ho_Chi_Minh",
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : ""
-                }
+              value={
+                currentOrder?.updatedAt
+                  ? new Date(currentOrder.updatedAt).toLocaleString("vi-VN", {
+                      timeZone: "Asia/Ho_Chi_Minh",
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : ""
+              }
               readOnly
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 font-medium"
             />
           </div>
 
-
-          {
-            formMode !="create" && (
-              <div>
-                {/* Trạng thái đơn */}
-                <label className="block text-sm font-bold text-gray-700 mb-1">
-                  Trạng thái đơn
-                </label>
-                <select
-                  value={currentOrder?.status || "pending"}
-                  disabled={mode !== "create"}
-                  className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg font-bold ${
-                    mode !== "create" ? "bg-gray-100 text-gray-600" : ""
-                  }`}
-                >
-                  <option value="pending">Chưa xử lý</option>
-                  <option value="paid">Đã thanh toán</option>
-                  <option value="completed">Hoàn thành</option>
-                  <option value="canceled">Đã hủy</option>
-                </select>
-              </div>
-
-            )
-          }
-
-         
-
+          {formMode != "create" && (
+            <div>
+              {/* Trạng thái đơn */}
+              <label className="block text-sm font-bold text-gray-700 mb-1">
+                Trạng thái đơn
+              </label>
+              <select
+                value={currentOrder?.status || "pending"}
+                disabled={mode !== "create"}
+                className={`w-full px-4 py-2.5 border border-gray-300 rounded-lg font-bold ${
+                  mode !== "create" ? "bg-gray-100 text-gray-600" : ""
+                }`}
+              >
+                <option value="pending">Chưa xử lý</option>
+                <option value="paid">Đã thanh toán</option>
+                <option value="completed">Hoàn thành</option>
+                <option value="canceled">Đã hủy</option>
+              </select>
+            </div>
+          )}
 
           {/* Ghi chú */}
           <div className="mb-6">
@@ -204,32 +199,34 @@ export default function OrdersForm({
               Ghi chú
             </label>
             <textarea
-              onChange={(e) => setCurrentOrder({ ...currentOrder, note: e.target.value })}
+              onChange={(e) =>
+                setCurrentOrder({ ...currentOrder, note: e.target.value })
+              }
               value={currentOrder?.note}
               rows="2"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg"
             ></textarea>
           </div>
 
-
           {/* Chi tiết đơn hàng */}
-          <DetailOrderForm 
-          openProductModal={openProductModal} 
-          isCreateMode={formMode} 
-          listOrderProducts={listOrderProducts} 
-          setListOrderProducts={setListOrderProducts} 
-          selectedProduct={selectedProduct} 
-          setSelectedProduct={setSelectedProduct} 
-          setCurrentOrder={setCurrentOrder}/>
+          <DetailOrderForm
+            openProductModal={openProductModal}
+            isCreateMode={formMode}
+            listOrderProducts={listOrderProducts}
+            setListOrderProducts={setListOrderProducts}
+            selectedProduct={selectedProduct}
+            setSelectedProduct={setSelectedProduct}
+            setCurrentOrder={setCurrentOrder}
+          />
 
           {/* Khuyến mãi */}
-          <PromotionSection 
-          isCreateMode={formMode} 
-          promotion={promotion} 
-          setPromotion={setPromotion} 
-          currentOrder={currentOrder} 
-          setCurrentOrder={setCurrentOrder}/>
-
+          <PromotionSection
+            isCreateMode={formMode}
+            promotion={promotion}
+            setPromotion={setPromotion}
+            currentOrder={currentOrder}
+            setCurrentOrder={setCurrentOrder}
+          />
 
           {/* Thanh toán */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
@@ -242,7 +239,9 @@ export default function OrdersForm({
                 <select
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg font-medium"
                   value={payment.method}
-                  onChange={(e) => setPayment({ ...payment, method: e.target.value })}
+                  onChange={(e) =>
+                    setPayment({ ...payment, method: e.target.value })
+                  }
                 >
                   <option value="cash">Tiền mặt</option>
                   <option value="other">MoMo</option>
@@ -256,7 +255,6 @@ export default function OrdersForm({
               )}
             </div>
 
-          
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-1">
                 Mã GD
@@ -278,11 +276,11 @@ export default function OrdersForm({
             </div>
           </div>
 
-
           {/* Tổng tiền */}
           <div className="bg-gradient-to-r from-gray-100 to-gray-200 p-6 rounded-xl mb-6 font-bold text-lg">
             <div className="flex justify-between mb-2">
-              <span>Tổng trước giảm:</span> <span>{currentOrder.subtotal}₫</span>
+              <span>Tổng trước giảm:</span>{" "}
+              <span>{currentOrder.subtotal}₫</span>
             </div>
             <div className="flex justify-between mb-2">
               <span>Giảm giá:</span>{" "}
@@ -293,21 +291,16 @@ export default function OrdersForm({
             </div>
           </div>
 
-
-
           {/* Nút hành động */}
           <div className="flex flex-wrap gap-4 justify-end">
-            {formMode =="create" &&(
-              <button 
-              onClick={click_buttonCreateNewOrder}
-              className="px-7 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg">
+            {formMode == "create" && (
+              <button
+                onClick={click_buttonCreateNewOrder}
+                className="px-7 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg"
+              >
                 Tạo Đơn Hàng
               </button>
             )}
-
-
-
-
           </div>
         </div>
       </div>

@@ -11,6 +11,8 @@ import PromotionDetail from "./pages/promotions/PromotionDetail";
 import PromotionCreate from "./pages/promotions/PromotionCreate";
 import PromotionEdit from "./pages/promotions/PromotionEdit";
 import "./App.css";
+import CustomerList from "./pages/customers/CustomerList";
+import CategoryList from "./pages/categories/CategoryList";
 
 function App() {
   return (
@@ -30,6 +32,13 @@ function App() {
           <Route path="/promotions/create" element={<PromotionCreate />} />
           <Route path="/promotions/:id" element={<PromotionDetail />} />
           <Route path="/promotions/:id/edit" element={<PromotionEdit />} />
+
+          {/*Customer Routes */}
+          <Route path="/customers" element={<CustomerList />} />
+
+          {/*Category Routes */}
+          <Route path="/categories" element={<CategoryList />} />
+
           <Route path="*" element={<h1>404 - Page not found</h1>} />
         </Route>
       </Routes>
