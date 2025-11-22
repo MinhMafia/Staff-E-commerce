@@ -100,7 +100,7 @@ namespace backend.Services
                 Amount = req.Amount,
                 Method = "other",
                 TransactionRef = orderId,
-                Status = success ? "completed" : "failed",
+                Status = success ? "pending" : "failed",
                 CreatedAt = DateTime.UtcNow
             };
             await _paymentRepo.AddPaymentAsync(payment);

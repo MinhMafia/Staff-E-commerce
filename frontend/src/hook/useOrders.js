@@ -204,7 +204,7 @@ const pay = async (method = "cash") => {
         OrderId: currentOrder.id,                        // ID đơn hàng hệ thống
         Amount: Math.round(currentOrder.total_amount),  // Số tiền integer
         ReturnUrl: "http://localhost:5173/orders",      // Redirect sau thanh toán (frontend)
-        NotifyUrl: "https://mytest123.loca.lt/api/payment/momo/ipn" // Callback backend
+        NotifyUrl: "http://localhost:5099/api/payment/momo/ipn" // Callback backend
       };
 
       const res = await postJSON("http://localhost:5099/api/payment/momo/create", body);
@@ -333,7 +333,7 @@ const updateCustomer = (customer) => {
 // Chuẩn bị dữ liệu cho order
 const orderObject = (currentOrder, promotion, payment) => {
   // Xác định trạng thái thanh toán
-  const paymentStatus = payment.method === 'cash' ? 'completed' : 'completed';
+  const paymentStatus = payment.method === 'cash' ? 'pending' : 'completed';
 
   return {
     Id: currentOrder.id,
