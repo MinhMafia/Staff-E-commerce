@@ -194,23 +194,20 @@ export const useOrders = () => {
 
 
 
-
 const pay = async (method = "cash") => {
   if (!currentOrder) return;
 
-  const baseUrl = "http://localhost:5099/api/payment";
+  try {
+    if (method === "other") {
+      // Thanh toán MoMo
+      const body = {
+        OrderId: currentOrder.id,                        // ID đơn hàng hệ thống
+        Amount: Math.round(currentOrder.total_amount),  // Số tiền integer
+        ReturnUrl: "http://localhost:5173/orders",      // Redirect sau thanh toán (frontend)
+        NotifyUrl: "https://mytest123.loca.lt/api/payment/momo/ipn" // Callback backend
+      };
 
-  if (method === "other") {
-    // Thanh toán MoMo
-    const body = {
-      OrderId: currentOrder.id,                          // ID đơn hàng hệ thống
-      Amount: Math.round(currentOrder.total_amount),     // Số tiền integer
-      ReturnUrl: "http://localhost:5173/orders",         // Redirect sau thanh toán
-      NotifyUrl: `${baseUrl}/momo/ipn`                  // Callback backend
-    };
-
-    try {
-      const res = await postJSON(`${baseUrl}/momo/create`, body);
+      const res = await postJSON("http://localhost:5099/api/payment/momo/create", body);
 
       if (res?.payUrl) {
         // Redirect người dùng tới MoMo để thanh toán
@@ -220,31 +217,25 @@ const pay = async (method = "cash") => {
       }
 
       return res;
-    } catch (err) {
-      console.error(err);
-      alert("Lỗi khi gọi API thanh toán MoMo");
-      return null;
-    }
-  } else {
-    // Thanh toán offline / cash / card
-    const body = {
-      OrderId: currentOrder.id,
-      Amount: Math.round(currentOrder.total_amount),
-      Method: payment.method,   // cash, card, etc.
-      TransactionRef: null,
-      Status: 'completed',
-      CreatedAt: new Date().toISOString()
-    };
+    } else {
+      // Thanh toán offline / cash / card
+      const body = {
+        OrderId: currentOrder.id,
+        Amount: Math.round(currentOrder.total_amount),
+        Method: method,             // cash, card, etc.
+        TransactionRef: null,
+        Status: "completed",
+        CreatedAt: new Date().toISOString()
+      };
 
-    try {
-      const res = await postJSON(`${baseUrl}/offlinepayment`, body);
+      const res = await postJSON("http://localhost:5099/api/payment/offlinepayment", body);
       if (res) console.log("Thanh toán trực tiếp thành công!");
       return res;
-    } catch (err) {
-      console.error(err);
-      console.log("Lỗi khi thanh toán trực tiếp");
-      return null;
     }
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi khi gọi API thanh toán");
+    return null;
   }
 };
 
@@ -342,7 +333,7 @@ const updateCustomer = (customer) => {
 // Chuẩn bị dữ liệu cho order
 const orderObject = (currentOrder, promotion, payment) => {
   // Xác định trạng thái thanh toán
-  const paymentStatus = payment.method === 'cash' ? 'completed' : 'pending';
+  const paymentStatus = payment.method === 'cash' ? 'completed' : 'completed';
 
   return {
     Id: currentOrder.id,
