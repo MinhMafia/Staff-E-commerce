@@ -1,5 +1,6 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { logout } from "../../api/apiClient";
 
 /**
  * Nếu bạn không dùng react-router, thay NavLink bằng <a href="..."> và className active logic
@@ -33,6 +34,15 @@ const IconUsers = () => (
 );
 
 export default function Sidebar({ collapsed, onClose }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    if (confirm("Bạn có chắc muốn đăng xuất?")) {
+      logout();
+      navigate("/login");
+    }
+  };
+
   // collapsed = true : hide labels (for mobile or small)
   const linkClass = ({ isActive }) =>
     `flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 ${
@@ -144,9 +154,7 @@ export default function Sidebar({ collapsed, onClose }) {
 
         <button
           className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700"
-          onClick={() => {
-            /* logout logic */
-          }}
+          onClick={handleLogout}
         >
           🚪 Đăng xuất
         </button>

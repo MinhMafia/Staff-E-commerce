@@ -10,6 +10,8 @@ import PromotionList from "./pages/promotions/PromotionList";
 import PromotionDetail from "./pages/promotions/PromotionDetail";
 import PromotionCreate from "./pages/promotions/PromotionCreate";
 import PromotionEdit from "./pages/promotions/PromotionEdit";
+import LoginPage from "./pages/login/Login";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import "./App.css";
 import CustomerList from "./pages/customers/CustomerList";
 import CategoryList from "./pages/categories/CategoryList";
@@ -18,7 +20,15 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<AppLayout />}>
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<ProductList />} />
