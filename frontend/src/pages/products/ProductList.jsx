@@ -4,6 +4,7 @@ import { getProductsPaginated, request } from "../../api/apiClient";
 import { formatPrice } from "../../utils/formatPrice";
 import ProductModal from "../../components/products/ProductModal";
 import ImportModal from "../../components/import/ImportModal";
+import { getAllCategories } from "../../api/categoryApi";
 
 export default function ProductList() {
   // --- state
@@ -42,14 +43,14 @@ export default function ProductList() {
   });
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState(null);
-  
+
   // Import modal state
   const [importModalOpen, setImportModalOpen] = useState(false);
 
   // Hàm fetch categories
   const fetchCategories = async () => {
     try {
-      const data = await request("/categories");
+      const data = await getAllCategories();
       setCategories(data);
     } catch (error) {
       console.error("Lỗi khi tải danh mục:", error);

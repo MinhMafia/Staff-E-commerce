@@ -238,7 +238,7 @@ namespace backend.Controllers
         }
 
         // TÌM KIẾM
-         // GET api/products/search?keyword=...
+        // GET api/products/search?keyword=...
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> SearchProducts([FromQuery] string keyword)
         {
@@ -256,6 +256,6 @@ namespace backend.Controllers
             }
         }
 
-       
+
     }
 }

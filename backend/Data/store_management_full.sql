@@ -239,9 +239,13 @@ CREATE INDEX idx_products_created_at ON products (created_at);
 -- ===== USERS =====
 INSERT INTO users (username, email, password_hash, full_name, role, is_active, locked, created_at)
 VALUES
-  ('admin', 'admin@example.com', '$2a$11$vK3pqYxLJ5h7N3nDc8KjXeP5JqKGxM7fXYPZQqQaVZQ9YQqKZvGqm', 'Quản trị viên', 'admin', 1, 0, NOW()),
-  ('staff01', 'staff01@example.com', '$2a$10$wqJzQ9dBbTK.jZBOqVakiuUFuP3Nto0jKQWvMDkXDpUe1koRaSPi6', 'Nguyễn Văn A', 'staff', 1, 0, NOW()),
-  ('staff02', 'staff02@example.com', '$2a$10$wqJzQ9dBbTK.jZBOqVakiuUFuP3Nto0jKQWvMDkXDpUe1koRaSPi6', 'Lê Thị B', 'staff', 1, 0, NOW());
+  ('admin', 'admin@example.com', '$2a$11$B5Pre4vLwlsfDIMg/gXXjuH/CyqianiPXHXSXikWE5R0djN/9Tf7.', 'Quản trị viên', 'admin', 1, 0, NOW()),
+  ('staff01', 'staff01@example.com', '$2a$11$NChyYqe5MniZi.l08LVuP.SkfLMRMtyK6guvRRyq/PdaGdjYoTaO2', 'Nguyễn Văn A', 'staff', 1, 0, NOW()),
+  ('staff02', 'staff02@example.com', '$2a$11$NChyYqe5MniZi.l08LVuP.SkfLMRMtyK6guvRRyq/PdaGdjYoTaO2', 'Lê Thị B', 'staff', 1, 0, NOW());
+
+-- password của admin là admin123
+-- password của staff là 123456
+
 
 -- ===== CUSTOMERS (full_name, phone, email, address) =====
 INSERT INTO customers (full_name, phone, email, address, created_at)
