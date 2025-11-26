@@ -15,6 +15,7 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import "./App.css";
 import CustomerList from "./pages/customers/CustomerList";
 import CategoryList from "./pages/categories/CategoryList";
+import ReportsPage from "./pages/reports/ReportsPage";
 
 function App() {
   return (
@@ -48,6 +49,9 @@ function App() {
 
           {/*Category Routes */}
           <Route path="/categories" element={<CategoryList />} />
+
+          {/*Reports Routes */}
+          <Route path="/reports" element={<ReportsPage />} />
 
           <Route path="*" element={<h1>404 - Page not found</h1>} />
         </Route>

@@ -137,3 +137,4 @@
 2025-11-22 17:17:15 | User:anonymous | Action:CREATE_Orderitem | Entity:Orderitem#create | IP:127.0.0.1 | Payload:[{"OrderId":80,"ProductId":45,"Quantity":1,"UnitPrice":407779,"TotalPrice":407779,"CreatedAt":"2025-11-22T10:17:14.958Z"}]
 2025-11-22 17:17:15 | User:anonymous | Action:CREATE_Inventory | Entity:Inventory#reduce-multiple | IP:127.0.0.1 | Payload:[{"ProductId":45,"Quantity":1}]
 2025-11-22 17:17:15 | User:anonymous | Action:CREATE_Payment | Entity:Payment#momo | IP:127.0.0.1 | Payload:{"OrderId":80,"Amount":407779,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"https://mytest123.loca.lt/api/payment/momo/ipn"}
+2025-11-26 08:57:24 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin2","password":"[REDACTED]"}
