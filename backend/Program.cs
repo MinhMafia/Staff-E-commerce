@@ -57,6 +57,9 @@ builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<SupplierRepository>();
 builder.Services.AddScoped<ReportsRepository>();
 
+builder.Services.AddHttpContextAccessor();
+
+
 
 
 // -------------------------
@@ -138,12 +141,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 
-// Bật middleware logging ngay sau routing
+// Xác thực JWT trước
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Middleware logging bây giờ sẽ đọc context.User chính xác
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseCors("AllowReact");
 app.UseHttpsRedirection();
-app.UseAuthorization();
 
 app.MapControllers();
 

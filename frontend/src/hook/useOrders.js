@@ -1,5 +1,6 @@
 import { useState } from "react";
-import axios from "axios";
+
+import { request } from "../api/apiClient"; // THÊM DÒNG NÀY
 
 
 export const useOrders = () => {
@@ -39,15 +40,6 @@ export const useOrders = () => {
     }
   )
 
-  const postJSON = async (url, data) => {
-    try {
-      const res = await axios.post(url, data);
-      return res.data;
-    } catch (err) {
-      console.error(`API Error [${url}]:`, err.response?.data || err.message);
-      return null;
-    }
-  };
   // --- Modal controls ---
   const openCustomerModal = () => setShowCustomerModal(true);
   const closeCustomerModal = () => setShowCustomerModal(false);
@@ -88,25 +80,22 @@ export const useOrders = () => {
   // --- API: tạo đơn tạm ---
   const createNewOrder = async () => {
     try {
-      const response = await fetch("http://localhost:5099/api/orders/create-temp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+     
+      const orderData = await request("/orders/create-temp", { 
+        method: "POST" 
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error("Lỗi khi tạo đơn hàng:", error.message || response.statusText);
-        return;
-      }
-      //Tạo ra một đơn hàng tạm
-      const orderData = await response.json();
+   
       openOrderModal("create", orderData, []);
+      
     } catch (err) {
-      console.error("Lỗi khi gọi API:", err);
+      console.error("Lỗi khi tạo đơn tạm:", err.message || err);
+      alert("Không thể tạo đơn hàng mới: " + (err.message || "Lỗi không xác định"));
     }
   };
 
   //Lưu đon hàng lên database
+
   async function createOrder(orderData) {
     try {
       console.log("Dữ liệu gửi lên:", orderData);
@@ -116,6 +105,11 @@ export const useOrders = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(orderData),
       });
+      
+      // const response = await request("/orders/create", {
+      //   method: "POST",
+      //   body:orderData,
+      // });
 
       if (!response.ok) {
         console.error("Lỗi khi gọi API:", response.status);
@@ -132,128 +126,94 @@ export const useOrders = () => {
 
 
 
-  async function createOrderItems(orderItems) {
+  const createOrderItems = async (orderItems) => {
     try {
-
-      const res = await axios.post("http://localhost:5099/api/orderitem/create", orderItems);
-      return res.data === true;
-    } catch (error) {
-      console.error("Lỗi khi lưu order items:", error);
+      const result = await request("/orderitem/create", {
+        method: "POST",
+        body: orderItems,
+      });
+      return result === true;
+    } catch (err) {
+      alert("Lưu sản phẩm thất bại: " + err.message);
       return false;
     }
-  }
+  };
 
-  // src/api/promotionApi.js
 
-  async function applyPromotion(promotionId, orderId, customerId) {
+
+  const applyPromotion = async (promotionId, orderId, customerId) => {
     try {
-      const res = await fetch("http://localhost:5099/api/promotions/apply", {
+      await request("/promotions/apply", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          PromotionId: promotionId,   // phải đúng tên property
-          OrderId: orderId,
-          CustomerId: customerId
-        })
+        body: { PromotionId: promotionId, OrderId: orderId, CustomerId: customerId },
       });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Apply Promotion failed:", errorData);
-        return false;
-      }
-
       return true;
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error("Apply promotion error:", err.message);
       return false;
     }
-  }
+  };
 
  
-  async function reduceInventory(items) {
-  try {
-    const res = await fetch("http://localhost:5099/api/inventory/reduce-multiple", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(items)
-    });
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      console.error("Reduce inventory failed:", errorData?.message || "Unknown error");
+
+  const reduceInventory = async (items) => {
+    try {
+      await request("/inventory/reduce-multiple", {
+        method: "POST",
+        body: items,
+      });
+      return true;
+    } catch (err) {
+      alert("Cập nhật kho thất bại: " + err.message);
       return false;
     }
-
-    return true;
-  } catch (err) {
-    console.error("Fetch error:", err);
-    return false;
-  }
-}
-
-
+  };
 
 const pay = async (method = "cash") => {
   if (!currentOrder) return;
 
-  try {
-    if (method === "other") {
-      // Thanh toán MoMo
-      const body = {
-        OrderId: currentOrder.id,                        // ID đơn hàng hệ thống
-        Amount: Math.round(currentOrder.total_amount),  // Số tiền integer
-        ReturnUrl: "http://localhost:5173/orders",      // Redirect sau thanh toán (frontend)
-        NotifyUrl: "http://localhost:5099/api/payment/momo/ipn" // Callback backend
-      };
-
-      const res = await postJSON("http://localhost:5099/api/payment/momo/create", body);
-
-      if (res?.payUrl) {
-        // Redirect người dùng tới MoMo để thanh toán
-        window.location.href = res.payUrl;
-      } else {
-        alert("Tạo payment MoMo thất bại. Kiểm tra backend logs.");
-      }
-
-      return res;
-    } else {
-      // Thanh toán offline / cash / card
-      const body = {
-        OrderId: currentOrder.id,
-        Amount: Math.round(currentOrder.total_amount),
-        Method: method,             // cash, card, etc.
-        TransactionRef: null,
-        Status: "completed",
-        CreatedAt: new Date().toISOString()
-      };
-
-      const res = await postJSON("http://localhost:5099/api/payment/offlinepayment", body);
-      if (res) console.log("Thanh toán trực tiếp thành công!");
-      return res;
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Lỗi khi gọi API thanh toán");
-    return null;
+  if (method === "other") {
+    const body = {
+      OrderId: currentOrder.id,
+      Amount: Math.round(currentOrder.total_amount),
+      ReturnUrl: "http://localhost:5173/orders",
+      NotifyUrl: "http://localhost:5099/api/payment/momo/ipn"
+    };
+    const res = await request("/payment/momo/create", { method: "POST", body });
+    if (res?.payUrl) window.location.href = res.payUrl;
+    return res;
+  } else {
+    const body = {
+      OrderId: currentOrder.id,
+      Amount: Math.round(currentOrder.total_amount),
+      Method: method,
+      Status: "completed",
+    };
+    return await request("/payment/offlinepayment", { method: "POST", body });
   }
 };
 
 
-
 const click_buttonCreateNewOrder = async () => {
-  console.log("===== THÔNG TIN ĐƠN HÀNG HIỆN TẠI =====");
-  console.log("Đơn hàng:", currentOrder);
-  console.log("Sản phẩm trong đơn:", listOrderProducts);
+  console.log("=== BẮT ĐẦU TẠO ĐƠN HÀNG ===");
+  console.log("Current Order:", currentOrder);
   console.log("Khuyến mãi:", promotion);
-  console.log("Thanh toán:", payment);
+  console.log("Danh sách sản phẩm:", listOrderProducts);
 
-  if (listOrderProducts.length === 0) {
+  // Check xem có sản phẩm trong đơn không
+  if (!listOrderProducts || listOrderProducts.length === 0) {
     alert("Vui lòng thêm sản phẩm vào đơn hàng!");
     return;
   }
 
+  // Check currentOrder
+  if (!currentOrder || !currentOrder.id) {
+    alert("Order chưa được tạo. Vui lòng tạo đơn tạm trước!");
+    return;
+  }
 
+  // Chuẩn bị dữ liệu
   const orderData = orderObject(currentOrder, promotion, payment);
   const listOrderItem = listOrderItemObject(listOrderProducts, currentOrder);
   const listreduceItem = listReduceItemObject(listOrderProducts);
@@ -261,30 +221,33 @@ const click_buttonCreateNewOrder = async () => {
   console.log("===== THÔNG TIN TRUYỀN LÊN DB =====");
   console.log("Đơn hàng:", orderData);
   console.log("Sản phẩm trong đơn:", listOrderItem);
-  console.log("Sản phẩm bị trừ:", listreduceItem );
+  console.log("Sản phẩm bị trừ:", listreduceItem);
 
+  // --- Lưu đơn hàng ---
   const success = await createOrder(orderData);
   if (!success) {
     alert("Lưu đơn thất bại");
     return;
   }
 
+  // --- Lưu sản phẩm trong đơn ---
   const success1 = await createOrderItems(listOrderItem);
   if (!success1) {
-    alert("Lưu item thất bại");
+    alert("Lưu sản phẩm thất bại");
     return;
   }
 
+  // --- Giảm inventory ---
   const success2 = await reduceInventory(listreduceItem);
   if (!success2) {
-    console.log("Cập nhật inventory thất bại");
-    alert("Cập nhật inventory thất bại");
+    alert("Cập nhật kho thất bại");
     return;
   } else {
     console.log("Giảm số lượng sản phẩm trong inventory thành công");
   }
 
-  if (promotion?.id != null) {
+  // --- Apply promotion nếu có ---
+  if (promotion?.id != null && currentOrder.customerId) {
     const success3 = await applyPromotion(
       promotion.id,
       currentOrder.id,
@@ -293,18 +256,24 @@ const click_buttonCreateNewOrder = async () => {
     console.log(success3 ? "Apply promotion thành công" : "Apply promotion thất bại");
   }
 
-    // --- Bước thanh toán ---
+  // --- Thanh toán ---
+  if (!payment?.method) payment.method = "cash"; // mặc định cash
   try {
-
     const paymentResult = await pay(payment.method);
     if (paymentResult) {
       console.log("Thanh toán thành công:", paymentResult);
       alert("Thanh toán thành công");
+
+      // --- Hỏi có muốn in phiếu không ---
+      const printConfirm = window.confirm("Đơn hàng đã lưu thành công. Bạn có muốn in phiếu không?");
+      if (printConfirm) {
+        printOrder(currentOrder, listOrderProducts, promotion, payment);
+      }
+
       closeOrderModal();
     } else {
       console.log("Thanh toán thất bại hoặc bị hủy");
       closeOrderModal();
-
     }
   } catch (err) {
     console.error("Lỗi khi thanh toán:", err);
@@ -312,7 +281,56 @@ const click_buttonCreateNewOrder = async () => {
     closeOrderModal();
   }
 
+  console.log("=== KẾT THÚC TẠO ĐƠN HÀNG ===");
 };
+
+
+const printOrder = (order, products, promotion, payment) => {
+  // Mở cửa sổ in ngay lập tức
+  const printWindow = window.open('', '', 'width=800,height=600');
+  if (!printWindow) {
+    alert("Trình duyệt chặn popup. Vui lòng cho phép popup để in phiếu.");
+    return;
+  }
+
+  // Tạo nội dung HTML
+  let html = `
+    <h2>Phiếu Đơn Hàng #${order.orderNumber}</h2>
+    <p>Khách hàng: ${order.customerName || "Khách lẻ"}</p>
+    <p>Ngày tạo: ${new Date().toLocaleString()}</p>
+    <table border="1" cellspacing="0" cellpadding="5">
+      <tr>
+        <th>Sản phẩm</th>
+        <th>Số lượng</th>
+        <th>Đơn giá</th>
+        <th>Thành tiền</th>
+      </tr>
+  `;
+
+  products.forEach(p => {
+    html += `
+      <tr>
+        <td>${p.name}</td>
+        <td>${p.qty}</td>
+        <td>${p.price}</td>
+        <td>${p.total}</td>
+      </tr>
+    `;
+  });
+
+  html += `</table>`;
+  html += `<p>Tổng tiền: ${order.total_amount}</p>`;
+  if (promotion?.code) html += `<p>Khuyến mãi: ${promotion.code} - Giảm ${promotion.value}</p>`;
+  html += `<p>Thanh toán: ${payment.method} - ${payment.status}</p>`;
+
+  // Ghi nội dung và in
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+};
+
+
 
 
 

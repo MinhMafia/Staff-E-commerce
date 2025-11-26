@@ -26,7 +26,8 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                Console.WriteLine($"Lỗi tạo order: {ex}");
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
         

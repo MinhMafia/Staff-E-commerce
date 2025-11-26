@@ -70,7 +70,7 @@ namespace backend.Middlewares
 
                     Console.WriteLine($"[RequestLoggingMiddleware] Logging {action} for {entityName}#{entityId}");
 
-                    // 🔹 Ghi log vào DB
+                    // Ghi log vào DB
                     try
                     {
                         using var scope = _serviceProvider.CreateScope();
@@ -153,12 +153,17 @@ namespace backend.Middlewares
         {
             if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
             {
-                var claim = context.User.FindFirst("userId") ?? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+                // Lấy claim uid từ token
+                var claim = context.User.FindFirst("uid") 
+                            ?? context.User.FindFirst("userId") 
+                            ?? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+
                 if (claim != null && int.TryParse(claim.Value, out int id))
                     return id;
             }
             return null; // anonymous
         }
+
 
         private string PreparePayload(string text)
         {

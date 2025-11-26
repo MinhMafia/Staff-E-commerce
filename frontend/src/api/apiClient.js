@@ -1,5 +1,7 @@
 // src/api/apiClient.js
 import { trackRequestStart, trackRequestEnd } from "../utils/requestTracker";
+import * as jwt_decode from "jwt-decode";
+
 
 const BASE_URL = "http://localhost:5099/api";
 const USER_ID_STORAGE_KEY = "currentUserId";
@@ -27,6 +29,17 @@ function getCurrentUserId() {
   }
 
   return null;
+}
+// Test thủ
+export function setUserIdFromToken(token) {
+  try {
+    const decoded = jwt_decode.default(token);
+    if (decoded?.uid) {
+      setCurrentUserId(decoded.uid); // lưu vào localStorage
+    }
+  } catch (err) {
+    console.error("Failed to decode JWT", err);
+  }
 }
 
 function setCurrentUserId(id) {

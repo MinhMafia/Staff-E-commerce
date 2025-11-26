@@ -1,6 +1,6 @@
 // src/pages/login/Login.jsx
 import React, { useState } from "react";
-import { login, setAuthToken } from "../../api/apiClient";
+import { login, setAuthToken,setUserIdFromToken } from "../../api/apiClient";
 import { useNavigate } from "react-router-dom";
 
 export default function LoginPage() {
@@ -19,7 +19,9 @@ export default function LoginPage() {
     try {
       const data = await login(username.trim(), password);
       // data: { token, tokenType, expiresIn, userName, role }
-      // setAuthToken(data.token, { persist: true });
+      setAuthToken(data.token, { persist: true });
+      setUserIdFromToken(data.token); // <-- thêm dòng này
+
       localStorage.setItem("user_role", data.role || "staff");
       localStorage.setItem("user_name", data.userName || username);
       // redirect to dashboard
@@ -31,6 +33,8 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);

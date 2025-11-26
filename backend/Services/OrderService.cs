@@ -3,6 +3,7 @@ using backend.Repository;
 using backend.DTO;
 using System;
 using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace backend.Services
 {
@@ -13,14 +14,39 @@ namespace backend.Services
         private readonly UserRepository _userRepo;
         private readonly CustomerRepository _customerRepo;
 
-        public OrderService(OrderRepository orderRepo, ActivityLogService logService,  UserRepository userRepo, 
-            CustomerRepository customerRepo)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public OrderService(
+            OrderRepository orderRepo,
+            ActivityLogService logService,
+            UserRepository userRepo,
+            CustomerRepository customerRepo,
+            IHttpContextAccessor httpContextAccessor)
         {
             _orderRepo = orderRepo;
             _logService = logService;
             _customerRepo = customerRepo;
             _userRepo = userRepo;
+            _httpContextAccessor = httpContextAccessor;
         }
+
+        // Tự động lấy user_id
+        private int GetCurrentUserId()
+        {
+            var context = _httpContextAccessor.HttpContext;
+            if (context?.User?.Identity?.IsAuthenticated == true)
+            {
+                var claim = context.User.FindFirst("uid") 
+                            ?? context.User.FindFirst("userId") 
+                            ?? context.User.FindFirst(ClaimTypes.NameIdentifier);
+
+                if (claim != null && int.TryParse(claim.Value, out int id))
+                    return id;
+            }
+
+            throw new Exception("Không tìm thấy user_id trong token");
+        }
+
 
         /*
             Phương thúc Tạo đơn hàng mới 
@@ -38,28 +64,23 @@ namespace backend.Services
         */
         public async Task<OrderDTO> CreateTemporaryOrderAsync()
         {
-            // Lấy max Id để tạo Id mới
             int maxId = await _orderRepo.GetMaxIdAsync();
             int newId = maxId + 1;
+            string orderCode = Guid.NewGuid().ToString();
 
-            // Tạo mã đơn hàng dạng UUID thay vì DH_<id>_<timestamp>
-            string orderCode = Guid.NewGuid().ToString(); // VD: "f601fbc0-b99a-11f0-820b-141333c764dc"
-
-            // Lấy thông tin User (nhân viên) từ DB
-            int userId = 2; // tạm thời
+            // Lấy user_id thực tế
+            int userId = GetCurrentUserId();
             var user = await _userRepo.GetByIdAsync(userId);
-            string userName = user?.FullName ?? "Nhân viên #2";
+            string userName = user?.FullName ?? $"Nhân viên #{userId}";
 
-            // Lấy thông tin Customer (khách vãng lai) từ DB
             int customerId = 0;
             var customer = await _customerRepo.GetByIdAsync(customerId);
             string customerName = customer?.FullName ?? "Khách vãng lai";
 
-            // Tạo object OrderDTO tạm thời (chưa lưu DB)
             var tempOrder = new OrderDTO
             {
                 Id = newId,
-                OrderNumber = orderCode,      // Dùng UUID
+                OrderNumber = orderCode,
                 CustomerId = customerId,
                 UserId = userId,
                 Status = "pending",
@@ -77,6 +98,7 @@ namespace backend.Services
 
             return tempOrder;
         }
+
         
         // Lưu đơn hàng (frontend đã gửi đủ dữ liệu)
         public async Task<Order> SaveOrderAsync(Order order)

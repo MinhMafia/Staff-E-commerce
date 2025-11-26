@@ -138,3 +138,52 @@
 2025-11-22 17:17:15 | User:anonymous | Action:CREATE_Inventory | Entity:Inventory#reduce-multiple | IP:127.0.0.1 | Payload:[{"ProductId":45,"Quantity":1}]
 2025-11-22 17:17:15 | User:anonymous | Action:CREATE_Payment | Entity:Payment#momo | IP:127.0.0.1 | Payload:{"OrderId":80,"Amount":407779,"ReturnUrl":"http://localhost:5173/orders","NotifyUrl":"https://mytest123.loca.lt/api/payment/momo/ipn"}
 2025-11-26 08:57:24 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin2","password":"[REDACTED]"}
+2025-11-26 20:55:38 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-11-26 20:55:54 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 20:57:00 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 20:59:16 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 21:35:42 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 21:38:00 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 21:40:03 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 21:44:56 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 21:45:05 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 21:45:23 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-11-26 21:45:33 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 21:47:46 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 22:00:49 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 22:01:00 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 22:33:45 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 22:33:52 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 22:34:14 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-11-26 22:34:25 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 22:48:56 | User:admin | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 22:51:17 | User:admin | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 22:56:50 | User:admin | Action:UPDATE_Products | Entity:Products#1 | IP:::1 | Payload:{"id":1,"productName":"Coca Cola lon","price":314838,"sku":"mm","unit":"h\u1ED9p","categoryId":2,"supplierId":1,"isActive":true,"description":"MaiAnh","imageUrl":""}
+2025-11-26 22:57:45 | User:anonymous | Action:CREATE_Customers | Entity:Customers#0 | IP:::1 | Payload:{"fullName":"MaiAnhDo","email":"maianhdo20042203@gmail.com","phone":"0899463504","address":"maibhcbhf"}
+2025-11-26 22:57:57 | User:anonymous | Action:CREATE_Customers | Entity:Customers#0 | IP:::1 | Payload:{"fullName":"MaiAnhDo","email":"maianhdo200423@gmail.com","phone":"0899463504","address":"maibhcbhf"}
+2025-11-26 22:58:06 | User:anonymous | Action:CREATE_Customers | Entity:Customers#0 | IP:::1 | Payload:{"fullName":"MaiAnhDo","email":"maianhdo200423@gmail.com","phone":"0899463505","address":"maibhcbhf"}
+2025-11-26 23:24:42 | User:anonymous | Action:CREATE_Promotions | Entity:Promotions#0 | IP:::1 | Payload:{"code":"GIAMGIA SALE","type":"percent","value":5,"minOrderAmount":11000,"maxDiscount":null,"usageLimit":null,"description":"dsfndjb","startDate":"2025-11-27","endDate":"2025-11-30","active":true}
+2025-11-26 23:24:53 | User:anonymous | Action:CREATE_Promotions | Entity:Promotions#0 | IP:::1 | Payload:{"code":"GIAMGIA GAIM","type":"percent","value":5,"minOrderAmount":11000,"maxDiscount":null,"usageLimit":null,"description":"dsfndjb","startDate":"2025-11-27","endDate":"2025-11-30","active":true}
+2025-11-26 23:50:33 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 23:50:55 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-26 23:55:14 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 00:13:37 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 00:15:03 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-11-27 00:15:08 | User:admin | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 00:15:40 | User:admin | Action:CREATE_Orders | Entity:Orders#create | IP:::1 | Payload:{"Id":81,"OrderNumber":"2048d849-4d5c-4821-bc58-c684c599ba75","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":32868,"TotalAmount":295812,"PromotionId":1,"Note":"test","CreatedAt":"2025-11-26T17:15:40.207Z","UpdatedAt":"2025-11-26T17:15:40.208Z"}
+2025-11-27 00:22:24 | User:admin | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 00:22:50 | User:admin | Action:CREATE_Orders | Entity:Orders#create | IP:::1 | Payload:{"Id":82,"OrderNumber":"de8f0c9f-b3e8-40c8-b1e2-9c41774747fd","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":32868,"TotalAmount":295812,"PromotionId":1,"Note":"hhh","CreatedAt":"2025-11-26T17:22:49.978Z","UpdatedAt":"2025-11-26T17:22:49.978Z"}
+2025-11-27 00:24:08 | User:admin | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 00:24:23 | User:admin | Action:CREATE_Orders | Entity:Orders#create | IP:::1 | Payload:{"Id":83,"OrderNumber":"7e1c5a87-284e-488e-9255-81aaabb14510","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":32868,"TotalAmount":295812,"PromotionId":1,"Note":"cs","CreatedAt":"2025-11-26T17:24:23.514Z","UpdatedAt":"2025-11-26T17:24:23.514Z"}
+2025-11-27 00:25:08 | User:admin | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 00:25:34 | User:admin | Action:CREATE_Orders | Entity:Orders#create | IP:::1 | Payload:{"Id":84,"OrderNumber":"fca275a3-167d-48a0-b9bc-7a7cb23ec680","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":83536,"Discount":16707,"TotalAmount":66829,"PromotionId":3,"Note":"test","CreatedAt":"2025-11-26T17:25:34.824Z","UpdatedAt":"2025-11-26T17:25:34.824Z"}
+2025-11-27 00:27:00 | User:admin | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 00:27:24 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create | IP:::1 | Payload:{"Id":85,"OrderNumber":"bfd122c3-65ce-4a78-9cf3-87ba8daa0c15","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":65736,"TotalAmount":262944,"PromotionId":3,"Note":"nn","CreatedAt":"2025-11-26T17:27:24.468Z","UpdatedAt":"2025-11-26T17:27:24.468Z"}
+2025-11-27 00:27:24 | User:admin | Action:CREATE_Orderitem | Entity:Orderitem#create | IP:::1 | Payload:[{"OrderId":85,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-26T17:27:24.468Z"}]
+2025-11-27 00:27:24 | User:admin | Action:CREATE_Inventory | Entity:Inventory#reduce-multiple | IP:::1 | Payload:[{"ProductId":50,"Quantity":1}]
+2025-11-27 00:27:25 | User:admin | Action:CREATE_Payment | Entity:Payment#offlinepayment | IP:::1 | Payload:{"OrderId":85,"Amount":262944,"Method":"cash","Status":"completed"}
+2025-11-27 00:40:33 | User:admin | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 00:40:52 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create | IP:::1 | Payload:{"Id":86,"OrderNumber":"030ced9a-3013-4906-a299-d2e420e59c39","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":0,"TotalAmount":328680,"PromotionId":null,"Note":"test in","CreatedAt":"2025-11-26T17:40:52.817Z","UpdatedAt":"2025-11-26T17:40:52.817Z"}
+2025-11-27 00:40:52 | User:admin | Action:CREATE_Orderitem | Entity:Orderitem#create | IP:::1 | Payload:[{"OrderId":86,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-26T17:40:52.818Z"}]
+2025-11-27 00:40:53 | User:admin | Action:CREATE_Inventory | Entity:Inventory#reduce-multiple | IP:::1 | Payload:[{"ProductId":50,"Quantity":1}]
+2025-11-27 00:40:53 | User:admin | Action:CREATE_Payment | Entity:Payment#offlinepayment | IP:::1 | Payload:{"OrderId":86,"Amount":328680,"Method":"cash","Status":"completed"}
