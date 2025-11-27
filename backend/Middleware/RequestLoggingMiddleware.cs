@@ -149,20 +149,41 @@ namespace backend.Middlewares
             }
         }
 
+        // private int? GetUserId(HttpContext context)
+        // {
+        //     if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
+        //     {
+        //         // Lấy claim uid từ token
+        //         var claim = context.User.FindFirst("uid") 
+        //                     ?? context.User.FindFirst("userId") 
+        //                     ?? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+
+        //         if (claim != null && int.TryParse(claim.Value, out int id))
+        //             return id;
+        //     }
+        //     return null; 
+        // }
         private int? GetUserId(HttpContext context)
         {
-            if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
+            try
             {
-                // Lấy claim uid từ token
-                var claim = context.User.FindFirst("uid") 
-                            ?? context.User.FindFirst("userId") 
-                            ?? context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier);
+                // 1. Nếu token hợp lệ: context.User đã được gán claims
+                var uidClaim = context.User.FindFirst("uid");
+                if (uidClaim != null && int.TryParse(uidClaim.Value, out int jwtUserId))
+                    return jwtUserId;
 
-                if (claim != null && int.TryParse(claim.Value, out int id))
-                    return id;
+                // 2. Fallback (trong TH bạn muốn dùng X-User-Id)
+                if (context.Request.Headers.TryGetValue("X-User-Id", out var headerUserId))
+                {
+                    if (int.TryParse(headerUserId.ToString(), out int headerId))
+                        return headerId;
+                }
             }
-            return null; // anonymous
+            catch {}
+
+            return null; // middleware sẽ dùng default 2
         }
+
 
 
         private string PreparePayload(string text)

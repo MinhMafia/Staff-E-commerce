@@ -100,29 +100,18 @@ export const useOrders = () => {
     try {
       console.log("Dữ liệu gửi lên:", orderData);
 
-      const response = await fetch("http://localhost:5099/api/orders/create", {
+      const result = await request("/orders/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
+        body: orderData,  
       });
-      
-      // const response = await request("/orders/create", {
-      //   method: "POST",
-      //   body:orderData,
-      // });
 
-      if (!response.ok) {
-        console.error("Lỗi khi gọi API:", response.status);
-        return false;
-      }
-
-      const result = await response.json();
       return result === true;
     } catch (error) {
       console.error("Lỗi khi tạo đơn hàng:", error);
       return false;
     }
   }
+
 
 
 
@@ -310,7 +299,7 @@ const printOrder = (order, products, promotion, payment) => {
   products.forEach(p => {
     html += `
       <tr>
-        <td>${p.name}</td>
+        <td>${p.product_name}</td>
         <td>${p.qty}</td>
         <td>${p.price}</td>
         <td>${p.total}</td>

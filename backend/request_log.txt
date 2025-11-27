@@ -187,3 +187,16 @@
 2025-11-27 00:40:52 | User:admin | Action:CREATE_Orderitem | Entity:Orderitem#create | IP:::1 | Payload:[{"OrderId":86,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-26T17:40:52.818Z"}]
 2025-11-27 00:40:53 | User:admin | Action:CREATE_Inventory | Entity:Inventory#reduce-multiple | IP:::1 | Payload:[{"ProductId":50,"Quantity":1}]
 2025-11-27 00:40:53 | User:admin | Action:CREATE_Payment | Entity:Payment#offlinepayment | IP:::1 | Payload:{"OrderId":86,"Amount":328680,"Method":"cash","Status":"completed"}
+2025-11-27 13:22:05 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 13:22:39 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-11-27 13:22:44 | User:admin | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 13:23:38 | User:admin | Action:CREATE_Orders | Entity:Orders#create | IP:::1 | Payload:{"Id":87,"OrderNumber":"4a230537-6531-4408-85b3-06e452bfbac1","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":0,"TotalAmount":328680,"PromotionId":null,"Note":"test ","CreatedAt":"2025-11-27T06:23:38.701Z","UpdatedAt":"2025-11-27T06:23:38.703Z"}
+2025-11-27 13:23:38 | User:admin | Action:CREATE_Orderitem | Entity:Orderitem#create | IP:::1 | Payload:[{"OrderId":87,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-27T06:23:38.704Z"}]
+2025-11-27 13:23:38 | User:admin | Action:CREATE_Inventory | Entity:Inventory#reduce-multiple | IP:::1 | Payload:[{"ProductId":50,"Quantity":1}]
+2025-11-27 13:23:38 | User:admin | Action:CREATE_Payment | Entity:Payment#offlinepayment | IP:::1 | Payload:{"OrderId":87,"Amount":328680,"Method":"cash","Status":"completed"}
+2025-11-27 21:16:09 | User:anonymous | Action:CREATE_Orders | Entity:Orders#create-temp | IP:::1 | Payload:{"raw":"[Empty Body]"}
+2025-11-27 21:16:41 | User:anonymous | Action:CREATE_Customers | Entity:Customers#0 | IP:::1 | Payload:{"fullName":"\u0110\u1ED7 V\u0169 Minh Anh","email":"admin@example.com","phone":"0899463508","address":null}
+2025-11-27 21:17:57 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-11-27 21:18:23 | User:anonymous | Action:CREATE_Customers | Entity:Customers#0 | IP:::1 | Payload:{"fullName":"\u0110\u1ED7 V\u0169 Minh Th\u01B0","email":null,"phone":"0899463500","address":null}
+2025-11-27 21:36:29 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-11-27 21:36:56 | User:admin | Action:CREATE_Customers | Entity:Customers#0 | IP:::1 | Payload:{"fullName":"\u0110\u1ED7 V\u0169 Nh\u01B0 \u00DD","email":null,"phone":"0899463507","address":null}

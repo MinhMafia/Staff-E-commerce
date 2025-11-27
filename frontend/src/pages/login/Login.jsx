@@ -1,7 +1,9 @@
 // src/pages/login/Login.jsx
 import React, { useState } from "react";
-import { login, setAuthToken,setUserIdFromToken } from "../../api/apiClient";
+import { login, setAuthToken,setCurrentUserId } from "../../api/apiClient";
 import { useNavigate } from "react-router-dom";
+import * as jwt_decode from "jwt-decode";
+
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -12,19 +14,51 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const nav = useNavigate();
 
-  const handleSubmit = async (e) => {
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setError("");
+  //   setLoading(true);
+  //   try {
+  //     const data = await login(username.trim(), password);
+  //     // data: { token, tokenType, expiresIn, userName, role }
+  //     // setAuthToken(data.token, { persist: true });
+ 
+
+  //     localStorage.setItem("user_role", data.role || "staff");
+  //     localStorage.setItem("user_name", data.userName || username);
+  //     // redirect to dashboard
+  //     nav("/dashboard");
+  //   } catch (err) {
+  //     console.error(err);
+  //     setError(err.message || "Đăng nhập thất bại");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+    async function handleSubmit(e) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
       const data = await login(username.trim(), password);
-      // data: { token, tokenType, expiresIn, userName, role }
-      setAuthToken(data.token, { persist: true });
-      setUserIdFromToken(data.token); // <-- thêm dòng này
 
+      if (data?.token) {
+        setAuthToken(data.token, { persist: true });
+
+        // decode JWT để lấy userId (uid claim)
+        try {
+          const decoded = jwt_decode(data.token);
+          const userId = decoded?.uid;
+          if (userId) setCurrentUserId(userId);
+        } catch (err) {
+          console.error("Failed to decode JWT", err);
+        }
+      }
+
+      // lưu role + username
       localStorage.setItem("user_role", data.role || "staff");
       localStorage.setItem("user_name", data.userName || username);
-      // redirect to dashboard
+
       nav("/dashboard");
     } catch (err) {
       console.error(err);
@@ -32,7 +66,7 @@ export default function LoginPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   
 

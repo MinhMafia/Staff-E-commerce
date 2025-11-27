@@ -46,3 +46,15 @@
 [2025-11-27 00:40:52] [User:2] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":86,"OrderNumber":"030ced9a-3013-4906-a299-d2e420e59c39","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":0,"TotalAmount":328680,"PromotionId":null,"Note":"test in","CreatedAt":"2025-11-26T17:40:52.817Z","UpdatedAt":"2025-11-26T17:40:52.817Z"}
 [2025-11-27 00:40:52] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":86,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-26T17:40:52.818Z"}]
 [2025-11-27 00:40:53] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":50,"Quantity":1}]
+[2025-11-27 13:22:05] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 13:22:39] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-11-27 13:22:44] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 13:23:38] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":87,"OrderNumber":"4a230537-6531-4408-85b3-06e452bfbac1","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":0,"TotalAmount":328680,"PromotionId":null,"Note":"test ","CreatedAt":"2025-11-27T06:23:38.701Z","UpdatedAt":"2025-11-27T06:23:38.703Z"}
+[2025-11-27 13:23:38] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":87,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-27T06:23:38.704Z"}]
+[2025-11-27 13:23:38] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":50,"Quantity":1}]
+[2025-11-27 21:16:09] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 21:16:41] [User:2] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"\u0110\u1ED7 V\u0169 Minh Anh","email":"admin@example.com","phone":"0899463508","address":null}
+[2025-11-27 21:17:57] [User:1] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-11-27 21:18:23] [User:2] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"\u0110\u1ED7 V\u0169 Minh Th\u01B0","email":null,"phone":"0899463500","address":null}
+[2025-11-27 21:36:29] [User:1] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-11-27 21:36:56] [User:1] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"\u0110\u1ED7 V\u0169 Nh\u01B0 \u00DD","email":null,"phone":"0899463507","address":null}

@@ -1,2 +1,3 @@
 ﻿[2025-11-27 00:27:25] [User:1] [Action:CREATE_Payment] [Entity:Payment#offlinepayment] [IP:::1] {"OrderId":85,"Amount":262944,"Method":"cash","Status":"completed"}
 [2025-11-27 00:40:53] [User:1] [Action:CREATE_Payment] [Entity:Payment#offlinepayment] [IP:::1] {"OrderId":86,"Amount":328680,"Method":"cash","Status":"completed"}
+[2025-11-27 13:23:38] [User:1] [Action:CREATE_Payment] [Entity:Payment#offlinepayment] [IP:::1] {"OrderId":87,"Amount":328680,"Method":"cash","Status":"completed"}
