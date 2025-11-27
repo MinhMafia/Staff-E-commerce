@@ -34,6 +34,8 @@ namespace backend.Services
         private int GetCurrentUserId()
         {
             var context = _httpContextAccessor.HttpContext;
+            
+            // check claim JWT
             if (context?.User?.Identity?.IsAuthenticated == true)
             {
                 var claim = context.User.FindFirst("uid") 
@@ -44,8 +46,14 @@ namespace backend.Services
                     return id;
             }
 
-            throw new Exception("Không tìm thấy user_id trong token");
+            // fallback đọc từ header
+            var headerUid = context?.Request?.Headers["X-User-Id"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(headerUid) && int.TryParse(headerUid, out int headerId))
+                return headerId;
+
+            throw new InvalidOperationException("Không tìm thấy user_id trong token");
         }
+
 
 
         /*

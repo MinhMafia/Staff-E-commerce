@@ -196,12 +196,6 @@ const click_buttonCreateNewOrder = async () => {
     return;
   }
 
-  // Check currentOrder
-  if (!currentOrder || !currentOrder.id) {
-    alert("Order chưa được tạo. Vui lòng tạo đơn tạm trước!");
-    return;
-  }
-
   // Chuẩn bị dữ liệu
   const orderData = orderObject(currentOrder, promotion, payment);
   const listOrderItem = listOrderItemObject(listOrderProducts, currentOrder);
@@ -273,51 +267,76 @@ const click_buttonCreateNewOrder = async () => {
   console.log("=== KẾT THÚC TẠO ĐƠN HÀNG ===");
 };
 
-
+// In hóa đơn
 const printOrder = (order, products, promotion, payment) => {
-  // Mở cửa sổ in ngay lập tức
   const printWindow = window.open('', '', 'width=800,height=600');
   if (!printWindow) {
     alert("Trình duyệt chặn popup. Vui lòng cho phép popup để in phiếu.");
     return;
   }
 
-  // Tạo nội dung HTML
+  // Format số tiền
+  const formatMoney = (value) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+  };
+
+  // HTML với CSS
   let html = `
-    <h2>Phiếu Đơn Hàng #${order.orderNumber}</h2>
-    <p>Khách hàng: ${order.customerName || "Khách lẻ"}</p>
-    <p>Ngày tạo: ${new Date().toLocaleString()}</p>
-    <table border="1" cellspacing="0" cellpadding="5">
-      <tr>
-        <th>Sản phẩm</th>
-        <th>Số lượng</th>
-        <th>Đơn giá</th>
-        <th>Thành tiền</th>
-      </tr>
+    <html>
+      <head>
+        <title>Phiếu Đơn Hàng #${order.orderNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+          h2 { text-align: center; color: #4CAF50; }
+          p { margin: 5px 0; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+          th { background-color: #f2f2f2; }
+          tr:nth-child(even) { background-color: #f9f9f9; }
+          tr:hover { background-color: #f1f1f1; }
+          .total { font-weight: bold; font-size: 1.1em; }
+          .promotion { color: #d32f2f; font-weight: bold; }
+          .payment { margin-top: 10px; font-weight: bold; }
+          .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: #666; }
+        </style>
+      </head>
+      <body>
+        <h2>Phiếu Đơn Hàng #${order.orderNumber}</h2>
+        <p><strong>Khách hàng:</strong> ${order.customerName || "Khách lẻ"}</p>
+        <p><strong>Ngày tạo:</strong> ${new Date().toLocaleString()}</p>
+
+        <table>
+          <tr>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+          </tr>
   `;
 
   products.forEach(p => {
     html += `
       <tr>
-        <td>${p.product_name}</td>
+        <td>${p.product}</td>
         <td>${p.qty}</td>
-        <td>${p.price}</td>
-        <td>${p.total}</td>
+        <td>${formatMoney(p.price)}</td>
+        <td>${formatMoney(p.total)}</td>
       </tr>
     `;
   });
 
   html += `</table>`;
-  html += `<p>Tổng tiền: ${order.total_amount}</p>`;
-  if (promotion?.code) html += `<p>Khuyến mãi: ${promotion.code} - Giảm ${promotion.value}</p>`;
-  html += `<p>Thanh toán: ${payment.method} - ${payment.status}</p>`;
+  html += `<p class="total">Tổng tiền: ${formatMoney(order.total_amount)}</p>`;
+  if (promotion?.code) html += `<p class="promotion">Khuyến mãi: ${promotion.code} - Giảm ${formatMoney(promotion.value)}</p>`;
+  html += `<p class="payment">Thanh toán: ${payment.method}</p>`;
+  html += `<div class="footer">Cảm ơn quý khách! Hẹn gặp lại.</div>`;
 
-  // Ghi nội dung và in
   printWindow.document.write(html);
   printWindow.document.close();
   printWindow.focus();
   printWindow.print();
 };
+
 
 
 
@@ -340,7 +359,7 @@ const updateCustomer = (customer) => {
 // Chuẩn bị dữ liệu cho order
 const orderObject = (currentOrder, promotion, payment) => {
   // Xác định trạng thái thanh toán
-  const paymentStatus = payment.method === 'cash' ? 'pending' : 'completed';
+  const paymentStatus = payment.method === 'cash' ? 'completed' : 'pending';
 
   return {
     Id: currentOrder.id,
@@ -351,7 +370,7 @@ const orderObject = (currentOrder, promotion, payment) => {
     Subtotal: currentOrder.subtotal,
     Discount: currentOrder.discount,
     TotalAmount: currentOrder.total_amount,
-    PromotionId: promotion?.id ?? null, // nếu promotion null thì trả null
+    PromotionId: promotion?.id ?? null, 
     Note: currentOrder.note,
     CreatedAt: new Date().toISOString(),
     UpdatedAt: new Date().toISOString()
