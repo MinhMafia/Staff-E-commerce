@@ -49,6 +49,24 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string? status = null,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            string? search = null
+        )
+        {
+            var result = await _orderService.GetPagedOrdersAsync(
+                pageNumber, pageSize, status, startDate, endDate, search
+            );
+
+            return Ok(result);
+        }
+
+
       
     }
 }

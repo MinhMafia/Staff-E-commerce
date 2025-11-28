@@ -141,5 +141,43 @@ namespace backend.Services
                 PromotionCode = order.Promotion?.Code
             };
         }
+
+        //Phân trang kết hợp tìm kiếm
+        public async Task<PagedResult<OrderDTO>> GetPagedOrdersAsync(
+            int pageNumber,
+            int pageSize,
+            string? status,
+            DateTime? startDate,
+            DateTime? endDate,
+            string? search
+        )
+        {
+            var (data, totalItems) = await _orderRepo.SearchPagingAsync(
+                pageNumber, pageSize, status, startDate, endDate, search
+            );
+
+            return new PagedResult<OrderDTO>
+            {
+                Items = data,
+                TotalItems = totalItems,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize)
+            };
+        }
+
+
+
+
     }
+
+    public class PagedResult<T>
+    {
+        public List<T> Items { get; set; } = new();
+        public int TotalItems { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+        public int TotalPages { get; set; }
+    }
+
 }

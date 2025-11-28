@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 
 import { request } from "../api/apiClient"; // THÊM DÒNG NÀY
 
@@ -39,6 +39,17 @@ export const useOrders = () => {
 
     }
   )
+
+  //Trạng thái phân trang 
+    const [listOrders, setListOrders] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+
+    const [selectedStatus, setSelectedStatus] = useState(null);
+    const [selectedStartDate, setSelectedStartDate] = useState(null);
+    const [selectedEndDate, setSelectedEndDate] = useState(null);
+    const [searchKeyword, setSearchKeyword] = useState(null);
 
   // --- Modal controls ---
   const openCustomerModal = () => setShowCustomerModal(true);
@@ -339,12 +350,6 @@ const printOrder = (order, products, promotion, payment) => {
 
 
 
-
-
-
-
-
-
 // --- Cập nhật khách hàng ---
 const updateCustomer = (customer) => {
   setCurrentOrder((prev) => ({
@@ -403,6 +408,47 @@ const listReduceItemObject = (listOrderProducts)=>{
 }
 
 
+/**
+ * Api lấy danh sách có phân trang nâng cao (Phân trang bình thường, lọc theo trạng thái đơn hàng, lọc theo ngày bắt đầu kết thúc, tìm kiếm )
+ */
+
+const loadOrdersAdvanced = async () => {
+    try {
+        const params = new URLSearchParams();
+        params.append("pageNumber", currentPage);
+        params.append("pageSize", pageSize);
+
+        if (selectedStatus) params.append("status", selectedStatus);
+        if (searchKeyword?.trim()) params.append("search", searchKeyword.trim());
+        if (selectedStartDate) params.append("startDate", selectedStartDate); // nếu có
+        if (selectedEndDate) params.append("endDate", selectedEndDate);       // nếu có
+
+        const url = `http://localhost:5099/api/orders/search?${params.toString()}`;
+
+        const res = await fetch(url);
+
+        if (!res.ok) {
+            console.error("Lỗi tải danh sách đơn hàng:", res.status, await res.text());
+            return;
+        }
+
+        const data = await res.json();
+        // data.items, data.totalPages, data.totalItems (camelCase)
+       
+        setListOrders(data.items || []);
+        setTotalPages(data.totalPages || 1);
+       
+    } catch (err) {
+        console.error("loadOrdersAdvanced error:", err);
+    }
+};
+
+
+useEffect(() => {
+    loadOrdersAdvanced();
+}, [selectedStatus]);
+
+
 
 return {
   // Modals
@@ -441,8 +487,24 @@ return {
   orderObject,
   listOrderItemObject,
   reduceInventory,
-  listReduceItemObject
+  listReduceItemObject,
 
+  currentPage,
+  pageSize,
+  totalPages,
+  setCurrentPage,
+  setTotalPages,
+  selectedStatus,
+  setSelectedStatus,
+  selectedStartDate,
+  selectedEndDate,
+  setSelectedStartDate,
+  setSelectedEndDate,
+  searchKeyword,
+  setSearchKeyword,
+  loadOrdersAdvanced ,
+  listOrders,
+  setListOrders
 
 };
 
