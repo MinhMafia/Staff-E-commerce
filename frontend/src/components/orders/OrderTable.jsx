@@ -1,7 +1,7 @@
 import React from "react";
 
 
-export default function OrderTable(  {listOrders,
+export default function OrderTable(  {showOrder,listOrders,
   currentPage,
   totalPages,
   onPrev,
@@ -81,7 +81,9 @@ export default function OrderTable(  {listOrders,
 
                       {/* Thao tác */}
                       <td className="px-6 py-4 text-center space-x-2">
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700">
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700"
+                         onClick={() => showOrder(index)}
+                        >
                           Xem
                         </button>
                       </td>

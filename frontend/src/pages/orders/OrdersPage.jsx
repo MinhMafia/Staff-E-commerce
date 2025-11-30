@@ -65,6 +65,7 @@ export default function OrdersPage() {
     setSelectedEndDate,
     setSearchKeyword,
     loadOrdersAdvanced ,
+    showOrder
 
 
  
@@ -167,6 +168,7 @@ export default function OrdersPage() {
 
       {/* Danh sách đơn hàng*/}
       <OrderTable
+        showOrder={showOrder}
         listOrders={listOrders}
         currentPage={currentPage}
         totalPages={totalPages}

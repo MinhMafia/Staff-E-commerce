@@ -1,3 +1,4 @@
+using backend.DTO;
 using backend.Models;
 using backend.Repository;
 
@@ -32,6 +33,11 @@ namespace backend.Services
         public async Task DeleteByOrderIdAsync(int orderId)
         {
             await _orderItemRepository.DeleteByOrderIdAsync(orderId);
+        }
+
+            public async Task<List<OrderItemReponse>> GetItemsByOrderAsync(int orderId)
+        {
+            return await _orderItemRepository.GetByOrderIdAsyncVer2(orderId);
         }
     }
 }

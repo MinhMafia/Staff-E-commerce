@@ -50,6 +50,18 @@ namespace backend.Controllers
             var savedPayment = await _paymentService.CreatePaymentAsync(payment);
             return Ok(savedPayment);
         }
+
+            // Lấy 1 payment duy nhất theo orderId
+        [HttpGet("getbyorder/{orderId}")]
+        public async Task<IActionResult> GetPayment(int orderId)
+        {
+            var payment = await _paymentService.GetByOrderIdAsync(orderId);
+            if (payment == null)
+                return NotFound("Payment not found");
+
+            return Ok(payment);
+        }
+
     }
 }
 

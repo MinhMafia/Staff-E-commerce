@@ -442,6 +442,129 @@ const loadOrdersAdvanced = async () => {
         console.error("loadOrdersAdvanced error:", err);
     }
 };
+//Api lấy danh sách orderitem
+async function loadOrderItemsByOrderId(orderId) {
+    try {
+        const res = await fetch(`http://localhost:5099/api/orderitem/byorder/${orderId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!res.ok) {
+            throw new Error("Không thể tải dữ liệu Order Items");
+        }
+
+        const data = await res.json();
+        console.log("Order Items:", data);
+        return data;
+
+    } catch (err) {
+        console.error("Lỗi:", err);
+        return [];
+    }
+}
+
+//Lấy khuyến mãi
+async function getPromotionById(id) {
+    try {
+        const res = await fetch(`http://localhost:5099/api/promotions/${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText);
+        }
+
+        const data = await res.json();
+        console.log("Promotion data:", data);
+        return data;
+
+    } catch (err) {
+        console.error("Lỗi:", err.message);
+        return null;
+    }
+}
+
+// Lấy payment
+async function getPaymentByOrder(orderId) {
+  const url = `http://localhost:5099/api/payment/getbyorder/${orderId}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
+
+      }
+    });
+
+    if (response.status === 404) {
+      return null; // không có payment
+    }
+
+    if (!response.ok) {
+      throw new Error("Server error " + response.status);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching payment:", error);
+    return null;
+  }
+}
+
+
+// Hàm xử lí xem chi tiết đơn hàng 
+const showOrder = async (index) => {
+    const item = listOrders[index];
+    if (!item) return;
+
+    try {
+        // Chuyển sang chế độ xem chi tiết
+        setOrdersFormMode("detail");
+
+        // Set thông tin đơn hàng chính
+        setCurrentOrder(item);
+
+        // ========== Lấy Order Items ==========
+        const orderItems = await loadOrderItemsByOrderId(item.id);
+        setListOrderProducts(orderItems);
+
+        // Reset sản phẩm đang chọn (nếu modal có tab sản phẩm)
+        setSelectedProduct(null);
+
+        // ========== Lấy thông tin Payment ==========
+        const payment = await getPaymentByOrder(item.id);
+        setPayment(payment);
+
+        // ========== Lấy thông tin Promotion ==========
+        // item.PromotionId có thể null/undefined → cần kiểm tra
+        if (item.promotionId || item.PromotionId) {
+            const promoId = item.promotionId ?? item.PromotionId;
+            const promo = await getPromotionById(promoId);
+            setPromotion(promo);
+        } else {
+            setPromotion(null);
+        }
+
+        // Mở modal xem chi tiết
+        setShowOrderModal(true);
+
+    } catch (err) {
+        console.error("showOrder error:", err);
+        
+    }
+};
+
+
+
+
 
 
 useEffect(() => {
@@ -504,7 +627,11 @@ return {
   setSearchKeyword,
   loadOrdersAdvanced ,
   listOrders,
-  setListOrders
+  setListOrders,
+  loadOrderItemsByOrderId,
+  getPromotionById,
+  getPaymentByOrder,
+  showOrder
 
 };
 

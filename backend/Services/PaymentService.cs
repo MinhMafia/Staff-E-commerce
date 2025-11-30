@@ -162,6 +162,21 @@ namespace backend.Services
             return true;
         }
 
+        public async Task<PaymentResponseDTO?> GetByOrderIdAsync(int orderId)
+        {
+            var payment = await _paymentRepo.GetByOrderIdAsyncVer2(orderId);
+
+            if (payment == null)
+                return null;
+
+            return new PaymentResponseDTO(
+                method: payment.Method,
+                transaction_ref: payment.TransactionRef,
+                status: payment.Status
+            );
+        }
+
+
     }
 }
 

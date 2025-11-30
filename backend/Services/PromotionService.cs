@@ -241,8 +241,11 @@ namespace backend.Services
             var promotion = await _promotionRepository.GetByIdAsync(promotionId);
             if (promotion == null) return false;
 
-            // Increment used count
-            await _promotionRepository.IncrementUsedCountAsync(promotionId);
+            // Nếu UsedCount != null → mới được tính giới hạn → mới tăng
+            if (promotion.UsedCount != null)
+            {
+                await _promotionRepository.IncrementUsedCountAsync(promotionId);
+            }
 
             // Add redemption record
             await _promotionRepository.AddRedemptionAsync(new PromotionRedemption
@@ -254,6 +257,7 @@ namespace backend.Services
 
             return true;
         }
+
 
         // Get active promotions
         public async Task<List<PromotionDTO>> GetActivePromotionsAsync()

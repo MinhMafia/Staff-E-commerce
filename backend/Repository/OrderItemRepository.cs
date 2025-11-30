@@ -1,4 +1,5 @@
 using backend.Data;
+using backend.DTO;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -40,5 +41,23 @@ namespace backend.Repository
                 await _context.SaveChangesAsync();
             }
         }
+
+          public async Task<List<OrderItemReponse>> GetByOrderIdAsyncVer2(int orderId)
+        {
+            return await _context.OrderItems
+                .Where(x => x.OrderId == orderId)
+                .Include(x => x.Product)
+                .Select(x => new OrderItemReponse
+                {
+                    id = x.Id,
+                    product = x.Product != null ? x.Product.ProductName : "N/A",
+                    qty = x.Quantity,
+                    price = (int)x.UnitPrice,
+                    total = (int)x.TotalPrice
+                })
+                .ToListAsync();
+        }
+
+
     }
 }
