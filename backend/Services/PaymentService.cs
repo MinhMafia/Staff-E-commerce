@@ -18,7 +18,7 @@ namespace backend.Services
         // Lưu Payment (Cash, Card, ECard,...)
         public async Task<Payment> CreatePaymentAsync(Payment payment)
         {
-            
+
             return await _paymentRepo.AddPaymentAsync(payment);
         }
 
@@ -80,7 +80,7 @@ namespace backend.Services
                 redirectUrl,
                 ipnUrl,
                 extraData = "",
-                requestType =  requestType ,
+                requestType = requestType,
                 signature
             };
 
@@ -187,4 +187,3 @@ namespace backend.Services
 
 
 
-    

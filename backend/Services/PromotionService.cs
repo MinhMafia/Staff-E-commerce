@@ -131,7 +131,7 @@ namespace backend.Services
         public async Task<ValidatePromotionResult> ValidatePromotionAsync(string code, decimal orderAmount)
         {
             var promotion = await _promotionRepository.GetByCodeAsync(code);
-            
+
             if (promotion == null)
             {
                 return new ValidatePromotionResult
@@ -216,11 +216,11 @@ namespace backend.Services
         private decimal CalculateDiscount(Promotion promotion, decimal orderAmount)
         {
             decimal discount = 0;
-            
+
             if (promotion.Type == "percent")
             {
                 discount = orderAmount * (promotion.Value / 100);
-                
+
                 // Áp dụng giới hạn giảm tối đa nếu có
                 if (promotion.MaxDiscount.HasValue && discount > promotion.MaxDiscount.Value)
                 {
@@ -231,7 +231,7 @@ namespace backend.Services
             {
                 discount = Math.Min(promotion.Value, orderAmount);
             }
-            
+
             return discount;
         }
 
@@ -288,12 +288,12 @@ namespace backend.Services
         {
             var allPromotions = await _promotionRepository.GetAllAsync();
             var now = DateTime.UtcNow;
-            
+
             var total = allPromotions.Count;
             var active = allPromotions.Count(p => p.Active && (!p.EndDate.HasValue || p.EndDate >= now));
             var expired = allPromotions.Count(p => p.EndDate.HasValue && p.EndDate < now);
             var inactive = allPromotions.Count(p => !p.Active);
-            
+
             return new
             {
                 total,
@@ -322,8 +322,8 @@ namespace backend.Services
                                              .Select(r => r.CustomerId)
                                              .Distinct()
                                              .Count(),
-                AverageOrderValue = redemptions.Any() 
-                    ? redemptions.Average(r => r.Order?.TotalAmount ?? 0) 
+                AverageOrderValue = redemptions.Any()
+                    ? redemptions.Average(r => r.Order?.TotalAmount ?? 0)
                     : 0
             };
         }

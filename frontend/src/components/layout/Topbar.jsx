@@ -51,17 +51,17 @@ const BellIcon = (props) => (
 );
 
 export default function Topbar({ onToggleSidebar }) {
-  const [q, setQ] = useState("");
+  // const [q, setQ] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    // TODO: call parent search handler or navigate to search page
-    console.log("Search for:", q);
-  };
+  // const handleSearchSubmit = (e) => {
+  //   e.preventDefault();
+  //   // TODO: call parent search handler or navigate to search page
+  //   console.log("Search for:", q);
+  // };
 
   return (
-    <header className="flex items-center justify-between bg-white border-b border-gray-200 px-4 py-3">
+    <header className="flex items-center justify-between bg-white border-b border-gray-200 px-4 py-4">
       <div className="flex items-center gap-3">
         <button
           onClick={onToggleSidebar}
@@ -74,7 +74,7 @@ export default function Topbar({ onToggleSidebar }) {
             height="20"
             viewBox="0 0 24 24"
             fill="none"
-            className="text-gray-700"
+            className="text-gray-700 block lg:hidden"
           >
             <path
               d="M4 6h16M4 12h16M4 18h16"
@@ -86,7 +86,7 @@ export default function Topbar({ onToggleSidebar }) {
           </svg>
         </button>
 
-        <form
+        {/* <form
           onSubmit={handleSearchSubmit}
           className="hidden sm:flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-md px-3 py-1"
         >
@@ -98,7 +98,7 @@ export default function Topbar({ onToggleSidebar }) {
             placeholder="Tìm kiếm toàn hệ thống..."
             className="bg-transparent outline-none text-sm w-64 placeholder-gray-500"
           />
-        </form>
+        </form> */}
       </div>
 
       <div className="flex items-center gap-4">

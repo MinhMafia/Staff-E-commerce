@@ -34,12 +34,12 @@ namespace backend.Services
         private int GetCurrentUserId()
         {
             var context = _httpContextAccessor.HttpContext;
-            
+
             // check claim JWT
             if (context?.User?.Identity?.IsAuthenticated == true)
             {
-                var claim = context.User.FindFirst("uid") 
-                            ?? context.User.FindFirst("userId") 
+                var claim = context.User.FindFirst("uid")
+                            ?? context.User.FindFirst("userId")
                             ?? context.User.FindFirst(ClaimTypes.NameIdentifier);
 
                 if (claim != null && int.TryParse(claim.Value, out int id))
@@ -107,7 +107,7 @@ namespace backend.Services
             return tempOrder;
         }
 
-        
+
         // Lưu đơn hàng (frontend đã gửi đủ dữ liệu)
         public async Task<Order> SaveOrderAsync(Order order)
         {

@@ -18,6 +18,7 @@ namespace backend.Controllers
 
         // GET api/products/paginated
         // GET api/products/paginated - ENDPOINT CHÍNH
+
         [HttpGet("paginated")]
         public async Task<ActionResult<PaginationResult<ProductDTO>>> GetPaginatedProducts(
             [FromQuery] int page = 1,
@@ -32,6 +33,12 @@ namespace backend.Controllers
         {
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 12;
+
+            var userId = User.FindFirst("uid")?.Value;
+            Console.WriteLine($"🔍 User ID from claims: {userId}");
+
+            if (string.IsNullOrEmpty(userId))
+                return BadRequest("User ID not found in token");
 
             var result = await _productService.GetPaginatedProductsAsync(
                 page, pageSize, search, categoryId, supplierId, minPrice, maxPrice, sortBy, status);

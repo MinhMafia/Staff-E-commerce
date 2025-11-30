@@ -28,7 +28,7 @@ namespace backend.Services
             _customerRepo = customerRepo;
             _inventoryRepo = inventoryRepo;
             _context = context;
-            
+
             // EPPlus license context (non-commercial use)
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
         }

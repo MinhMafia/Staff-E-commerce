@@ -28,7 +28,7 @@ namespace backend.Controllers
             return Ok(users);
         }
 
-        [HttpGet ("getalluser")]
+        [HttpGet("getalluser")]
         public async Task<ActionResult> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();

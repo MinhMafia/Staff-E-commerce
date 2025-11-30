@@ -44,7 +44,7 @@ namespace backend.Controllers
         }
 
         // POST: api/payment
-        [HttpPost("offlinepayment")]   
+        [HttpPost("offlinepayment")]
         public async Task<IActionResult> CreateOfflinePayment([FromBody] Payment payment)
         {
             var savedPayment = await _paymentService.CreatePaymentAsync(payment);
@@ -66,7 +66,7 @@ namespace backend.Controllers
 }
 
 
-    
+
 
 
 

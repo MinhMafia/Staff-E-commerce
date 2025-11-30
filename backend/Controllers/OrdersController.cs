@@ -30,22 +30,22 @@ namespace backend.Controllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-        
+
         // POST: api/Order/create
         [HttpPost("create")]
         public async Task<IActionResult> CreateOrder([FromBody] Order order)
         {
             if (order == null)
-                return BadRequest(false); 
+                return BadRequest(false);
 
             try
             {
                 var savedOrder = await _orderService.SaveOrderAsync(order);
-                return Ok(true); 
+                return Ok(true);
             }
             catch (Exception)
             {
-                return StatusCode(500, false); 
+                return StatusCode(500, false);
             }
         }
 
@@ -67,6 +67,6 @@ namespace backend.Controllers
         }
 
 
-      
+
     }
 }
