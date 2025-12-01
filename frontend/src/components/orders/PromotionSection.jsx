@@ -7,8 +7,8 @@ export default function PromotionSection({ isCreateMode, promotion, setPromotion
   // Fetch promotions khi tạo đơn
   useEffect(() => {
     if (isCreateMode === "create") {
-      const customerId = currentOrder?.customer_id || 0;
-      fetch(`http://localhost:5099/api/promotions/promotionforneworder?customerId=${customerId}`)
+      
+      fetch(`api/promotions/active`)
         .then((res) => res.json())
         .then((data) => {
           setPromotions(data);

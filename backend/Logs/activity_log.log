@@ -1,0 +1,75 @@
+﻿[2025-11-26 08:57:24] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin2","password":"[REDACTED]"}
+[2025-11-26 20:55:38] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-11-26 20:55:54] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 20:57:00] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 20:59:16] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 21:35:42] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 21:38:00] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 21:40:03] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 21:44:56] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 21:45:05] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 21:45:23] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-11-26 21:45:33] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 21:47:46] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 22:00:49] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 22:01:00] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 22:33:45] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 22:33:52] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 22:34:14] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-11-26 22:34:25] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 22:48:56] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 22:51:17] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 22:56:50] [User:1] [Action:UPDATE_Products] [Entity:Products#1] [IP:::1] {"id":1,"productName":"Coca Cola lon","price":314838,"sku":"mm","unit":"h\u1ED9p","categoryId":2,"supplierId":1,"isActive":true,"description":"MaiAnh","imageUrl":""}
+[2025-11-26 22:57:45] [User:2] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"MaiAnhDo","email":"maianhdo20042203@gmail.com","phone":"0899463504","address":"maibhcbhf"}
+[2025-11-26 22:57:57] [User:2] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"MaiAnhDo","email":"maianhdo200423@gmail.com","phone":"0899463504","address":"maibhcbhf"}
+[2025-11-26 22:58:06] [User:2] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"MaiAnhDo","email":"maianhdo200423@gmail.com","phone":"0899463505","address":"maibhcbhf"}
+[2025-11-26 23:24:42] [User:2] [Action:CREATE_Promotions] [Entity:Promotions#0] [IP:::1] {"code":"GIAMGIA SALE","type":"percent","value":5,"minOrderAmount":11000,"maxDiscount":null,"usageLimit":null,"description":"dsfndjb","startDate":"2025-11-27","endDate":"2025-11-30","active":true}
+[2025-11-26 23:24:53] [User:2] [Action:CREATE_Promotions] [Entity:Promotions#0] [IP:::1] {"code":"GIAMGIA GAIM","type":"percent","value":5,"minOrderAmount":11000,"maxDiscount":null,"usageLimit":null,"description":"dsfndjb","startDate":"2025-11-27","endDate":"2025-11-30","active":true}
+[2025-11-26 23:50:33] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 23:50:55] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-26 23:55:14] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 00:13:37] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 00:15:03] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-11-27 00:15:08] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 00:15:40] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":81,"OrderNumber":"2048d849-4d5c-4821-bc58-c684c599ba75","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":32868,"TotalAmount":295812,"PromotionId":1,"Note":"test","CreatedAt":"2025-11-26T17:15:40.207Z","UpdatedAt":"2025-11-26T17:15:40.208Z"}
+[2025-11-27 00:22:24] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 00:22:50] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":82,"OrderNumber":"de8f0c9f-b3e8-40c8-b1e2-9c41774747fd","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":32868,"TotalAmount":295812,"PromotionId":1,"Note":"hhh","CreatedAt":"2025-11-26T17:22:49.978Z","UpdatedAt":"2025-11-26T17:22:49.978Z"}
+[2025-11-27 00:24:08] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 00:24:23] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":83,"OrderNumber":"7e1c5a87-284e-488e-9255-81aaabb14510","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":32868,"TotalAmount":295812,"PromotionId":1,"Note":"cs","CreatedAt":"2025-11-26T17:24:23.514Z","UpdatedAt":"2025-11-26T17:24:23.514Z"}
+[2025-11-27 00:25:08] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 00:25:34] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":84,"OrderNumber":"fca275a3-167d-48a0-b9bc-7a7cb23ec680","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":83536,"Discount":16707,"TotalAmount":66829,"PromotionId":3,"Note":"test","CreatedAt":"2025-11-26T17:25:34.824Z","UpdatedAt":"2025-11-26T17:25:34.824Z"}
+[2025-11-27 00:27:00] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 00:27:24] [User:2] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":85,"OrderNumber":"bfd122c3-65ce-4a78-9cf3-87ba8daa0c15","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":65736,"TotalAmount":262944,"PromotionId":3,"Note":"nn","CreatedAt":"2025-11-26T17:27:24.468Z","UpdatedAt":"2025-11-26T17:27:24.468Z"}
+[2025-11-27 00:27:24] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":85,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-26T17:27:24.468Z"}]
+[2025-11-27 00:27:24] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":50,"Quantity":1}]
+[2025-11-27 00:40:33] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 00:40:52] [User:2] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":86,"OrderNumber":"030ced9a-3013-4906-a299-d2e420e59c39","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":0,"TotalAmount":328680,"PromotionId":null,"Note":"test in","CreatedAt":"2025-11-26T17:40:52.817Z","UpdatedAt":"2025-11-26T17:40:52.817Z"}
+[2025-11-27 00:40:52] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":86,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-26T17:40:52.818Z"}]
+[2025-11-27 00:40:53] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":50,"Quantity":1}]
+[2025-11-27 13:22:05] [User:2] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 13:22:39] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-11-27 13:22:44] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 13:23:38] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":87,"OrderNumber":"4a230537-6531-4408-85b3-06e452bfbac1","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":0,"TotalAmount":328680,"PromotionId":null,"Note":"test ","CreatedAt":"2025-11-27T06:23:38.701Z","UpdatedAt":"2025-11-27T06:23:38.703Z"}
+[2025-11-27 13:23:38] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":87,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-27T06:23:38.704Z"}]
+[2025-11-27 13:23:38] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":50,"Quantity":1}]
+[2025-11-27 21:16:09] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 21:16:41] [User:2] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"\u0110\u1ED7 V\u0169 Minh Anh","email":"admin@example.com","phone":"0899463508","address":null}
+[2025-11-27 21:17:57] [User:1] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-11-27 21:18:23] [User:2] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"\u0110\u1ED7 V\u0169 Minh Th\u01B0","email":null,"phone":"0899463500","address":null}
+[2025-11-27 21:36:29] [User:1] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-11-27 21:36:56] [User:1] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"\u0110\u1ED7 V\u0169 Nh\u01B0 \u00DD","email":null,"phone":"0899463507","address":null}
+[2025-11-27 21:40:08] [User:1] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"V\u0169 Th\u1ECB \u0110\u00E0o","email":null,"phone":"0899463506","address":null}
+[2025-11-27 21:40:40] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-27 23:59:11] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-28 00:00:01] [User:1] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"Ph\u1EA1m c\u00F4ng th\u00E0nh","email":null,"phone":"0899463505","address":null}
+[2025-11-28 00:00:08] [User:1] [Action:CREATE_Customers] [Entity:Customers#0] [IP:::1] {"fullName":"Ph\u1EA1m c\u00F4ng th\u00E0nh","email":null,"phone":"0899463503","address":null}
+[2025-11-28 00:00:27] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-28 00:16:42] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-28 00:20:36] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-28 00:21:01] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":88,"OrderNumber":"ca791a27-f219-492a-9a1c-fc548536913b","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":328680,"Discount":0,"TotalAmount":328680,"PromotionId":null,"Note":"Test th\u1EED","CreatedAt":"2025-11-27T17:21:01.773Z","UpdatedAt":"2025-11-27T17:21:01.797Z"}
+[2025-11-28 00:21:02] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":88,"ProductId":50,"Quantity":1,"UnitPrice":328680,"TotalPrice":328680,"CreatedAt":"2025-11-27T17:21:01.798Z"}]
+[2025-11-28 00:21:02] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":50,"Quantity":1}]
+[2025-11-28 00:25:52] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-11-28 00:26:15] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":89,"OrderNumber":"344843f6-9b39-45b5-aee0-e3dc2f6d5e83","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":83536,"Discount":0,"TotalAmount":83536,"PromotionId":null,"Note":"tesi in h\u00F3a \u0111\u01A1n","CreatedAt":"2025-11-27T17:26:15.024Z","UpdatedAt":"2025-11-27T17:26:15.024Z"}
+[2025-11-28 00:26:15] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":89,"ProductId":49,"Quantity":1,"UnitPrice":83536,"TotalPrice":83536,"CreatedAt":"2025-11-27T17:26:15.024Z"}]
+[2025-11-28 00:26:15] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":49,"Quantity":1}]

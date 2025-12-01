@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function AuditDetail({ onClose }) {
+export default function AuditDetail({ onClose ,selectedActivityLog}) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl mx-4 max-h-screen overflow-y-auto">
@@ -29,39 +29,32 @@ export default function AuditDetail({ onClose }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
               <strong>Thời gian:</strong>{" "}
-              <span>2025-11-11 01:00</span>
+              <span>{selectedActivityLog.createdAt}</span>
             </div>
             <div>
               <strong>Nhân viên:</strong>{" "}
-              <span>Nguyen Van A</span>
+              <span>{selectedActivityLog.username}</span>
             </div>
             <div>
               <strong>Hành động:</strong>{" "}
               <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                Thêm
+                {selectedActivityLog.action}
               </span>
             </div>
             <div>
               <strong>Đối tượng:</strong>{" "}
-              <span className="text-blue-600 font-medium">Customer #KH001</span>
+              <span className="text-blue-600 font-medium">{selectedActivityLog.entityType}</span>
             </div>
             <div>
               <strong>IP:</strong>{" "}
-              <span>192.168.1.10</span>
+              <span>{selectedActivityLog.ipAddress}</span>
             </div>
           </div>
 
           <div>
             <strong>Payload (JSON):</strong>
             <pre className="mt-2 p-3 bg-gray-100 rounded-lg text-xs overflow-x-auto font-mono whitespace-pre-wrap">
-{`{
-  "customer_id": "KH001",
-  "name": "Nguyen Van A",
-  "email": "vana@example.com",
-  "phone": "0901234567",
-  "action": "create",
-  "timestamp": "2025-11-11T01:00:00Z"
-}`}
+              {selectedActivityLog.payload}
             </pre>
           </div>
         </div>

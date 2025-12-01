@@ -24,7 +24,7 @@ namespace backend.DTO
         public string? Payload { get; set; }
         public string? IpAddress { get; set; }
         public DateTime CreatedAt { get; set; }
-     
 
-    }  
+
+    }
 }

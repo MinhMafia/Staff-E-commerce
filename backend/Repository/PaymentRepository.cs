@@ -66,7 +66,10 @@ namespace backend.Repository
             return existingPayment;
         }
 
-
-
+        public async Task<Payment?> GetByOrderIdAsyncVer2(int orderId)
+        {
+            return await _context.Payments
+                .FirstOrDefaultAsync(p => p.OrderId == orderId);
+        }
     }
 }

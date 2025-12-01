@@ -136,7 +136,7 @@ namespace backend.Services
         public async Task<ValidatePromotionResult> ValidatePromotionAsync(string code, decimal orderAmount)
         {
             var promotion = await _promotionRepository.GetByCodeAsync(code);
-            
+
             if (promotion == null)
             {
                 return new ValidatePromotionResult
@@ -221,11 +221,11 @@ namespace backend.Services
         private decimal CalculateDiscount(Promotion promotion, decimal orderAmount)
         {
             decimal discount = 0;
-            
+
             if (promotion.Type == "percent")
             {
                 discount = orderAmount * (promotion.Value / 100);
-                
+
                 // Áp dụng giới hạn giảm tối đa nếu có
                 if (promotion.MaxDiscount.HasValue && discount > promotion.MaxDiscount.Value)
                 {
@@ -236,18 +236,21 @@ namespace backend.Services
             {
                 discount = Math.Min(promotion.Value, orderAmount);
             }
-            
+
             return discount;
         }
 
         // Apply promotion to order
-        public async Task<bool> ApplyPromotionAsync(int promotionId, int orderId, int? customerId)
+        public async Task<bool> ApplyPromotionByIdsAsync(int promotionId, int orderId, int? customerId)
         {
             var promotion = await _promotionRepository.GetByIdAsync(promotionId);
             if (promotion == null) return false;
 
-            // Increment used count
-            await _promotionRepository.IncrementUsedCountAsync(promotionId);
+            // Nếu UsedCount != null → mới được tính giới hạn → mới tăng
+            if (promotion.UsedCount != null)
+            {
+                await _promotionRepository.IncrementUsedCountAsync(promotionId);
+            }
 
             // Add redemption record
             await _promotionRepository.AddRedemptionAsync(new PromotionRedemption
@@ -259,6 +262,7 @@ namespace backend.Services
 
             return true;
         }
+
 
         // Get active promotions
         public async Task<List<PromotionDTO>> GetActivePromotionsAsync()
@@ -289,12 +293,12 @@ namespace backend.Services
         {
             var allPromotions = await _promotionRepository.GetAllAsync();
             var now = DateTime.UtcNow;
-            
+
             var total = allPromotions.Count;
             var active = allPromotions.Count(p => p.Active && (!p.EndDate.HasValue || p.EndDate >= now));
             var expired = allPromotions.Count(p => p.EndDate.HasValue && p.EndDate < now);
             var inactive = allPromotions.Count(p => !p.Active);
-            
+
             return new
             {
                 total,
@@ -323,8 +327,8 @@ namespace backend.Services
                                              .Select(r => r.CustomerId)
                                              .Distinct()
                                              .Count(),
-                AverageOrderValue = redemptions.Any() 
-                    ? redemptions.Average(r => r.Order?.TotalAmount ?? 0) 
+                AverageOrderValue = redemptions.Any()
+                    ? redemptions.Average(r => r.Order?.TotalAmount ?? 0)
                     : 0
             };
         }
@@ -351,25 +355,7 @@ namespace backend.Services
             };
         }
 
-        /// <summary>
-        /// Lấy danh sách khuyến mãi cho khách hàng
-        /// customerId = 0 hoặc null => khách vãng lai
-        /// customerId > 0 => khách thân quen, lọc khuyến mãi chưa dùng
-        /// </summary>
-        public async Task<List<Promotion>> GetPromotionsForCustomerAsync(int? customerId = null)
-        {
-            var promotions = await _promotionRepository.GetActivePromotionsAsync();
-            
-            // Filter by customerId if needed (customer already used promotion)
-            if (customerId.HasValue && customerId.Value > 0)
-            {
-                var usedPromotionIds = await _promotionRepository.GetRedemptionsAsync(0)
-                    .ContinueWith(t => t.Result.Where(r => r.CustomerId == customerId).Select(r => r.PromotionId).ToList());
-                promotions = promotions.Where(p => !usedPromotionIds.Contains(p.Id)).ToList();
-            }
-            
-            return promotions;
-        }
+
 
         /// <summary>
         /// Áp dụng khuyến mãi cho đơn hàng đã tạo

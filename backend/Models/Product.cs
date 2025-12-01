@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace backend.Models
 {
     [Index(nameof(Sku), IsUnique = true, Name = "ux_products_sku")]
-    [Index(nameof(Barcode), IsUnique = true, Name = "ux_products_barcode")]
+    // [Index(nameof(Barcode), IsUnique = true, Name = "ux_products_barcode")]
     [Index(nameof(CategoryId), Name = "idx_products_category")]
     [Index(nameof(SupplierId), Name = "idx_products_supplier")]
     [Table("products")]
@@ -25,9 +25,9 @@ namespace backend.Models
         [StringLength(255)] 
         public string ProductName { get; set; } = string.Empty;
 
-        [Column("barcode")]
-        [StringLength(191)]
-        public string? Barcode { get; set; }
+        // [Column("barcode")]
+        // [StringLength(191)]
+        // public string? Barcode { get; set; }
 
         // FK -> categories.id
         [Column("category_id")]

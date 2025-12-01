@@ -1,4 +1,5 @@
 using backend.Data;
+using backend.DTO;
 using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -51,5 +52,73 @@ namespace backend.Repository
             await _context.SaveChangesAsync();
             return order;
         }
+
+        /*Tìm kiếm kết hợp phân trang*/
+        public async Task<(List<OrderDTO> Data, int TotalItems)> SearchPagingAsync(
+    int pageNumber,
+    int pageSize,
+    string? status,
+    DateTime? startDate,
+    DateTime? endDate,
+    string? search
+)
+{
+    var query = _context.Orders
+        .Include(o => o.Customer)
+        .Include(o => o.User)
+        .Include(o => o.Promotion)
+        .AsQueryable();
+
+    // 1) Lọc theo trạng thái
+    if (!string.IsNullOrEmpty(status))
+        query = query.Where(o => o.Status == status);
+
+    // 2) Lọc theo ngày tạo
+    if (startDate.HasValue)
+        query = query.Where(o => o.CreatedAt >= startDate.Value);
+
+    if (endDate.HasValue)
+        query = query.Where(o => o.CreatedAt <= endDate.Value);
+
+    // 3) Tìm theo tên khách / tên nhân viên
+    if (!string.IsNullOrEmpty(search))
+    {
+        string keyword = search.ToLower();
+        query = query.Where(o =>
+            (o.Customer != null && o.Customer.FullName.ToLower().Contains(keyword)) ||
+            (o.User != null && o.User.FullName.ToLower().Contains(keyword))
+        );
+    }
+
+    int totalItems = await query.CountAsync();
+
+    var data = await query
+        .OrderByDescending(o => o.CreatedAt)
+        .Skip((pageNumber - 1) * pageSize)
+        .Take(pageSize)
+        .Select(o => new OrderDTO
+        {
+            Id = o.Id,
+            OrderNumber = o.OrderNumber,
+            CustomerId = o.CustomerId,
+            UserId = o.UserId,
+            Status = o.Status,
+            Subtotal = o.Subtotal,
+            Discount = o.Discount,
+            TotalAmount = o.TotalAmount,
+            PromotionId = o.PromotionId,
+            Note = o.Note,
+            CreatedAt = o.CreatedAt,
+            UpdatedAt = o.UpdatedAt,
+
+            CustomerName = o.Customer != null ? o.Customer.FullName : null,
+            UserName = o.User != null ? o.User.FullName : null,
+            PromotionCode = o.Promotion != null ? o.Promotion.Code : null
+        })
+        .ToListAsync();
+
+    return (data, totalItems);
+}
+
     }
 }

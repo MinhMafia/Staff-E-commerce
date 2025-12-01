@@ -1,7 +1,12 @@
 import React from "react";
 
 
-export default function OrderTable({openOrderModal}) {
+export default function OrderTable(  {showOrder,listOrders,
+  currentPage,
+  totalPages,
+  onPrev,
+  onNext}) {
+  
 
   return (
     <div className="bg-white rounded-xl shadow-xl overflow-hidden">
@@ -14,6 +19,7 @@ export default function OrderTable({openOrderModal}) {
           <thead className="bg-gradient-to-r from-gray-100 to-gray-200">
             <tr>
               <th className="px-6 py-4 text-left font-bold">Mã đơn</th>
+              <th className="px-6 py-4 text-left font-bold">Ngày mua hàng</th>
               <th className="px-6 py-4 text-left font-bold">Khách</th>
               <th className="px-6 py-4 text-left font-bold">NV</th>
               <th className="px-6 py-4 text-right font-bold">Tiền</th>
@@ -22,85 +28,92 @@ export default function OrderTable({openOrderModal}) {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {/* Dòng 3 */}
-            <tr className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 font-bold">DH003</td>
-              <td className="px-6 py-4">Lê Văn C</td>
-              <td className="px-6 py-4">Nhân viên 3</td>
-              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
-              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
-              <td className="px-6 py-4 text-center space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700" onClick={() => openOrderModal("detail")}>Xem</button>
-              </td>
-            </tr>
-            {/* Dòng 3 */}
-            <tr className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 font-bold">DH003</td>
-              <td className="px-6 py-4">Lê Văn C</td>
-              <td className="px-6 py-4">Nhân viên 3</td>
-              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
-              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
-              <td className="px-6 py-4 text-center space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700"  onClick={() => openOrderModal("detail")}>Xem</button>
-              </td>
-            </tr>
+              {Array.isArray(listOrders) && listOrders.length > 0 ? (
+                listOrders.map((item, index) => {
+                  // Định dạng tiền VND
+                  const formattedAmount = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.totalAmount);
 
-            {/* Dòng 3 */}
-            <tr className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 font-bold">DH003</td>
-              <td className="px-6 py-4">Lê Văn C</td>
-              <td className="px-6 py-4">Nhân viên 3</td>
-              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
-              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
-              <td className="px-6 py-4 text-center space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700" onClick={() => openOrderModal("detail")}>Xem</button>
-              </td>
-            </tr>
+                  return (
+                    <tr key={index} className="hover:bg-gray-50 transition">
+                      {/* Mã đơn: giảm độ đậm */}
+                      <td className="px-6 py-4 font-medium">{item.orderNumber}</td>
 
-            {/* Dòng 3 */}
-            <tr className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 font-bold">DH003</td>
-              <td className="px-6 py-4">Lê Văn C</td>
-              <td className="px-6 py-4">Nhân viên 3</td>
-              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
-              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
-              <td className="px-6 py-4 text-center space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700" onClick={() => openOrderModal("detail")}>Xem</button>
-              </td>
-            </tr>
+                      
+                      {/* Ngày mua hàng: format dd/MM/yyyy và màu theo trạng thái */}
+                      <td className="px-6 py-4 text-center">
+                        <span className={`px-2 py-1 rounded-full text-sm font-medium ${
+                          item.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          item.status === 'paid' ? 'bg-blue-100 text-blue-600' :
+                          item.status === 'completed' ? 'bg-green-100 text-green-600' :
+                          item.status === 'cancelled' ? 'bg-red-100 text-red-600' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {new Date(item.createdAt).toLocaleDateString('vi-VN', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </td>
 
-            {/* Dòng 3 */}
-            <tr className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 font-bold">DH003</td>
-              <td className="px-6 py-4">Lê Văn C</td>
-              <td className="px-6 py-4">Nhân viên 3</td>
-              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
-              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
-              <td className="px-6 py-4 text-center space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700" onClick={() => openOrderModal("detail")}>Xem</button>
-              </td>
-            </tr>
+                      {/* Khách */}
+                      <td className="px-6 py-4">{item.customerName}</td>
 
-            {/* Dòng 3 */}
-            <tr className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 font-bold">DH003</td>
-              <td className="px-6 py-4">Lê Văn C</td>
-              <td className="px-6 py-4">Nhân viên 3</td>
-              <td className="px-6 py-4 text-right font-bold text-blue-600">540.000 ₫</td>
-              <td className="px-6 py-4 text-center text-blue-600 font-bold">Hoàn thành</td>
-              <td className="px-6 py-4 text-center space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700" onClick={() => openOrderModal("detail")}>Xem</button>
-              </td>
-            </tr>
+                      {/* NV */}
+                      <td className="px-6 py-4">{item.userName}</td>
 
-          </tbody>
+                      {/* Tiền: format VND */}
+                      <td className="px-6 py-4 text-right font-bold text-green-700">{formattedAmount}</td>
+
+                      {/* Trạng thái: màu riêng */}
+                      <td className="px-6 py-4 text-center">
+                        <span className={`px-3 py-1 text-sm font-bold rounded-full ${
+                          item.status === 'pending' ? 'text-yellow-800 bg-yellow-100' :
+                          item.status === 'paid' ? 'text-blue-600 bg-blue-100' :
+                          item.status === 'completed' ? 'text-green-600 bg-green-100' :
+                          item.status === 'cancelled' ? 'text-red-600 bg-red-100' :
+                          'text-gray-600 bg-gray-100'
+                        }`}>
+                          {item.status}
+                        </span>
+                      </td>
+
+
+                      {/* Thao tác */}
+                      <td className="px-6 py-4 text-center space-x-2">
+                        <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-bold hover:bg-blue-700"
+                         onClick={() => showOrder(index)}
+                        >
+                          Xem
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={7} className="text-center py-4">
+                    Không có đơn hàng
+                  </td>
+                </tr>
+              )}
+            </tbody>
+
         </table>
       </div>
 
       <div className="flex items-center justify-between p-5 border-t bg-gray-50">
-        <button className="px-6 py-3 border rounded-lg disabled:opacity-50 font-bold">Trước</button>
-        <span className="text-sm font-bold">Trang <strong>1</strong> / <strong>3</strong></span>
-        <button className="px-6 py-3 border rounded-lg disabled:opacity-50 font-bold">Sau</button>
+        <button 
+          onClick={onPrev}
+          disabled={currentPage === 1}
+          className="px-6 py-3 border rounded-lg disabled:opacity-50 font-bold">Trước</button>
+
+        <span className="text-sm font-bold"> Trang <strong>{currentPage}</strong> / <strong>{totalPages}</strong></span>
+
+        <button 
+          onClick={onNext}
+          disabled={currentPage === totalPages}
+          className="px-6 py-3 border rounded-lg disabled:opacity-50 font-bold">Sau</button>
       </div>
     </div>
   );

@@ -30,7 +30,8 @@ export default function useProducts({
         if (usePaginationEndpoint) {
           const data = await getProductsPaginated(page, pageSize, search);
           // Expecting { Items, TotalItems, CurrentPage, PageSize, TotalPages, HasNext, HasPrevious } or similar
-          const itemsKey = data.items ?? data.Items ?? data.Items ?? data.Items ?? data.Items;
+          const itemsKey =
+            data.items ?? data.Items ?? data.Items ?? data.Items ?? data.Items;
           const normalizedItems =
             data.items ??
             data.Items ??

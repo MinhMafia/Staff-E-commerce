@@ -5,6 +5,7 @@ import App from './App.jsx'
 
 import { Provider } from 'react-redux'
 import store from './store/store'
+import "../src/api/patchAllRequests.js"; // <--- patch toàn bộ request
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

@@ -307,20 +307,7 @@ namespace backend.Controllers
             }
         }
 
-        // GET api/promotions/promotionforneworder (for POS)
-        [HttpGet("promotionforneworder")]
-        public async Task<ActionResult<List<Promotion>>> GetPromotionsForNewOrder([FromQuery] int? customerId)
-        {
-            try
-            {
-                var promotions = await _promotionService.GetPromotionsForCustomerAsync(customerId ?? 0);
-                return Ok(promotions);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
-            }
-        }
+
 
         // POST api/promotions/{orderId}/apply (for POS)
         [HttpPost("{orderId}/apply")]
@@ -340,6 +327,31 @@ namespace backend.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        /// <summary>
+        /// Áp dụng khuyến mãi cho đơn hàng dựa trên promotionId, orderId, và customerId (dùng cho POS hoặc test)
+        /// </summary>
+        [HttpPost("apply")]
+        public async Task<IActionResult> ApplyPromotion([FromBody] ApplyPromotionRequest request)
+        {
+            try
+            {
+                await _promotionService.ApplyPromotionByIdsAsync(request.PromotionId, request.OrderId, request.CustomerId);
+                return Ok(new { message = "Áp dụng khuyến mãi thành công" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
+
+    }
+    public class ApplyPromotionRequest
+    {
+        public int PromotionId { get; set; }
+        public int OrderId { get; set; }
+        public int? CustomerId { get; set; }
     }
 
     // Request model for validation

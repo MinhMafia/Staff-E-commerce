@@ -1,6 +1,7 @@
 using backend.DTO;
 using backend.Services;
 using Microsoft.AspNetCore.Mvc;
+using backend.Models;
 
 namespace backend.Controllers
 {
@@ -25,9 +26,47 @@ namespace backend.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
+                Console.WriteLine($"Lỗi tạo order: {ex}");
+                return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-      
+
+        // POST: api/Order/create
+        [HttpPost("create")]
+        public async Task<IActionResult> CreateOrder([FromBody] Order order)
+        {
+            if (order == null)
+                return BadRequest(false);
+
+            try
+            {
+                var savedOrder = await _orderService.SaveOrderAsync(order);
+                return Ok(true);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, false);
+            }
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search(
+            int pageNumber = 1,
+            int pageSize = 10,
+            string? status = null,
+            DateTime? startDate = null,
+            DateTime? endDate = null,
+            string? search = null
+        )
+        {
+            var result = await _orderService.GetPagedOrdersAsync(
+                pageNumber, pageSize, status, startDate, endDate, search
+            );
+
+            return Ok(result);
+        }
+
+
+
     }
 }

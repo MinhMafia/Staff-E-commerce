@@ -7,13 +7,20 @@ using System.Text;
 
 namespace backend.Services
 {
-    // Service chịu trách nhiệm xử lý logic thanh toán qua MoMo
     public class PaymentService
     {
         private readonly PaymentRepository _paymentRepo;
         private readonly OrderRepository _orderRepo;
         private readonly ActivityLogService _logService;
         private readonly IConfiguration _config;
+
+        // Hàm lưu một payment nếu là thanh toán trực tiếp 
+        // Lưu Payment (Cash, Card, ECard,...)
+        public async Task<Payment> CreatePaymentAsync(Payment payment)
+        {
+
+            return await _paymentRepo.AddPaymentAsync(payment);
+        }
 
         public PaymentService(PaymentRepository paymentRepo, OrderRepository orderRepo, ActivityLogService logService, IConfiguration config)
         {
@@ -22,101 +29,102 @@ namespace backend.Services
             _logService = logService;
             _config = config;
         }
-        //Tạo một payment tạm để gủi 
 
-
-        // Hàm băm SHA256 để tạo chữ ký gửi MoMo
-        private static string SignSHA256(string message, string key)
+        private string SignSHA256(string message, string key)
         {
-            var encoding = new UTF8Encoding();
-            byte[] keyByte = encoding.GetBytes(key);
-            byte[] messageBytes = encoding.GetBytes(message);
-            using var hmacsha256 = new HMACSHA256(keyByte);
-            byte[] hashMessage = hmacsha256.ComputeHash(messageBytes);
-            return BitConverter.ToString(hashMessage).Replace("-", "").ToLower();
+            using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(key));
+            return BitConverter.ToString(hmac.ComputeHash(Encoding.UTF8.GetBytes(message))).Replace("-", "").ToLower();
         }
 
-        /*
-            1. Hàm tạo giao dịch thanh toán mới trên MoMo
-
-        */
         public async Task<MomoPaymentResponseDTO> CreatePaymentAsync(MomoPaymentRequestDTO req, int userId)
         {
-            // Lấy cấu hình MoMo từ appsettings.json
-            string endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
+            string endpoint = _config["Momo:Endpoint"];
             string partnerCode = _config["Momo:PartnerCode"];
             string accessKey = _config["Momo:AccessKey"];
             string secretKey = _config["Momo:SecretKey"];
+            string redirectUrl = req.ReturnUrl;
+            string ipnUrl = req.NotifyUrl;
 
-            // Sinh mã định danh ngẫu nhiên
-            string orderId = Guid.NewGuid().ToString(); // ID phía MoMo
-            string requestId = Guid.NewGuid().ToString();
 
-            // Tạo chuỗi ký để MoMo xác thực
-            string rawHash = $"accessKey={accessKey}&amount={req.Amount}&extraData=&ipnUrl={req.NotifyUrl}&orderId={orderId}&orderInfo=Thanh toán đơn hàng&partnerCode={partnerCode}&redirectUrl={req.ReturnUrl}&requestId={requestId}&requestType=captureWallet";
-            string signature = SignSHA256(rawHash, secretKey);
+            // MoMo yêu cầu orderId và requestId dạng string
+            string orderId = "order_" + req.OrderId;
+            string requestId = "req_" + Guid.NewGuid().ToString("N");
+            string orderInfo = $"Thanh toán đơn hàng {req.OrderId}";
+            string amountStr = Math.Round(req.Amount).ToString("0");
 
-            // Tạo body gửi sang MoMo
+            // Tạo signature chuẩn MoMo
+            string requestType = "captureWallet"; // dùng chuẩn sandbox
+
+            string rawSignature =
+                $"accessKey={accessKey}" +
+                $"&amount={amountStr}" +
+                $"&extraData=" +
+                $"&ipnUrl={ipnUrl}" +
+                $"&orderId={orderId}" +
+                $"&orderInfo={orderInfo}" +
+                $"&partnerCode={partnerCode}" +
+                $"&redirectUrl={redirectUrl}" +
+                $"&requestId={requestId}" +
+                $"&requestType={requestType}";
+
+            string signature = SignSHA256(rawSignature, secretKey);
+
             var body = new
             {
                 partnerCode,
-                partnerName = "MyStore",
-                storeId = "MomoTest",
+                accessKey,
                 requestId,
-                amount = req.Amount.ToString(),
+                amount = amountStr,
                 orderId,
-                orderInfo = "Thanh toán MoMo",
-                redirectUrl = req.ReturnUrl,
-                ipnUrl = req.NotifyUrl,
-                lang = "vi",
-                requestType = "captureWallet",
-                autoCapture = true,
+                orderInfo,
+                redirectUrl,
+                ipnUrl,
                 extraData = "",
+                requestType = requestType,
                 signature
             };
 
-            // Gửi HTTP POST sang API MoMo
             using var client = new HttpClient();
-            var response = await client.PostAsync(endpoint, new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json"));
-            var content = await response.Content.ReadAsStringAsync();
-            dynamic json = JsonConvert.DeserializeObject(content);
+            var resp = await client.PostAsync(endpoint, new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json"));
+            var content = await resp.Content.ReadAsStringAsync();
+            Console.WriteLine("MoMo Response: " + content);
 
-            // Lấy URL để redirect
-            string payUrl = (string?)json?.payUrl ?? "";
+            dynamic json = JsonConvert.DeserializeObject(content);
+            string payUrl = json?.payUrl ?? "";
             bool success = !string.IsNullOrEmpty(payUrl);
 
-            // Lưu bản ghi Payment vào DB
+            // Lưu payment vào DB
             var payment = new Payment
             {
                 OrderId = req.OrderId,
                 Amount = req.Amount,
-                Method = "momo",
+                Method = "other",
                 TransactionRef = orderId,
                 Status = success ? "pending" : "failed",
                 CreatedAt = DateTime.UtcNow
             };
             await _paymentRepo.AddPaymentAsync(payment);
 
-            // Ghi log tạo payment
+            // Log activity
             await _logService.LogAsync(userId, "CREATE_PAYMENT", "Payment", orderId, JsonConvert.SerializeObject(req), "system");
 
             return new MomoPaymentResponseDTO
             {
                 PayUrl = payUrl,
-                RequestId = requestId,
                 OrderId = orderId,
-                Message = json?.message,
-                Success = success
+                RequestId = requestId,
+                Success = success,
+                Message = json?.message
             };
         }
 
-        // 2. Hàm xử lý callback IPN từ MoMo (MoMo gọi vào notifyUrl)
         public async Task<bool> HandleMomoCallbackAsync(MomoIpnCallbackDTO callback)
         {
             string accessKey = _config["Momo:AccessKey"];
             string secretKey = _config["Momo:SecretKey"];
 
-            string rawHash =
+            // Signature kiểm tra callback
+            string rawSignature =
                 $"accessKey={accessKey}" +
                 $"&amount={callback.Amount}" +
                 $"&extraData={callback.ExtraData}" +
@@ -131,39 +139,51 @@ namespace backend.Services
                 $"&resultCode={callback.ResultCode}" +
                 $"&transId={callback.TransId}";
 
-            string expectedSignature = SignSHA256(rawHash, secretKey);
-
-            if (callback.Signature != expectedSignature)
+            string expected = SignSHA256(rawSignature, secretKey);
+            if (callback.Signature != expected)
+            {
+                await _logService.LogAsync(0, "INVALID_SIGNATURE", "Payment", callback.OrderId ?? "", "Chữ ký MoMo không hợp lệ", "system");
                 return false;
+            }
 
             if (callback.ResultCode == 0)
             {
-                var payment = await _paymentRepo.GetByOrderIdAsync(int.Parse(callback.OrderId ?? "0"));
+                // Cập nhật payment + order
+                var payment = await _paymentRepo.GetByOrderIdAsync(int.Parse(callback.OrderId.Replace("order_", "")));
                 if (payment != null)
                 {
                     payment.Status = "completed";
                     await _paymentRepo.UpdatePaymentAsync(payment);
-
                     await _orderRepo.UpdateOrderStatusAsync(payment.OrderId, "paid");
-
-                    await _logService.LogAsync(
-                        payment.Order.Id,
-                        "PAYMENT_SUCCESS",
-                        "Payment",
-                        payment.TransactionRef,
-                        JsonConvert.SerializeObject(callback),
-                        "system"
-                    );
+                    await _logService.LogAsync(payment.OrderId, "PAYMENT_SUCCESS", "Payment", payment.TransactionRef, JsonConvert.SerializeObject(callback), "system");
                 }
             }
 
             return true;
         }
 
+        public async Task<PaymentResponseDTO?> GetByOrderIdAsync(int orderId)
+        {
+            var payment = await _paymentRepo.GetByOrderIdAsyncVer2(orderId);
 
+            if (payment == null)
+                return null;
 
+            return new PaymentResponseDTO(
+                method: payment.Method,
+                transaction_ref: payment.TransactionRef,
+                status: payment.Status
+            );
+        }
 
 
     }
-
 }
+
+
+
+
+
+
+
+

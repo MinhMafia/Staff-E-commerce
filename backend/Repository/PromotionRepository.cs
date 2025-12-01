@@ -103,11 +103,15 @@ namespace backend.Repository
         // Create promotion
         public async Task<Promotion> CreateAsync(Promotion promotion)
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            // Bên tui bị xung đột
+            // var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            // var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
             
-            promotion.CreatedAt = vietnamTime;
-            promotion.UpdatedAt = vietnamTime;
+            // promotion.CreatedAt = vietnamTime;
+            // promotion.UpdatedAt = vietnamTime;
+            promotion.CreatedAt = DateTime.UtcNow;
+            promotion.UpdatedAt = DateTime.UtcNow;
+          
 
             _context.Promotions.Add(promotion);
             await _context.SaveChangesAsync();
@@ -117,10 +121,11 @@ namespace backend.Repository
         // Update promotion
         public async Task<Promotion> UpdateAsync(Promotion promotion)
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            // var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            // var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
             
-            promotion.UpdatedAt = vietnamTime;
+            // promotion.UpdatedAt = vietnamTime;
+            promotion.UpdatedAt = DateTime.UtcNow;
             _context.Promotions.Update(promotion);
             await _context.SaveChangesAsync();
             return promotion;
@@ -132,11 +137,13 @@ namespace backend.Repository
             var promotion = await _context.Promotions.FirstOrDefaultAsync(p => p.Id == id);
             if (promotion == null) return false;
 
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            // var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            // var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
 
+            // promotion.IsDeleted = true;
+            // promotion.DeletedAt = vietnamTime;
             promotion.IsDeleted = true;
-            promotion.DeletedAt = vietnamTime;
+            promotion.DeletedAt =  DateTime.UtcNow;
             _context.Promotions.Update(promotion);
             await _context.SaveChangesAsync();
             return true;
@@ -174,11 +181,12 @@ namespace backend.Repository
             var promotion = await _context.Promotions.FindAsync(promotionId);
             if (promotion == null) return false;
 
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            
+            // var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            // var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+
             promotion.UsedCount++;
-            promotion.UpdatedAt = vietnamTime;
+            // promotion.UpdatedAt = vietnamTime;
+            promotion.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return true;
         }
@@ -186,10 +194,11 @@ namespace backend.Repository
         // Add redemption record
         public async Task<PromotionRedemption> AddRedemptionAsync(PromotionRedemption redemption)
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            
-            redemption.RedeemedAt = vietnamTime;
+            // var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            // var vietnamTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+
+            // redemption.RedeemedAt = vietnamTime;
+            redemption.RedeemedAt = DateTime.UtcNow;
             _context.PromotionRedemptions.Add(redemption);
             await _context.SaveChangesAsync();
             return redemption;

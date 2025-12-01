@@ -8,6 +8,12 @@ namespace backend.Repository
     {
         private readonly AppDbContext _context;
 
+        /*************  ✨ Windsurf Command ⭐  *************/
+        /// <summary>
+        /// Constructor for CustomerRepository.
+        /// </summary>
+        /// <param name="context">The AppDbContext instance.</param>
+        /*******  de317274-e941-4a67-8e12-78d4c12762df  *******/
         public CustomerRepository(AppDbContext context)
         {
             _context = context;
@@ -96,6 +102,75 @@ namespace backend.Repository
                 .Where(c => c.FullName.Contains(keyword))
                 .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
+        }
+
+        public async Task<List<Customer>> findCustomersByFilteredAndPaginatedAsync(
+            int skip,
+            int pageSize,
+            string? keyword = null,
+            string? status = null)
+        {
+            var query = _context.Set<Customer>().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var trimmedKeyword = keyword.Trim();
+                query = query.Where(c =>
+        c.FullName.Contains(trimmedKeyword) ||
+        (c.Phone != null && c.Phone.Contains(trimmedKeyword)) ||
+        (c.Email != null && c.Email.Contains(trimmedKeyword)) ||
+        (c.Address != null && c.Address.Contains(trimmedKeyword)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (status.ToLower() == "active")
+                {
+                    query = query.Where(c => c.IsActive);
+                }
+                else if (status.ToLower() == "inactive")
+                {
+                    query = query.Where(c => !c.IsActive);
+                }
+            }
+
+            return await query
+                .OrderByDescending(c => c.CreatedAt)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+        }
+
+        public async Task<int> CountFilteredAndPaginatedAsync(
+            string? keyword = null,
+            string? status = null)
+        {
+            var query = _context.Set<Customer>().AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
+                var trimmedKeyword = keyword.Trim();
+                query = query.Where(c =>
+        c.FullName.Contains(trimmedKeyword) ||
+        (c.Phone != null && c.Phone.Contains(trimmedKeyword)) ||
+        (c.Email != null && c.Email.Contains(trimmedKeyword)) ||
+        (c.Address != null && c.Address.Contains(trimmedKeyword)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (status.ToLower() == "active")
+                {
+                    query = query.Where(c => c.IsActive);
+                }
+                else if (status.ToLower() == "inactive")
+                {
+                    query = query.Where(c => !c.IsActive);
+                }
+            }
+
+            return await query.CountAsync();
+
         }
     }
 }

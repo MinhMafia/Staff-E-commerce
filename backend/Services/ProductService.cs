@@ -11,39 +11,31 @@ namespace backend.Services
     public class ProductService
     {
         private readonly ProductRepository _productRepository;
+        private readonly CategoryRepository _categoryRepository;
+        private readonly SupplierRepository _supplierRepository;
 
-        public ProductService(ProductRepository productRepository)
+        public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, SupplierRepository supplierRepository)
         {
             _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
+            _supplierRepository = supplierRepository;
+
         }
 
-        public async Task<List<ProductDTO>> GetAllProductsAsync()
-        {
-            var products = await _productRepository.GetAllAsync();
-            return products.Select(MapToProductDto).ToList();
-        }
 
-        public async Task<List<ProductDTO>> GetFeaturedProductsAsync(int limit)
-        {
-            var products = await _productRepository.GetFeaturedProductsAsync(limit);
-            return products.Select(MapToProductDto).ToList();
-        }
 
-        public async Task<List<ProductDTO>> GetBestSellerAsync(int limit)
+        public async Task<PaginationResult<ProductDTO>> GetPaginatedProductsAsync(
+                   int page = 1,
+                   int pageSize = 12,
+                   string? search = null,
+                   int? categoryId = null,
+                   int? supplierId = null,
+                   decimal? minPrice = null,
+                   decimal? maxPrice = null,
+                   string? sortBy = "",
+                   int? status = null)
         {
-            var products = await _productRepository.GetBestSellerAsync(limit);
-            return products.Select(MapToProductDto).ToList();
-        }
-
-        public async Task<List<ProductDTO>> GetBudgetProductAsync(int limit, decimal threshold = 1000m)
-        {
-            var products = await _productRepository.GetBudgetProductAsync(limit, threshold);
-            return products.Select(MapToProductDto).ToList();
-        }
-
-        public async Task<PaginationResult<ProductDTO>> GetPaginatedProductsAsync(int page, int pageSize)
-        {
-            var result = await _productRepository.GetPaginatedAsync(page, pageSize);
+            var result = await _productRepository.GetFilteredAsync(page, pageSize, supplierId, categoryId, minPrice, maxPrice, sortBy, search, status);
 
             return new PaginationResult<ProductDTO>
             {
@@ -66,25 +58,34 @@ namespace backend.Services
             return product != null ? MapToProductDto(product) : null;
         }
 
-        public async Task<ProductDTO> CreateProductAsync(Product product)
+        public async Task<ProductDTO> CreateProductAsync(Product product, IFormFile imageFile = null)
         {
-            if (string.IsNullOrWhiteSpace(product.ProductName))
-                throw new ArgumentException("Product name is required", nameof(product.ProductName));
+            var validator = await ValidateProductAsync(product, imageFile, mode: "create");
+            if (validator.HasErrors) throw validator;
 
-            if (product.Price <= 0)
-                throw new ArgumentException("Product price must be greater than 0", nameof(product.Price));
+            // if (string.IsNullOrWhiteSpace(product.ProductName))
+            // throw new ArgumentException("Product name is required", nameof(product.ProductName));
+
+            // if (product.Price <= 0)
+            // throw new ArgumentException("Product price must be greater than 0", nameof(product.Price));
+
+            // if ((product?.Inventory.Quantity ?? 0) == 0)
+            // {
+            //     product.IsActive = false;
+            // }
 
             // set timestamps (repository may override)
             product.CreatedAt = DateTime.UtcNow;
             product.UpdatedAt = DateTime.UtcNow;
 
             var created = await _productRepository.CreateAsync(product);
+
             return MapToProductDto(created);
         }
 
-        public async Task<ProductDTO> UpdateProductAsync(Product product)
+        public async Task<ProductDTO> UpdateProductAsync(Product product, IFormFile imageFile = null)
         {
-            var existing = await _productRepository.GetByIdAsync(product.Id);
+            var existing = await _productRepository.GetByIdForUpdateAsync(product.Id);
             if (existing == null)
                 throw new ArgumentException("Product not found", nameof(product.Id));
 
@@ -92,7 +93,11 @@ namespace backend.Services
             product.CreatedAt = existing.CreatedAt;
             product.UpdatedAt = DateTime.UtcNow;
 
+            var validator = await ValidateProductAsync(product, imageFile, mode: "edit");
+            if (validator.HasErrors) throw validator;
+
             var updated = await _productRepository.UpdateAsync(product);
+
             return MapToProductDto(updated);
         }
 
@@ -102,42 +107,85 @@ namespace backend.Services
             return await _productRepository.DeleteAsync(id);
         }
 
-        public async Task<List<ProductDTO>> GetProductsBySupplierAsync(int supplierId)
+
+        /// <summary>
+        /// Validate product, return ValidationException containing errors (if any).
+        /// Mode: "create" or "edit"
+        /// </summary>
+        private async Task<ValidationException> ValidateProductAsync(Product product, IFormFile? imageFile, string mode)
         {
-            var products = await _productRepository.GetBySupplierAsync(supplierId);
-            return products.Select(MapToProductDto).ToList();
-        }
+            var ve = new ValidationException();
 
-        // Search using repository filtered query for efficiency
-        public async Task<List<ProductDTO>> SearchProductsAsync(string keyword, int maxResults = 50)
-        {
-            if (string.IsNullOrWhiteSpace(keyword)) return new List<ProductDTO>();
+            // productName
+            if (string.IsNullOrWhiteSpace(product.ProductName))
+                ve.AddError(nameof(product.ProductName), "Tên sản phẩm không được để trống.");
 
-            // use filtered API: page=1, pageSize=maxResults, search=keyword
-            var filtered = await _productRepository.GetFilteredAsync(1, maxResults, null, null, null, null, null, keyword);
-            return filtered.Items.Select(MapToProductDto).ToList();
-        }
+            // Price
+            if (product.Price <= 0)
+                ve.AddError(nameof(product.Price), "Giá phải là số lớn hơn 0.");
 
-        public async Task<PaginationResult<ProductDTO>> GetFilteredProductsAsync(
-            int page, int pageSize,
-            int? supplierId, int? categoryId,
-            decimal? minPrice, decimal? maxPrice,
-            string? sortBy, string? search)
-        {
-            var result = await _productRepository.GetFilteredAsync(
-                page, pageSize, supplierId, categoryId, minPrice, maxPrice, sortBy, search
-            );
-
-            return new PaginationResult<ProductDTO>
+            // SKU: optional but if provided must be alphanumeric and unique
+            if (!string.IsNullOrWhiteSpace(product.Sku))
             {
-                Items = result.Items.Select(MapToProductDto).ToList(),
-                TotalItems = result.TotalItems,
-                CurrentPage = result.CurrentPage,
-                PageSize = result.PageSize,
-                TotalPages = result.TotalPages,
-                HasPrevious = result.HasPrevious,
-                HasNext = result.HasNext
-            };
+                if (!System.Text.RegularExpressions.Regex.IsMatch(product.Sku, @"^[a-zA-Z0-9_-]+$"))
+                    ve.AddError(nameof(product.Sku), "SKU chỉ chứa chữ, số, gạch ngang hoặc gạch dưới.");
+
+                // check uniqueness
+                var existsSku = await _productRepository.ExistsBySkuAsync(product.Sku, excludeId: mode == "edit" ? (int?)product.Id : null);
+                if (existsSku)
+                    ve.AddError(nameof(product.Sku), "SKU đã tồn tại trong hệ thống.");
+            }
+
+            // Unit
+            if (string.IsNullOrWhiteSpace(product.Unit))
+                ve.AddError(nameof(product.Unit), "Đơn vị không được để trống.");
+
+            // Inventory checks
+            if (product.Inventory != null)
+            {
+                if (product.Inventory.Quantity < 0)
+                    ve.AddError("Inventory.Quantity", "Số lượng tồn phải >= 0.");
+            }
+
+            // Category existence (if provided)
+            if (product.CategoryId.HasValue)
+            {
+                // if CategoryRepository available
+                if (_categoryRepository != null)
+                {
+                    var existsCat = await _categoryRepository.GetByIdAsync(product.CategoryId.Value);
+                    if (existsCat == null)
+                        ve.AddError(nameof(product.CategoryId), "Danh mục không tồn tại.");
+                }
+                // otherwise, you could skip or add repository method in ProductRepository to check
+            }
+
+            // Supplier existence (if provided)
+            if (product.SupplierId.HasValue)
+            {
+                if (_supplierRepository != null)
+                {
+                    var existsSup = await _supplierRepository.GetByIdAsync(product.SupplierId.Value);
+                    if (existsSup == null)
+                        ve.AddError(nameof(product.SupplierId), "Nhà cung cấp không tồn tại.");
+                }
+            }
+
+            // Image validation (optional)
+            if (imageFile != null)
+            {
+                // allowed types
+                var allowed = new[] { "image/jpeg", "image/png", "image/webp" };
+                if (!allowed.Contains(imageFile.ContentType))
+                    ve.AddError("imageFile", "Chỉ chấp nhận ảnh JPG/PNG/WEBP.");
+
+                // size limit 5MB
+                const long maxBytes = 5 * 1024 * 1024;
+                if (imageFile.Length > maxBytes)
+                    ve.AddError("imageFile", "Kích thước ảnh phải <= 5MB.");
+            }
+
+            return ve;
         }
 
         // Mapping: Product -> ProductDTO
@@ -150,7 +198,7 @@ namespace backend.Services
                 Id = p.Id,
                 Sku = p.Sku,
                 ProductName = p.ProductName,
-                Barcode = p.Barcode,
+                // Barcode = p.Barcode,
                 CategoryId = p.CategoryId,
                 SupplierId = p.SupplierId,
                 Price = p.Price,
@@ -192,11 +240,26 @@ namespace backend.Services
                 ReviewCount = 0
             };
 
-            // Optionally compute ReviewCount/AverageRating if you later add reviews table:
-            // dto.ReviewCount = p.Reviews?.Count ?? 0;
-            // dto.AverageRating = p.Reviews != null && p.Reviews.Any() ? Math.Round(p.Reviews.Average(r => r.Rating), 1) : 0.0;
 
             return dto;
         }
+
+
+        // lÀM ƠN ĐỪUNG XÓA CỦA => LẤY DANH SÁCH SẢN PHẨM CÒN HÀNG TRONG CỬA HÀNG
+        public async Task<PaginationResult<Product>> GetAvailableProductsAsync(int page, int pageSize)
+        {
+            return await _productRepository.GetAvailableProductsPaginatedAsync(page, pageSize);
+        }
+
+        // Search using repository filtered query for efficiency
+        public async Task<List<ProductDTO>> SearchProductsAsync(string keyword, int maxResults = 50)
+        {
+            if (string.IsNullOrWhiteSpace(keyword)) return new List<ProductDTO>();
+
+            // use filtered API: page=1, pageSize=maxResults, search=keyword
+            var filtered = await _productRepository.GetFilteredAsync(1, maxResults, null, null, null, null, null, keyword);
+            return filtered.Items.Select(MapToProductDto).ToList();
+        }
+
     }
 }

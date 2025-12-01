@@ -1,6 +1,6 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
-
+import { NavLink, useNavigate } from "react-router-dom";
+import { logout } from "../../api/apiClient";
 
 /**
  * Nếu bạn không dùng react-router, thay NavLink bằng <a href="..."> và className active logic
@@ -34,6 +34,15 @@ const IconUsers = () => (
 );
 
 export default function Sidebar({ collapsed, onClose }) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    if (confirm("Bạn có chắc muốn đăng xuất?")) {
+      logout();
+      navigate("/login");
+    }
+  };
+
   // collapsed = true : hide labels (for mobile or small)
   const linkClass = ({ isActive }) =>
     `flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 ${
@@ -44,7 +53,7 @@ export default function Sidebar({ collapsed, onClose }) {
     <aside
       className={`bg-white border-r border-gray-200 w-64 ${
         collapsed ? "hidden md:block" : "block"
-      } h-screen fixed`}
+      } h-screen fixed z-999`}
     >
       <div className="flex items-center gap-3 px-4 py-4 border-b">
         <div className="w-8 h-8 rounded-md bg-indigo-600 text-white flex items-center justify-center font-bold">
@@ -95,9 +104,7 @@ export default function Sidebar({ collapsed, onClose }) {
         </NavLink>
 
         <NavLink to="/users" className={linkClass}>
-          <span className="w-5 h-5">
-            👥
-          </span>
+          <span className="w-5 h-5">👥</span>
           <span className="text-sm">Quản lý Nhân Viên</span>
         </NavLink>
 
@@ -107,6 +114,18 @@ export default function Sidebar({ collapsed, onClose }) {
           <span className="text-sm">Quản lý Khách hàng</span>
         </NavLink>
 
+        {/* Categories */}
+        <NavLink to="/categories" className={linkClass}>
+          <span className="w-5 h-5">👥</span>
+          <span className="text-sm">Quản lý danh mục</span>
+        </NavLink>
+
+        {/* Units */}
+        <NavLink to="/units" className={linkClass}>
+          <span className="w-5 h-5">👥</span>
+          <span className="text-sm">Quản lý đơn vị</span>
+        </NavLink>
+
         {/* Promotions */}
         <NavLink to="/promotions" className={linkClass}>
           <span className="w-5 h-5">🏷️</span>
@@ -114,7 +133,7 @@ export default function Sidebar({ collapsed, onClose }) {
         </NavLink>
 
         {/* Reports */}
-        <NavLink to="/statistics" className={linkClass}>
+        <NavLink to="/reports" className={linkClass}>
           <span className="w-5 h-5">📊</span>
           <span className="text-sm">Báo cáo/Thống kê</span>
         </NavLink>
@@ -135,9 +154,7 @@ export default function Sidebar({ collapsed, onClose }) {
 
         <button
           className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700"
-          onClick={() => {
-            /* logout logic */
-          }}
+          onClick={handleLogout}
         >
           🚪 Đăng xuất
         </button>

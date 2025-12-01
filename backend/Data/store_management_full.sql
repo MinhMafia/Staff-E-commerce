@@ -236,12 +236,16 @@ CREATE INDEX idx_orders_created_at ON `orders` (created_at);
 CREATE INDEX idx_inventory_quantity ON inventory (quantity);
 CREATE INDEX idx_products_created_at ON products (created_at);
 
--- ===== USERS (Lưu ý: thay MD5(...) bằng bcrypt hash trong production) =====
+-- ===== USERS =====
 INSERT INTO users (username, email, password_hash, full_name, role, is_active, locked, created_at)
 VALUES
-  ('admin', 'admin@example.com', MD5('123456'), 'Quản trị viên', 'admin', 1, 0, NOW()),
-  ('staff01', 'staff01@example.com', MD5('123456'), 'Nguyễn Văn A', 'staff', 1, 0, NOW()),
-  ('staff02', 'staff02@example.com', MD5('123456'), 'Lê Thị B', 'staff', 1, 0, NOW());
+  ('admin', 'admin@example.com', '$2a$11$B5Pre4vLwlsfDIMg/gXXjuH/CyqianiPXHXSXikWE5R0djN/9Tf7.', 'Quản trị viên', 'admin', 1, 0, NOW()),
+  ('staff01', 'staff01@example.com', '$2a$11$NChyYqe5MniZi.l08LVuP.SkfLMRMtyK6guvRRyq/PdaGdjYoTaO2', 'Nguyễn Văn A', 'staff', 1, 0, NOW()),
+  ('staff02', 'staff02@example.com', '$2a$11$NChyYqe5MniZi.l08LVuP.SkfLMRMtyK6guvRRyq/PdaGdjYoTaO2', 'Lê Thị B', 'staff', 1, 0, NOW());
+
+-- password của admin là admin123
+-- password của staff là 123456
+
 
 -- ===== CUSTOMERS (full_name, phone, email, address) =====
 INSERT INTO customers (full_name, phone, email, address, created_at)
@@ -283,9 +287,9 @@ VALUES
 ('Công ty XYZ', NULL, '0912123456', 'xyz@gmail.com', 'TP HCM', NOW()),
 ('Công ty 123', NULL, '0933123456', '123@gmail.com', 'Đà Nẵng', NOW());
 
--- ===== PRODUCTS (category_id, supplier_id, product_name, barcode, price, unit) =====
+-- ===== PRODUCTS (category_id, supplier_id, product_name, sku, price, unit) =====
 -- NOTE: price inserted as decimal with 2 decimals (original values used integers; we store as .00)
-INSERT INTO products (category_id, supplier_id, product_name, barcode, price, unit, created_at)
+INSERT INTO products (category_id, supplier_id, product_name, sku, price, unit, created_at)
 VALUES
 (2, 1, 'Coca Cola lon', '8900000000001', 314838.00, 'hộp', NOW()),
 (1, 3, 'Pepsi lon', '8900000000002', 114807.00, 'cái', NOW()),
@@ -535,3 +539,6 @@ ADD COLUMN description VARCHAR(1000) NULL;
 ALTER TABLE promotions
 ADD COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0 AFTER updated_at,
 ADD COLUMN deleted_at DATETIME NULL AFTER is_deleted;
+
+ALTER TABLE customers
+ADD COLUMN is_active boolean NOT NULL DEFAULT TRUE
