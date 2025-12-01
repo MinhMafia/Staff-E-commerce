@@ -268,7 +268,7 @@ export default function PromotionEdit({ promotion, onCancel, onSuccess }) {
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-blue-600 text-gray-900 rounded-lg hover:bg-blue-700 disabled:opacity-50 font-semibold"
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 font-semibold"
             >
               {loading ? "Đang cập nhật..." : "Cập nhật"}
             </button>

@@ -16,7 +16,7 @@ export default function OverviewCards({ overview }) {
         <p className="text-gray-500 text-sm">Số đơn hàng</p>
         <p className="text-3xl font-bold text-green-600">{overview?.todayOrders || 0}</p>
         <p className={`text-sm mt-2 ${overview?.ordersChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-          {overview?.ordersChange >= 0 ? '↑' : '↓'} {Math.abs(overview?.ordersChange || 0)}% so với hôm qua
+          {overview?.ordersChange >= 0 ? '↑' : '↓'} {Math.abs(overview?.ordersChange || 0).toFixed(1)}% so với hôm qua
         </p>
       </div>
 
@@ -26,7 +26,7 @@ export default function OverviewCards({ overview }) {
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow">
-        <p className="text-gray-500 text-sm">Đơn trung bình</p>
+        <p className="text-gray-500 text-sm">Đơn trung bình (7 ngày)</p>
         <p className="text-3xl font-bold text-orange-600">{formatCurrency(overview?.averageOrderValue || 0)}</p>
       </div>
     </div>

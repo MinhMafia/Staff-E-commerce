@@ -23,18 +23,50 @@ namespace backend.Repository
                 .ToListAsync();
         }
 
-        // Get paginated promotions
-        public async Task<PaginationResult<Promotion>> GetPaginatedAsync(int page, int pageSize)
+        // Get paginated promotions with search and filter
+        public async Task<PaginationResult<Promotion>> GetPaginatedAsync(
+            int page, 
+            int pageSize, 
+            string? search = null, 
+            string? status = null, 
+            string? type = null)
         {
             if (page < 1) page = 1;
             if (pageSize <= 0) pageSize = 20;
 
-            var totalItems = await _context.Promotions.Where(p => !p.IsDeleted).CountAsync();
+            var query = _context.Promotions
+                .AsNoTracking()
+                .Where(p => !p.IsDeleted);
+
+            // Search by code
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(p => p.Code.ToLower().Contains(search.ToLower()));
+            }
+
+            // Filter by type
+            if (!string.IsNullOrWhiteSpace(type) && type != "all")
+            {
+                query = query.Where(p => p.Type == type);
+            }
+
+            // Filter by status
+            var now = DateTime.UtcNow;
+            if (!string.IsNullOrWhiteSpace(status) && status != "all")
+            {
+                query = status switch
+                {
+                    "active" => query.Where(p => p.Active && (p.EndDate == null || p.EndDate >= now)),
+                    "inactive" => query.Where(p => !p.Active),
+                    "expired" => query.Where(p => p.EndDate != null && p.EndDate < now),
+                    _ => query
+                };
+            }
+
+            var totalItems = await query.CountAsync();
             var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
-            var items = await _context.Promotions
-                .AsNoTracking()
-                .Where(p => !p.IsDeleted)
+            var items = await query
                 .OrderByDescending(p => p.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

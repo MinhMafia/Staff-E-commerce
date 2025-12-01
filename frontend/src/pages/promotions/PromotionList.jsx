@@ -21,9 +21,30 @@ export default function PromotionList() {
   const dispatch = useDispatch();
   const { items, loading, error, meta, overview: stats } = useSelector((s) => s.promotions);
 
+  // Debounce search để không gọi API liên tục khi gõ
+  const [debouncedSearch, setDebouncedSearch] = useState(searchTerm);
+  
   useEffect(() => {
-    dispatch(fetchPromotionsPaginated({ page, pageSize }));
-  }, [dispatch, page, pageSize, refresh]);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    dispatch(fetchPromotionsPaginated({ 
+      page, 
+      pageSize, 
+      search: debouncedSearch, 
+      status: filterStatus, 
+      type: filterType 
+    }));
+  }, [dispatch, page, pageSize, debouncedSearch, filterStatus, filterType, refresh]);
+  
+  // Reset về page 1 khi filter thay đổi
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, filterStatus, filterType]);
 
   useEffect(() => {
     dispatch(fetchPromotionStats());
@@ -63,15 +84,8 @@ export default function PromotionList() {
     return <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">Đang hoạt động</span>;
   };
 
-  const filteredItems = items.filter(promo => {
-    const matchesSearch = promo.code.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = filterStatus === "all" || 
-      (filterStatus === "active" && promo.active && new Date(promo.endDate) >= new Date()) ||
-      (filterStatus === "inactive" && !promo.active) ||
-      (filterStatus === "expired" && promo.endDate && new Date(promo.endDate) < new Date());
-    const matchesType = filterType === "all" || promo.type === filterType;
-    return matchesSearch && matchesStatus && matchesType;
-  });
+  // Không cần filter ở FE nữa vì đã filter ở BE
+  const filteredItems = items;
 
 
   const StatCard = ({ icon, label, value, color }) => (
@@ -313,9 +327,11 @@ export default function PromotionList() {
               </div>
             </div>
 
-            <div className="mt-6">
-              <Pagination meta={meta} onPageChange={(p) => setPage(p)} />
-            </div>
+            {meta.totalPages > 1 && (
+              <div className="mt-6">
+                <Pagination meta={meta} onPageChange={(p) => setPage(p)} />
+              </div>
+            )}
           </>
         )}
       </div>

@@ -5,7 +5,7 @@ namespace backend.DTO
         public decimal TodayRevenue { get; set; }
         public decimal RevenueChange { get; set; }
         public int TodayOrders { get; set; }
-        public int OrdersChange { get; set; }
+        public decimal OrdersChange { get; set; }
         public int TodayProductsSold { get; set; }
         public decimal AverageOrderValue { get; set; }
         public decimal TotalDiscountApplied { get; set; }

@@ -26,8 +26,15 @@ export async function getAllPromotions() {
   return request("/promotions");
 }
 
-export async function getPromotionsPaginated(page = 1, pageSize = 12) {
-  return request(`/promotions/paginated?page=${page}&pageSize=${pageSize}`);
+export async function getPromotionsPaginated(page = 1, pageSize = 12, search = '', status = 'all', type = 'all') {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    pageSize: pageSize.toString(),
+  });
+  if (search) params.append('search', search);
+  if (status && status !== 'all') params.append('status', status);
+  if (type && type !== 'all') params.append('type', type);
+  return request(`/promotions/paginated?${params.toString()}`);
 }
 
 export async function getPromotionById(id) {
