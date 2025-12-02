@@ -4,7 +4,8 @@ using backend.Models;
 using Microsoft.EntityFrameworkCore;
 
 
-namespace backend.Repository{
+namespace backend.Repository
+{
     public class InventoryRepository
     {
         private readonly AppDbContext _context;
@@ -74,7 +75,7 @@ namespace backend.Repository{
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var s = search.Trim();
-                query = query.Where(i => 
+                query = query.Where(i =>
                     (i.Product != null && i.Product.ProductName.Contains(s)) ||
                     (i.Product != null && i.Product.Sku != null && i.Product.Sku.Contains(s))
                 );

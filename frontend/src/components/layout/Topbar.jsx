@@ -102,12 +102,12 @@ export default function Topbar({ onToggleSidebar }) {
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="relative p-2 rounded-md hover:bg-gray-100 focus:outline-none">
+        {/* <button className="relative p-2 rounded-md hover:bg-gray-100 focus:outline-none">
           <BellIcon className="text-gray-600" />
           <span className="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white bg-red-500 rounded-full">
             3
           </span>
-        </button>
+        </button> */}
 
         <div className="relative">
           <button

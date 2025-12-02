@@ -56,6 +56,7 @@ builder.Services.AddScoped<PaymentRepository>();
 builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<SupplierRepository>();
 builder.Services.AddScoped<ReportsRepository>();
+builder.Services.AddScoped<UnitRepository>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -81,6 +82,7 @@ builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<SupplierService>();
 builder.Services.AddScoped<ReportsService>();
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<UnitService>();
 
 // Configure file upload size limit
 builder.Services.Configure<FormOptions>(options =>

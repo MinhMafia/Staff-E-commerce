@@ -22,7 +22,7 @@ namespace backend.DTO
 
         public decimal? Cost { get; set; }
 
-        public string? Unit { get; set; }
+        public int? UnitId { get; set; }
 
         public string? Description { get; set; }
 

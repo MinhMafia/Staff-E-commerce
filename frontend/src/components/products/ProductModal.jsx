@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import CustomSelect from "../ui/CustomSelect";
 
 const ProductModal = ({
   title = null,
@@ -10,6 +11,7 @@ const ProductModal = ({
   saving = false,
   categories = [],
   suppliers = [],
+  units = [],
 }) => {
   const [formData, setFormData] = useState({});
   const [errors, setErrors] = useState({});
@@ -20,7 +22,7 @@ const ProductModal = ({
         productName: "",
         price: "",
         sku: "",
-        unit: "",
+        unitId: "",
         categoryId: "",
         supplierId: "",
         description: "",
@@ -33,7 +35,7 @@ const ProductModal = ({
         productName: product.productName || "",
         price: product.price || "",
         sku: product.sku || "",
-        unit: product.unit || "",
+        unitId: product.unitId || "",
         categoryId: product.categoryId || "",
         supplierId: product.supplierId || "",
         description: product.description || "",
@@ -91,8 +93,8 @@ const ProductModal = ({
       newErrors.sku = "SKU chỉ được chứa chữ, số, gạch dưới hoặc gạch ngang";
     }
 
-    if (!formData.unit?.trim()) {
-      newErrors.unit = "Đơn vị không được để trống";
+    if (!formData.unitId || Number(formData.unitId) <= 0) {
+      newErrors.unitId = "Đơn vị không được để trống";
     }
 
     if (
@@ -234,7 +236,7 @@ const ProductModal = ({
   const isView = mode === "view";
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40">
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-md w-full max-w-4xl p-4 shadow-lg">
         <div className="flex justify-between items-center mb-3">
           <h3 className="text-lg font-semibold">{modalTitle}</h3>
@@ -468,21 +470,38 @@ const ProductModal = ({
                 <label className="text-xs text-gray-600">Đơn vị *</label>
                 {isView ? (
                   <div className="p-2 border rounded bg-gray-50">
-                    {formData.unit}
+                    {product?.unitName ||
+                      units.find((u) => u.id === formData.unitId)?.name ||
+                      "—"}
                   </div>
                 ) : (
                   <>
-                    <input
-                      className={`w-full border px-2 py-1 rounded ${
-                        errors.unit ? "border-red-500" : ""
-                      }`}
-                      value={formData.unit || ""}
-                      onChange={(e) =>
-                        handleFieldChange("unit", e.target.value)
+                    <CustomSelect
+                      options={units.map((u) => ({
+                        value: u.id,
+                        label: `${u.name} (${u.code})`,
+                      }))}
+                      value={
+                        formData.unitId
+                          ? units
+                              .filter((u) => u.id === Number(formData.unitId))
+                              .map((u) => ({
+                                value: u.id,
+                                label: `${u.name} (${u.code})`,
+                              }))[0] || null
+                          : null
                       }
+                      onChange={(option) =>
+                        handleFieldChange("unitId", option?.value || "")
+                      }
+                      placeholder="-- Chọn đơn vị --"
+                      error={!!errors.unitId}
+                      isSearchable={true}
                     />
-                    {errors.unit && (
-                      <p className="text-xs text-red-500 mt-1">{errors.unit}</p>
+                    {errors.unitId && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors.unitId}
+                      </p>
                     )}
                   </>
                 )}

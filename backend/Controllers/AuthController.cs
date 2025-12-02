@@ -48,7 +48,7 @@ namespace backend.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest req)
         {
-            Console.WriteLine($"🔍 Login attempt - Username: '{req.Username}', Password length: {req.Password?.Length ?? 0}");
+            Console.WriteLine($"🔍 Login attempt - Username: '{req.Username}', Password length: {req.Password}");
 
             if (string.IsNullOrWhiteSpace(req.Username) || string.IsNullOrWhiteSpace(req.Password))
             {
@@ -94,6 +94,7 @@ namespace backend.Controllers
                 Role = user.Role
             });
         }
+
         [HttpPost("reset-admin-password")]
         public async Task<IActionResult> ResetAdminPassword()
         {

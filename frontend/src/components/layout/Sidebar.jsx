@@ -37,7 +37,8 @@ export default function Sidebar({ collapsed, onClose }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(
-    location.pathname.startsWith("/products") || location.pathname.startsWith("/inventory")
+    location.pathname.startsWith("/products") ||
+      location.pathname.startsWith("/inventory")
   );
 
   const handleLogout = () => {
@@ -109,7 +110,8 @@ export default function Sidebar({ collapsed, onClose }) {
           <button
             onClick={() => setIsProductsMenuOpen(!isProductsMenuOpen)}
             className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md hover:bg-gray-100 ${
-              location.pathname.startsWith("/products") || location.pathname.startsWith("/inventory")
+              location.pathname.startsWith("/products") ||
+              location.pathname.startsWith("/inventory")
                 ? "bg-indigo-50 text-indigo-600 font-semibold"
                 : "text-gray-700"
             }`}
@@ -125,7 +127,9 @@ export default function Sidebar({ collapsed, onClose }) {
               height="16"
               viewBox="0 0 24 24"
               fill="none"
-              className={`transition-transform ${isProductsMenuOpen ? "rotate-90" : ""}`}
+              className={`transition-transform ${
+                isProductsMenuOpen ? "rotate-90" : ""
+              }`}
             >
               <path
                 d="M9 18l6-6-6-6"
@@ -167,8 +171,8 @@ export default function Sidebar({ collapsed, onClose }) {
 
         {/* Units */}
         <NavLink to="/units" className={linkClass}>
-          <span className="w-5 h-5">👥</span>
-          <span className="text-sm">Quản lý đơn vị</span>
+          <span className="w-5 h-5">📏</span>
+          <span className="text-sm">Đơn vị tính</span>
         </NavLink>
 
         {/* Promotions */}
@@ -190,15 +194,15 @@ export default function Sidebar({ collapsed, onClose }) {
         </NavLink>
 
         {/* Settings */}
-        <NavLink to="/settings" className={linkClass}>
+        {/* <NavLink to="/settings" className={linkClass}>
           <span className="w-5 h-5">⚙️</span>
           <span className="text-sm">Cài đặt</span>
-        </NavLink>
+        </NavLink> */}
 
         <div className="border-t my-2" />
 
         <button
-          className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700"
+          className="w-full text-left px-3 py-2 bottom-2 rounded-md hover:bg-gray-100 text-gray-700"
           onClick={handleLogout}
         >
           🚪 Đăng xuất

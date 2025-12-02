@@ -54,7 +54,7 @@ namespace backend.Services
                 UpdatedAt = i.UpdatedAt,
                 CategoryName = i.Product?.Category?.Name,
                 Price = i.Product?.Price,
-                Unit = i.Product?.Unit
+                Unit = i.Product?.Unit?.Name ?? i.Product?.Unit?.Code ?? "—"
             }).ToList();
 
             return new PaginationResult<InventoryListDTO>
@@ -93,7 +93,7 @@ namespace backend.Services
                 UpdatedAt = inventory.UpdatedAt,
                 CategoryName = inventory.Product?.Category?.Name,
                 Price = inventory.Product?.Price,
-                Unit = inventory.Product?.Unit
+                Unit = inventory.Product?.Unit?.Name ?? inventory.Product?.Unit?.Code ?? "—"
             };
         }
 

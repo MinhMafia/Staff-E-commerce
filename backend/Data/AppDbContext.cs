@@ -14,7 +14,8 @@ namespace backend.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<InventoryAdjustment> InventoryAdjustments { get; set; }
         public DbSet<Inventory> Inventory { get; set; }
-         public DbSet<Product> Products { get; set; }
+        public DbSet<Unit> Units { get; set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<Supplier> Suppliers { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Customer> Customers { get; set; }
@@ -38,9 +39,15 @@ namespace backend.Data
                 .HasDatabaseName("ux_products_sku");
 
             // modelBuilder.Entity<Product>()
-                // .HasIndex(p => p.Barcode)
-                // .IsUnique()
-                // .HasDatabaseName("ux_products_barcode");
+            // .HasIndex(p => p.Barcode)
+            // .IsUnique()
+            // .HasDatabaseName("ux_products_barcode");
+
+            modelBuilder.Entity<Product>()
+                    .HasOne(p => p.Unit)
+                    .WithMany(u => u.Products)
+                    .HasForeignKey(p => p.UnitId)
+                    .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Product>()
                 .HasIndex(p => p.CategoryId)
@@ -87,41 +94,41 @@ namespace backend.Data
                 .WithMany()
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
-    
+
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Promotion)
                 .WithMany(p => p.Orders)
                 .HasForeignKey(o => o.PromotionId)
                 .OnDelete(DeleteBehavior.SetNull);
-    
+
             // OrderItem -> Order (many-to-one)
             modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Order)
                 .WithMany(o => o.OrderItems)
                 .HasForeignKey(oi => oi.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
-    
+
             // OrderItem -> Product (many-to-one)
             modelBuilder.Entity<OrderItem>()
                 .HasOne(oi => oi.Product)
                 .WithMany(p => p.OrderItems)
                 .HasForeignKey(oi => oi.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
-    
+
             // Payment -> Order
             modelBuilder.Entity<Payment>()
                 .HasOne(p => p.Order)
                 .WithMany(o => o.Payments)
                 .HasForeignKey(p => p.OrderId)
                 .OnDelete(DeleteBehavior.Cascade);
-    
+
             // InventoryAdjustment -> Product, User
             modelBuilder.Entity<InventoryAdjustment>()
                 .HasOne(a => a.Product)
                 .WithMany(p => p.InventoryAdjustments)
                 .HasForeignKey(a => a.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
-    
+
             modelBuilder.Entity<InventoryAdjustment>()
                 .HasOne(a => a.User)
                 .WithMany()
@@ -134,7 +141,7 @@ namespace backend.Data
                 .WithMany()
                 .HasForeignKey(l => l.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
-                
+
             modelBuilder.Entity<PromotionRedemption>()
                 .HasOne(pr => pr.Promotion)
                 .WithMany(p => p.Redemptions)
@@ -182,7 +189,7 @@ namespace backend.Data
                 .WithOne(l => l.User)
                 .HasForeignKey(l => l.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
-            }
         }
+    }
 }
 

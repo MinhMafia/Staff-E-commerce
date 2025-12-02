@@ -11,6 +11,7 @@ export default function ProductList() {
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
+  const [units, setUnits] = useState([]);
 
   const [meta, setMeta] = useState({
     totalItems: 0,
@@ -64,6 +65,16 @@ export default function ProductList() {
       setSuppliers(data);
     } catch (error) {
       console.error("Lỗi khi tải nhà cung cấp:", error);
+    }
+  };
+
+  // Hàm fetch units
+  const fetchUnits = async () => {
+    try {
+      const data = await request("/units");
+      setUnits(data);
+    } catch (error) {
+      console.error("Lỗi khi tải đơn vị:", error);
     }
   };
 
@@ -135,6 +146,7 @@ export default function ProductList() {
     fetchProducts(page, pageSize, debouncedSearch);
     fetchCategories(); // Load categories khi component mount
     fetchSuppliers(); // Load suppliers khi component mount
+    fetchUnits(); // Load units khi component mount
   }, [page, pageSize, debouncedSearch, fetchProducts]);
 
   const resetFilters = () => {
@@ -465,8 +477,8 @@ export default function ProductList() {
                   Id
                 </th>
                 {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
-                  SKU
-                </th> */}
+                    SKU
+                  </th> */}
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                   Tên
                 </th>
@@ -520,8 +532,8 @@ export default function ProductList() {
                       {(meta.currentPage - 1) * meta.pageSize + idx + 1}
                     </td>
                     {/* <td className="px-4 py-3 text-sm text-gray-700">
-                      {p.sku ?? p.barcode}
-                    </td> */}
+                        {p.sku ?? p.barcode}
+                      </td> */}
                     <td className="px-4 py-3 text-sm text-gray-800">
                       {getName(p)}
                     </td>
@@ -529,7 +541,7 @@ export default function ProductList() {
                       {formatPrice(getPrice(p))}
                     </td>
                     <td className="px-4 py-3 text-sm text-center text-gray-600">
-                      {p.unit}
+                      {p.unitName || p.unitCode || "—"}
                     </td>
                     <td className="px-4 py-3 text-sm text-center">
                       {getQty(p) ?? "—"}
@@ -647,6 +659,7 @@ export default function ProductList() {
           saving={saving}
           categories={categories}
           suppliers={suppliers}
+          units={units}
         />
       )}
 

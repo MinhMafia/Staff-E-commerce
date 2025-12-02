@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import AppLayout from "./components/layout/AppLayout";
 import Dashboard from "./pages/dashboard/Dashboard";
 import ProductList from "./pages/products/ProductList";
@@ -17,12 +17,25 @@ import CustomerList from "./pages/customers/CustomerList";
 import CategoryList from "./pages/categories/CategoryList";
 import ReportsPage from "./pages/reports/ReportsPage";
 import InventoryList from "./pages/inventory/InventoryList";
+import UnitList from "./pages/units/UnitList";
+
+// Component để xử lý redirect từ root
+function RootRedirect() {
+  const token = localStorage.getItem("auth_token");
+  return token ? (
+    <Navigate to="/dashboard" replace />
+  ) : (
+    <Navigate to="/login" replace />
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+
+        <Route path="/" element={<RootRedirect />} />
 
         <Route
           element={
@@ -31,7 +44,6 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="/" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<ProductList />} />
           <Route path="/inventory" element={<InventoryList />} />
@@ -51,6 +63,8 @@ function App() {
 
           {/*Category Routes */}
           <Route path="/categories" element={<CategoryList />} />
+
+          <Route path="/units" element={<UnitList />} />
 
           {/*Reports Routes */}
           <Route path="/reports" element={<ReportsPage />} />

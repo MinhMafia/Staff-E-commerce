@@ -22,7 +22,7 @@ namespace backend.Models
 
         [Required]
         [Column("product_name")]
-        [StringLength(255)] 
+        [StringLength(255)]
         public string ProductName { get; set; } = string.Empty;
 
         // [Column("barcode")]
@@ -43,9 +43,8 @@ namespace backend.Models
         [Column("cost", TypeName = "decimal(12,2)")]
         public decimal? Cost { get; set; }
 
-        [Column("unit")]
-        [StringLength(50)]
-        public string? Unit { get; set; }
+        [Column("unit_id")]
+        public int? UnitId { get; set; }
 
         [Column("description")]
         public string? Description { get; set; }
@@ -69,6 +68,9 @@ namespace backend.Models
 
         [ForeignKey(nameof(SupplierId))]
         public virtual Supplier? Supplier { get; set; }
+
+        [ForeignKey(nameof(UnitId))]
+        public virtual Unit? Unit { get; set; }
 
         // 1 product có 1 inventory record (theo schema)
         public virtual Inventory? Inventory { get; set; }
