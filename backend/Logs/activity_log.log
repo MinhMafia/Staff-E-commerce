@@ -73,3 +73,4 @@
 [2025-11-28 00:26:15] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":89,"OrderNumber":"344843f6-9b39-45b5-aee0-e3dc2f6d5e83","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":83536,"Discount":0,"TotalAmount":83536,"PromotionId":null,"Note":"tesi in h\u00F3a \u0111\u01A1n","CreatedAt":"2025-11-27T17:26:15.024Z","UpdatedAt":"2025-11-27T17:26:15.024Z"}
 [2025-11-28 00:26:15] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":89,"ProductId":49,"Quantity":1,"UnitPrice":83536,"TotalPrice":83536,"CreatedAt":"2025-11-27T17:26:15.024Z"}]
 [2025-11-28 00:26:15] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":49,"Quantity":1}]
+[2025-12-02 11:17:41] [User:1] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}

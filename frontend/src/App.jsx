@@ -16,6 +16,7 @@ import "./App.css";
 import CustomerList from "./pages/customers/CustomerList";
 import CategoryList from "./pages/categories/CategoryList";
 import ReportsPage from "./pages/reports/ReportsPage";
+import InventoryList from "./pages/inventory/InventoryList";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/products" element={<ProductList />} />
+          <Route path="/inventory" element={<InventoryList />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/audit" element={<AuditPage />} />
           <Route path="/users" element={<UserManagement />} />

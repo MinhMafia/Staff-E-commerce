@@ -1,5 +1,5 @@
-import React from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { logout } from "../../api/apiClient";
 
 /**
@@ -35,6 +35,10 @@ const IconUsers = () => (
 
 export default function Sidebar({ collapsed, onClose }) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(
+    location.pathname.startsWith("/products") || location.pathname.startsWith("/inventory")
+  );
 
   const handleLogout = () => {
     if (confirm("Bạn có chắc muốn đăng xuất?")) {
@@ -46,6 +50,11 @@ export default function Sidebar({ collapsed, onClose }) {
   // collapsed = true : hide labels (for mobile or small)
   const linkClass = ({ isActive }) =>
     `flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 ${
+      isActive ? "bg-indigo-50 text-indigo-600 font-semibold" : "text-gray-700"
+    }`;
+
+  const subLinkClass = ({ isActive }) =>
+    `flex items-center gap-3 px-3 py-2 pl-8 rounded-md hover:bg-gray-100 text-sm ${
       isActive ? "bg-indigo-50 text-indigo-600 font-semibold" : "text-gray-700"
     }`;
 
@@ -95,13 +104,49 @@ export default function Sidebar({ collapsed, onClose }) {
 
         <div className="border-t my-2" />
 
-        {/* Products */}
-        <NavLink to="/products" className={linkClass}>
-          <span className="w-5 h-5">
-            <IconProducts />
-          </span>
-          <span className="text-sm">Quản lý Sản phẩm</span>
-        </NavLink>
+        {/* Products Menu với submenu */}
+        <div>
+          <button
+            onClick={() => setIsProductsMenuOpen(!isProductsMenuOpen)}
+            className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md hover:bg-gray-100 ${
+              location.pathname.startsWith("/products") || location.pathname.startsWith("/inventory")
+                ? "bg-indigo-50 text-indigo-600 font-semibold"
+                : "text-gray-700"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="w-5 h-5">
+                <IconProducts />
+              </span>
+              <span className="text-sm">Quản lý Sản phẩm</span>
+            </div>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              className={`transition-transform ${isProductsMenuOpen ? "rotate-90" : ""}`}
+            >
+              <path
+                d="M9 18l6-6-6-6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          {isProductsMenuOpen && (
+            <div className="mt-1 space-y-1">
+              <NavLink to="/products" className={subLinkClass}>
+                <span className="text-sm">Danh sách sản phẩm</span>
+              </NavLink>
+              <NavLink to="/inventory" className={subLinkClass}>
+                <span className="text-sm">Quản lý Tồn kho</span>
+              </NavLink>
+            </div>
+          )}
+        </div>
 
         <NavLink to="/users" className={linkClass}>
           <span className="w-5 h-5">👥</span>
