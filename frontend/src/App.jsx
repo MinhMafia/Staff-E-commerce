@@ -18,6 +18,7 @@ import CategoryList from "./pages/categories/CategoryList";
 import ReportsPage from "./pages/reports/ReportsPage";
 import InventoryList from "./pages/inventory/InventoryList";
 import UnitList from "./pages/units/UnitList";
+import SupplierList from "./pages/suppliers/SupplierList";
 
 // Component để xử lý redirect từ root
 function RootRedirect() {
@@ -63,6 +64,8 @@ function App() {
 
           {/*Category Routes */}
           <Route path="/categories" element={<CategoryList />} />
+
+          <Route path="/suppliers" element={<SupplierList />} />
 
           <Route path="/units" element={<UnitList />} />
 

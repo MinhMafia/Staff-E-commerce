@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { logout } from "../../api/apiClient";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hook/useAuth";
 
 const SearchIcon = (props) => (
   <svg
@@ -53,12 +56,42 @@ const BellIcon = (props) => (
 export default function Topbar({ onToggleSidebar }) {
   // const [q, setQ] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  const menuRef = useRef(null);
 
   // const handleSearchSubmit = (e) => {
   //   e.preventDefault();
   //   // TODO: call parent search handler or navigate to search page
   //   console.log("Search for:", q);
   // };
+
+  const handleLogout = () => {
+    if (confirm("Bạn có chắc muốn đăng xuất?")) {
+      logout();
+      navigate("/login");
+    }
+  };
+
+  const getInitials = (name) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // ✅ Mapping role sang tiếng Việt
+  const getRoleLabel = (role) => {
+    const roleMap = {
+      Admin: "Quản trị viên",
+      Manager: "Quản lý",
+      Employee: "Nhân viên",
+    };
+    return roleMap[role] || role;
+  };
 
   return (
     <header className="flex items-center justify-between bg-white border-b border-gray-200 px-4 py-4">
@@ -86,19 +119,19 @@ export default function Topbar({ onToggleSidebar }) {
           </svg>
         </button>
 
-        {/* <form
-          onSubmit={handleSearchSubmit}
-          className="hidden sm:flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-md px-3 py-1"
-        >
-          <SearchIcon className="text-gray-400" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            type="search"
-            placeholder="Tìm kiếm toàn hệ thống..."
-            className="bg-transparent outline-none text-sm w-64 placeholder-gray-500"
-          />
-        </form> */}
+        <div className="hidden md:block">
+          <h1 className="text-xl font-bold text-gray-800">
+            Xin chào, {user?.fullName || user?.username || "User"}! 👋
+          </h1>
+          <p className="text-sm text-gray-500">
+            {new Date().toLocaleDateString("vi-VN", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-4">
@@ -108,20 +141,33 @@ export default function Topbar({ onToggleSidebar }) {
             3
           </span>
         </button> */}
-
-        <div className="relative">
+        <div className="w-px h-8 bg-gray-200" />
+        <div className="relative" ref={menuRef}>
           <button
-            onClick={() => setShowUserMenu((v) => !v)}
-            className="flex items-center gap-2 p-1 rounded-md hover:bg-gray-100 focus:outline-none"
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
             aria-haspopup="true"
             aria-expanded={showUserMenu}
           >
-            <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-sm font-medium">
-              N
+            <div className="relative">
+              <div className="w-10 h-10 border-2 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-purple-400 flex items-center justify-center text-sm font-bold shadow-md">
+                {loading ? (
+                  <div className="animate-spin">⏳</div>
+                ) : (
+                  getInitials(user?.fullName || user?.username)
+                )}
+              </div>
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
             </div>
             <div className="hidden sm:flex flex-col text-left">
-              <span className="text-sm font-medium text-gray-800">Nguyên</span>
-              <span className="text-xs text-gray-500">Nhân viên</span>
+              <span className="text-sm font-medium text-gray-800">
+                {loading
+                  ? "Đang tải..."
+                  : user?.fullName || user?.username || "User"}
+              </span>
+              <span className="text-xs text-gray-500">
+                {loading ? "" : getRoleLabel(user?.role)}
+              </span>
             </div>
             <svg
               width="16"
@@ -142,6 +188,13 @@ export default function Topbar({ onToggleSidebar }) {
 
           {showUserMenu && (
             <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+              <div className="px-4 py-3 border-b">
+                <p className="text-sm font-medium text-gray-800">
+                  {user?.fullName || user?.username}
+                </p>
+                <p className="text-xs text-gray-500">{user?.email}</p>
+              </div>
+
               <a
                 href="/profile"
                 className="block px-4 py-2 text-sm hover:bg-gray-50"
@@ -158,7 +211,7 @@ export default function Topbar({ onToggleSidebar }) {
               <button
                 className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
                 onClick={() => {
-                  /* logout */ console.log("Logout");
+                  handleLogout();
                 }}
               >
                 Đăng xuất

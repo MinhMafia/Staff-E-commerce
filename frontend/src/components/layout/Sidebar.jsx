@@ -50,12 +50,12 @@ export default function Sidebar({ collapsed, onClose }) {
 
   // collapsed = true : hide labels (for mobile or small)
   const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 ${
+    `flex items-center gap-3 px-3 py-2 rounded-md border-b mb-2 hover:bg-gray-100 ${
       isActive ? "bg-indigo-50 text-indigo-600 font-semibold" : "text-gray-700"
     }`;
 
   const subLinkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-3 py-2 pl-8 rounded-md hover:bg-gray-100 text-sm ${
+    `flex items-center gap-3 px-3 py-2 pl-8 rounded-md border-b mb-2 hover:bg-gray-100 text-sm ${
       isActive ? "bg-indigo-50 text-indigo-600 font-semibold" : "text-gray-700"
     }`;
 
@@ -65,13 +65,13 @@ export default function Sidebar({ collapsed, onClose }) {
         collapsed ? "hidden md:block" : "block"
       } h-screen fixed z-999`}
     >
-      <div className="flex items-center gap-3 px-4 py-4 border-b">
+      <div className="flex items-center gap-3 px-4 py-7  border-b">
         <div className="w-8 h-8 rounded-md bg-indigo-600 text-white flex items-center justify-center font-bold">
           SM
         </div>
         <div className="hidden md:block">
-          <div className="text-lg font-semibold">StoreMgr</div>
-          <div className="text-xs text-gray-500">Quản lý cửa hàng</div>
+          <div className="text-lg font-semibold">StoreManager</div>
+          {/* <div className="text-xs text-gray-500">Quản lý cửa hàng</div> */}
         </div>
         <div className="md:hidden ml-auto">
           <button onClick={onClose} className="p-2 rounded hover:bg-gray-100">
@@ -103,10 +103,10 @@ export default function Sidebar({ collapsed, onClose }) {
           <span className="text-sm">Bán hàng (POS)</span>
         </NavLink>
 
-        <div className="border-t my-2" />
+        {/* <div className="border-t my-2" /> */}
 
         {/* Products Menu với submenu */}
-        <div>
+        <div className="border-b mb-2">
           <button
             onClick={() => setIsProductsMenuOpen(!isProductsMenuOpen)}
             className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md hover:bg-gray-100 ${
@@ -128,7 +128,7 @@ export default function Sidebar({ collapsed, onClose }) {
               viewBox="0 0 24 24"
               fill="none"
               className={`transition-transform ${
-                isProductsMenuOpen ? "rotate-90" : ""
+                isProductsMenuOpen ? "rotate-45" : ""
               }`}
             >
               <path
@@ -143,9 +143,11 @@ export default function Sidebar({ collapsed, onClose }) {
           {isProductsMenuOpen && (
             <div className="mt-1 space-y-1">
               <NavLink to="/products" className={subLinkClass}>
+                <span className="w-5 h-5">📋</span>
                 <span className="text-sm">Danh sách sản phẩm</span>
               </NavLink>
               <NavLink to="/inventory" className={subLinkClass}>
+                <span className="w-5 h-5">📦</span>
                 <span className="text-sm">Quản lý Tồn kho</span>
               </NavLink>
             </div>
@@ -153,20 +155,26 @@ export default function Sidebar({ collapsed, onClose }) {
         </div>
 
         <NavLink to="/users" className={linkClass}>
-          <span className="w-5 h-5">👥</span>
+          <span className="w-5 h-5">👨‍💼</span>
           <span className="text-sm">Quản lý Nhân Viên</span>
         </NavLink>
 
         {/* Customers */}
         <NavLink to="/customers" className={linkClass}>
-          <span className="w-5 h-5">👥</span>
+          <span className="w-5 h-5">👤</span>
           <span className="text-sm">Quản lý Khách hàng</span>
         </NavLink>
 
         {/* Categories */}
         <NavLink to="/categories" className={linkClass}>
-          <span className="w-5 h-5">👥</span>
+          <span className="w-5 h-5">📂</span>
           <span className="text-sm">Quản lý danh mục</span>
+        </NavLink>
+
+        {/* Suppliers */}
+        <NavLink to="/suppliers" className={linkClass}>
+          <span className="w-5 h-5">🏭</span>
+          <span className="text-sm">Qu ản lý nhà cung cấp</span>
         </NavLink>
 
         {/* Units */}
@@ -198,7 +206,9 @@ export default function Sidebar({ collapsed, onClose }) {
           <span className="w-5 h-5">⚙️</span>
           <span className="text-sm">Cài đặt</span>
         </NavLink> */}
+      </nav>
 
+      <div className="absolute bottom-4 left-4 right-4 ">
         <div className="border-t my-2" />
 
         <button
@@ -207,11 +217,6 @@ export default function Sidebar({ collapsed, onClose }) {
         >
           🚪 Đăng xuất
         </button>
-      </nav>
-
-      <div className="absolute bottom-4 left-4 right-4 text-xs text-gray-400">
-        <div>Version</div>
-        <div>v.0.1</div>
       </div>
     </aside>
   );
