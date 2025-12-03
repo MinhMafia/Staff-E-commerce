@@ -21,11 +21,6 @@ function getCurrentUserId() {
       cachedUserId = stored;
       return cachedUserId;
     }
-
-    // Default to user #1 for local development if nothing stored yet
-    cachedUserId = "1";
-    window.localStorage.setItem(USER_ID_STORAGE_KEY, cachedUserId);
-    return cachedUserId;
   }
 
   return null;
@@ -191,6 +186,26 @@ export async function login(username, password) {
   if (data?.token) {
     setAuthToken(data.token, { persist: true });
     if (data.refreshToken) setRefreshToken(data.refreshToken);
+
+    // Prefer explicit userId from backend; fallback to decode token
+    if (data.userId) {
+      setCurrentUserId(data.userId);
+    } else {
+      try {
+        const base64Url = data.token.split(".")[1];
+        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split("")
+            .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+            .join("")
+        );
+        const decoded = JSON.parse(jsonPayload);
+        if (decoded?.uid) setCurrentUserId(decoded.uid);
+      } catch (_) {
+        // ignore decode errors
+      }
+    }
   }
   return data;
 }

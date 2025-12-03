@@ -33,7 +33,7 @@ namespace backend.Controllers
             var user = new User
             {
                 Username = req.Username,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(req.Password),
+                PasswordHash = HashPassword(req.Password),
                 FullName = req.Username,
                 Role = "staff",
                 IsActive = true
@@ -90,29 +90,13 @@ namespace backend.Controllers
                 Token = token,
                 TokenType = "Bearer",
                 ExpiresIn = expiresIn,
+                UserId = user.Id,
                 UserName = user.Username,
                 Role = user.Role
             });
         }
 
-        [HttpPost("reset-admin-password")]
-        public async Task<IActionResult> ResetAdminPassword()
-        {
-            var admin = await _db.Users.FirstOrDefaultAsync(u => u.Username == "admin");
-
-            if (admin == null)
-            {
-                return NotFound(new { message = "Admin user not found" });
-            }
-
-            // Đổi password thành "admin123"
-            admin.PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123");
-            await _db.SaveChangesAsync();
-
-            Console.WriteLine($"✅ Admin user found - ID: {admin.Id}");
-
-            Console.WriteLine("✅ Admin password reset to: admin123");
-            return Ok(new { message = "Admin password reset to 'admin123'" });
-        }
+        private const int BcryptWorkFactor = 11;
+        private static string HashPassword(string password) => BCrypt.Net.BCrypt.HashPassword(password, workFactor: BcryptWorkFactor);
     }
 }

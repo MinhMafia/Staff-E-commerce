@@ -74,3 +74,37 @@
 [2025-11-28 00:26:15] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":89,"ProductId":49,"Quantity":1,"UnitPrice":83536,"TotalPrice":83536,"CreatedAt":"2025-11-27T17:26:15.024Z"}]
 [2025-11-28 00:26:15] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":49,"Quantity":1}]
 [2025-12-02 11:17:41] [User:1] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 01:17:20] [User:1] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 01:23:43] [User:1] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 01:46:55] [User:1] [Action:CREATE_Users] [Entity:Users#0] [IP:::1] {"username":"Man","email":"manshpypro@gmail.com","fullName":"Duong Cong Man","role":"staff","isActive":true,"password":"[REDACTED]"}
+[2025-12-03 01:47:53] [User:1] [Action:UPDATE_Me] [Entity:Me#0] [IP:::1] {"username":"admin","email":"admin@example.commm","fullName":"Qu\u1EA3n tr\u1ECB vi\u00EAn"}
+[2025-12-03 01:47:59] [User:1] [Action:UPDATE_Me] [Entity:Me#0] [IP:::1] {"username":"admin123","email":"admin@example.commm","fullName":"Qu\u1EA3n tr\u1ECB vi\u00EAn"}
+[2025-12-03 01:48:28] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"Man","password":"[REDACTED]"}
+[2025-12-03 02:02:01] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:02:07] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:02:13] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:04:02] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:04:52] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:06:42] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:06:56] [User:1] [Action:UPDATE_Me] [Entity:Me#0] [IP:::1] {"username":"admin123","email":"admin@example.com","fullName":"Qu\u1EA3n tr\u1ECB vi\u00EAn"}
+[2025-12-03 02:07:03] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:07:05] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin123","password":"[REDACTED]"}
+[2025-12-03 02:12:32] [User:1] [Action:UPDATE_Users] [Entity:Users#1] [IP:::1] {"username":"admin123","email":"admin@example.com","fullName":"Qu\u1EA3n tr\u1ECB vi\u00EAn","role":"admin","isActive":true,"password":"[REDACTED]"}
+[2025-12-03 02:12:42] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin123","password":"[REDACTED]"}
+[2025-12-03 02:15:26] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:15:39] [User:1] [Action:UPDATE_Users] [Entity:Users#1] [IP:::1] {"username":"admin","email":"admin@example.com","fullName":"Qu\u1EA3n tr\u1ECB vi\u00EAn","role":"admin","isActive":true,"password":"[REDACTED]"}
+[2025-12-03 02:15:51] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:18:01] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:18:12] [User:1] [Action:UPDATE_Users] [Entity:Users#1] [IP:::1] {"username":"admin","email":"admin@example.com","fullName":"Qu\u1EA3n tr\u1ECB vi\u00EAn","role":"admin","isActive":true,"password":"[REDACTED]"}
+[2025-12-03 02:23:06] [User:1] [Action:UPDATE_Users] [Entity:Users#1] [IP:::1] {"username":"admin","email":"admin@example.com","fullName":"Qu\u1EA3n tr\u1ECB vi\u00EAn","role":"admin","isActive":true,"password":"[REDACTED]"}
+[2025-12-03 02:23:21] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:25:15] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"staff01","password":"[REDACTED]"}
+[2025-12-03 02:27:03] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:27:06] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 02:34:37] [User:1] [Action:CREATE_Users] [Entity:Users#0] [IP:::1] {"username":"admin","email":"mansocho123@gmail.com","fullName":"mansocho123","role":"staff","isActive":true,"password":"[REDACTED]"}
+[2025-12-03 02:37:40] [User:1] [Action:CREATE_Users] [Entity:Users#0] [IP:::1] {"username":"mansocho123","email":"manshpypro@gmail.com","fullName":"mansocho123","role":"staff","isActive":true,"password":"[REDACTED]"}
+[2025-12-03 02:37:53] [User:1] [Action:CREATE_Users] [Entity:Users#0] [IP:::1] {"username":"admin","email":"manshpypro@gmail.com","fullName":"mansocho213","role":"staff","isActive":true,"password":"[REDACTED]"}
+[2025-12-03 02:37:57] [User:1] [Action:CREATE_Users] [Entity:Users#0] [IP:::1] {"username":"admin213","email":"manshpypro@gmail.com","fullName":"mansocho213","role":"staff","isActive":true,"password":"[REDACTED]"}
+[2025-12-03 02:41:58] [User:1] [Action:UPDATE_Me] [Entity:Me#change-password] [IP:::1] {"currentPassword":"admin123","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}
+[2025-12-03 02:42:12] [User:1] [Action:UPDATE_Me] [Entity:Me#change-password] [IP:::1] {"currentPassword":"mansocho123","newPassword":"123123","confirmNewPassword":"123123"}
+[2025-12-03 02:42:27] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}

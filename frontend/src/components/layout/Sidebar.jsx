@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { logout } from "../../api/apiClient";
+import { useAuth } from "../../hook/useAuth";
 
 /**
  * Nếu bạn không dùng react-router, thay NavLink bằng <a href="..."> và className active logic
@@ -36,6 +37,7 @@ const IconUsers = () => (
 export default function Sidebar({ collapsed, onClose }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(
     location.pathname.startsWith("/products") ||
       location.pathname.startsWith("/inventory")
@@ -154,10 +156,12 @@ export default function Sidebar({ collapsed, onClose }) {
           )}
         </div>
 
-        <NavLink to="/users" className={linkClass}>
-          <span className="w-5 h-5">👨‍💼</span>
-          <span className="text-sm">Quản lý Nhân Viên</span>
-        </NavLink>
+        {user?.role === "admin" && (
+          <NavLink to="/users" className={linkClass}>
+            <span className="w-5 h-5">👨‍💼</span>
+            <span className="text-sm">Quản lý Nhân Viên</span>
+          </NavLink>
+        )}
 
         {/* Customers */}
         <NavLink to="/customers" className={linkClass}>

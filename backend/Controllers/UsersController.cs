@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using backend.DTO;
 
 namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "admin")]
     public class UsersController : ControllerBase
     {
         private readonly UserService _userService;

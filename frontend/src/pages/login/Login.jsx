@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import { login, getAuthToken, setCurrentUserId } from "../../api/apiClient";
+import { login, getAuthToken } from "../../api/apiClient";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -35,32 +35,6 @@ export default function LoginPage() {
       console.log("✅ Login successful:", data);
 
       // Token đã được set tự động trong apiClient.login()
-
-      // Decode JWT để lấy userId
-      if (data?.token) {
-        try {
-          // Decode base64 payload từ JWT (không cần thư viện)
-          const base64Url = data.token.split(".")[1];
-          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-          const jsonPayload = decodeURIComponent(
-            atob(base64)
-              .split("")
-              .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
-              .join("")
-          );
-          const decoded = JSON.parse(jsonPayload);
-
-          console.log("🔓 Decoded JWT:", decoded);
-
-          const userId = decoded?.uid;
-          if (userId) {
-            setCurrentUserId(userId);
-            console.log("💾 User ID saved:", userId);
-          }
-        } catch (err) {
-          console.error("❌ Failed to decode JWT:", err);
-        }
-      }
 
       // Lưu thông tin bổ sung
       localStorage.setItem("user_role", data.role || "staff");

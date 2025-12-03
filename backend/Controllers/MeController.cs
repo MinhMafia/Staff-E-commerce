@@ -1,12 +1,15 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using backend.DTO;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
 {
     [ApiController]
     [Route("api/me")]
+    [Authorize]
     public class MeController : ControllerBase
     {
         private readonly UserService _userService;
@@ -21,7 +24,7 @@ namespace backend.Controllers
         {
             var userId = ResolveUserId();
             if (userId == null)
-                return Unauthorized("Missing X-User-Id header.");
+                return Unauthorized("Missing user id in token.");
 
             var user = await _userService.GetUserByIdAsync(userId.Value);
             if (user == null)
@@ -35,7 +38,7 @@ namespace backend.Controllers
         {
             var userId = ResolveUserId();
             if (userId == null)
-                return Unauthorized("Missing X-User-Id header.");
+                return Unauthorized("Missing user id in token.");
 
             ModelState.Remove(nameof(MeDTO.Username));
             ModelState.Remove(nameof(MeDTO.Email));
@@ -63,7 +66,7 @@ namespace backend.Controllers
         {
             var userId = ResolveUserId();
             if (userId == null)
-                return Unauthorized("Missing X-User-Id header.");
+                return Unauthorized("Missing user id in token.");
 
             // Ignore profile fields when validating password-only payloads
             ModelState.Remove(nameof(MeDTO.Username));
@@ -99,13 +102,11 @@ namespace backend.Controllers
 
         private int? ResolveUserId()
         {
-            if (Request.Headers.TryGetValue("X-User-Id", out var header) &&
-                int.TryParse(header, out var userId))
-            {
-                return userId;
-            }
+            var userIdClaim = User.FindFirst("uid")
+                            ?? User.FindFirst("userId")
+                            ?? User.FindFirst(ClaimTypes.NameIdentifier);
 
-            return null;
+            return int.TryParse(userIdClaim?.Value, out var uid) ? uid : (int?)null;
         }
 
         private static MeDTO MapToMeDto(UserDTO user)

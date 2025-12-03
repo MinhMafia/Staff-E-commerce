@@ -181,12 +181,9 @@ export default function ProfilePage() {
               <input
                 type="text"
                 name="username"
-                className="mt-1 w-full rounded-md border px-3 py-2"
+                className="mt-1 w-full rounded-md border px-3 py-2 bg-gray-100 cursor-not-allowed"
                 value={form.username}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, username: e.target.value }))
-                }
-                required
+                readOnly
               />
             </div>
             <div>
@@ -196,12 +193,9 @@ export default function ProfilePage() {
               <input
                 type="email"
                 name="email"
-                className="mt-1 w-full rounded-md border px-3 py-2"
+                className="mt-1 w-full rounded-md border px-3 py-2 bg-gray-100 cursor-not-allowed"
                 value={form.email}
-                onChange={(e) =>
-                  setForm((prev) => ({ ...prev, email: e.target.value }))
-                }
-                required
+                readOnly
               />
             </div>
             <div>
