@@ -29,6 +29,7 @@ export default function DetailOrderForm({
         price: selectedProduct.price,
         qty: 1,
         total: selectedProduct.price,
+        quantity: selectedProduct.quantity// Tổng số lượng sản phẩm của sản phầm nha khác qty
       });
     }
   }, [selectedProduct]);
@@ -51,6 +52,12 @@ export default function DetailOrderForm({
   // Thêm sản phẩm
   const handleAdd = () => {
     if (!current.product) return;
+    // Kiểm tra vượt quá số lượng tồn kho
+    if (current.qty > current.quantity) {
+      alert(`Số lượng mua (${current.qty}) vượt quá số lượng tồn kho (${current.quantity}) của sản phẩm!`);
+      return;
+    }
+
     const updatedList = [...listOrderProducts, current];
     setListOrderProducts(updatedList);
     updateCurrentOrderTotals(updatedList);
@@ -60,6 +67,13 @@ export default function DetailOrderForm({
   // Lưu chỉnh sửa
   const handleSaveEdit = () => {
     if (editIndex === null) return;
+
+     //  Kiểm tra vượt số lượng tồn kho
+    if (current.qty > current.quantity) {
+      alert(`Số lượng mua (${current.qty}) vượt quá số lượng tồn kho (${current.quantity}) của sản phẩm!`);
+      return;
+    }
+
     const updatedList = [...listOrderProducts];
     updatedList[editIndex] = current;
     setListOrderProducts(updatedList);
@@ -83,7 +97,7 @@ export default function DetailOrderForm({
   };
 
   const resetForm = () => {
-    setCurrent({ id: "", product: "", price: 0, qty: 1, total: 0 });
+    setCurrent({ id: "", product: "", price: 0, qty: 1, total: 0, quantity:0 });
     setSelectedProduct(null);
     setMode("add");
     setEditIndex(null);
@@ -125,11 +139,26 @@ export default function DetailOrderForm({
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Số lượng</label>
-              <input
+              {/* <input
                 type="number"
                 min="1"
                 value={current.qty}
                 onChange={e => setCurrent({ ...current, qty: Number(e.target.value) })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+              /> */}
+              <input
+                type="number"
+                min="1"
+                max={current.quantity}
+                value={current.qty}
+                onChange={e => {
+                  const value = Number(e.target.value);
+                  if (value > current.quantity) {
+                    alert(`Bạn chỉ có thể mua tối đa ${current.quantity} sản phẩm này!`);
+                    return;
+                  }
+                  setCurrent({ ...current, qty: value });
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
               />
             </div>

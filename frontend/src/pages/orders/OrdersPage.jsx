@@ -84,6 +84,7 @@ export default function OrdersPage() {
           <select
               onChange={(e) => {
                 setSelectedStatus(e.target.value);
+                console.log("Trạng thái đang được chọn",e.target.value );
               }}
             className="px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-primary"
           >
@@ -123,13 +124,13 @@ export default function OrdersPage() {
       <div className="flex gap-3 mb-6">
         <input
           type="date"
-          value={selectedStartDate}
+          
           onChange={(e) => setSelectedStartDate(e.target.value)}
           className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg"
         />
         <input
           type="date"
-          value={selectedEndDate}
+          
           onChange={(e) => setSelectedEndDate(e.target.value)}
           className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg"
         />

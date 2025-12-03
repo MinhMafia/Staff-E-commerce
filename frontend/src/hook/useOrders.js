@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
 
-import { request } from "../api/apiClient"; // THÊM DÒNG NÀY
+import { request } from "../api/apiClient"; 
 
 
 export const useOrders = () => {
@@ -420,8 +420,14 @@ const loadOrdersAdvanced = async () => {
 
         if (selectedStatus) params.append("status", selectedStatus);
         if (searchKeyword?.trim()) params.append("search", searchKeyword.trim());
-        if (selectedStartDate) params.append("startDate", selectedStartDate); // nếu có
-        if (selectedEndDate) params.append("endDate", selectedEndDate);       // nếu có
+
+        // Format ngày (nếu có)
+        if (selectedStartDate) {
+            params.append("startDate", new Date(selectedStartDate).toISOString());
+        }
+        if (selectedEndDate) {
+            params.append("endDate", new Date(selectedEndDate).toISOString());
+        }
 
         const url = `http://localhost:5099/api/orders/search?${params.toString()}`;
 
@@ -433,15 +439,35 @@ const loadOrdersAdvanced = async () => {
         }
 
         const data = await res.json();
-        // data.items, data.totalPages, data.totalItems (camelCase)
-       
+
         setListOrders(data.items || []);
-        setTotalPages(data.totalPages || 1);
-       
+        setTotalPages(data.totalPages);
+
+        console.log("Danh sách đơn hàng:", data);
+        console.log("Params gửi lên:", {
+            status: selectedStatus,
+            search: searchKeyword,
+            startDate: selectedStartDate,
+            endDate: selectedEndDate,
+            page: currentPage
+        });
+
+
+
     } catch (err) {
         console.error("loadOrdersAdvanced error:", err);
     }
 };
+
+useEffect(() => {
+    console.log("totalPages đã cập nhật:", totalPages);
+}, [totalPages]);
+useEffect(() => {
+    console.log(" currentPage đã cập nhật:", currentPage);
+}, [currentPage]);
+
+
+
 //Api lấy danh sách orderitem
 async function loadOrderItemsByOrderId(orderId) {
     try {
