@@ -274,22 +274,14 @@ export default function PromotionDetail({ promotionId, onClose, onEdit }) {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-blue-600 font-medium">Tổng lượt dùng</p>
-                <p className="text-2xl font-bold text-blue-900 mt-1">{stats.totalUsage || 0}</p>
-              </div>
-              <div className="bg-green-50 p-4 rounded-lg">
-                <p className="text-sm text-green-600 font-medium">Tổng giảm giá</p>
-                <p className="text-2xl font-bold text-green-900 mt-1">{formatCurrency(stats.totalDiscount || 0)}</p>
-              </div>
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <p className="text-sm text-purple-600 font-medium">Giảm TB/lần</p>
-                <p className="text-2xl font-bold text-purple-900 mt-1">{formatCurrency(stats.averageDiscount || 0)}</p>
-              </div>
-                    <div className="bg-orange-50 p-4 rounded-lg">
-                      <p className="text-sm text-orange-600 font-medium">Tổng doanh thu</p>
-                      <p className="text-2xl font-bold text-orange-900 mt-1">{formatCurrency(stats.totalRevenue || 0)}</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <p className="text-sm text-blue-600 font-medium">Tổng lượt dùng</p>
+                      <p className="text-2xl font-bold text-blue-900 mt-1">{stats.totalRedemptions || 0}</p>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-lg">
+                      <p className="text-sm text-green-600 font-medium">Tổng giảm giá</p>
+                      <p className="text-2xl font-bold text-green-900 mt-1">{formatCurrency(stats.totalDiscountAmount || 0)}</p>
                     </div>
                   </div>
 
@@ -306,7 +298,7 @@ export default function PromotionDetail({ promotionId, onClose, onEdit }) {
                         <span className="font-semibold">{formatCurrency(stats.averageOrderValue || 0)}</span>
                       </div>
                     </div>
-              </div>
+                  </div>
                 </div>
               )}
             </div>
