@@ -111,7 +111,7 @@ export default function OrderTable(  {showOrder,listOrders,
 
         <button 
           onClick={onNext}
-          disabled={currentPage > totalPages}
+          disabled={currentPage === totalPages}
           className="px-6 py-3 border rounded-lg disabled:opacity-50 font-bold">Sau</button>
       </div>
     </div>

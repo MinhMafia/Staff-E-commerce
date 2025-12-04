@@ -170,32 +170,124 @@ export const useOrders = () => {
     }
   };
 
+// const pay = async (method = "cash") => {
+//   if (!currentOrder) return;
+
+//   if (method === "other") {
+//     const body = {
+//       OrderId: currentOrder.id,
+//       Amount: Math.round(currentOrder.total_amount),
+//       ReturnUrl: "http://localhost:5173/orders",
+//       NotifyUrl: "http://localhost:5099/api/payment/momo/ipn"
+//     };
+//     const res = await request("/payment/momo/create", { method: "POST", body });
+//     if (res?.payUrl) window.location.href = res.payUrl;
+//     return res;
+//   } else {
+//     const body = {
+//       OrderId: currentOrder.id,
+//       Amount: Math.round(currentOrder.total_amount),
+//       Method: method,
+//       Status: "completed",
+//     };
+//     return await request("/payment/offlinepayment", { method: "POST", body });
+//   }
+// };
+
 const pay = async (method = "cash") => {
   if (!currentOrder) return;
 
+  // ======= THANH TOÁN MOMO =======
   if (method === "other") {
+
+    // 1. Gọi API tạo payment
     const body = {
       OrderId: currentOrder.id,
       Amount: Math.round(currentOrder.total_amount),
-      ReturnUrl: "http://localhost:5173/orders",
-      NotifyUrl: "http://localhost:5099/api/payment/momo/ipn"
+
+      // Không cần ReturnUrl vì thanh toán mở popup
+      ReturnUrl: "",
+
+      NotifyUrl: "https://stainful-asher-unfeigningly.ngrok-free.dev/api/payment/momo/ipn"
     };
+
     const res = await request("/payment/momo/create", { method: "POST", body });
-    if (res?.payUrl) window.location.href = res.payUrl;
-    return res;
-  } else {
-    const body = {
-      OrderId: currentOrder.id,
-      Amount: Math.round(currentOrder.total_amount),
-      Method: method,
-      Status: "completed",
-    };
-    return await request("/payment/offlinepayment", { method: "POST", body });
+
+    if (!res?.payUrl) {
+      alert("Không lấy được payUrl từ MoMo");
+      return null;
+    }
+
+    // 2. Mở popup momo
+    const popup = window.open(res.payUrl, "_blank", "width=480,height=700");
+
+    if (!popup) {
+      alert("Trình duyệt chặn popup. Hãy cho phép mở popup.");
+      return null;
+    }
+
+    // 3. Polling để chờ trạng thái thanh toán
+    return new Promise((resolve) => {
+      let counter = 0;
+
+      const interval = setInterval(async () => {
+        counter++;
+
+        const statusRes = await fetch(`http://localhost:5099/api/payment/status/${currentOrder.id}`);
+
+        if (statusRes.ok) {
+          const data = await statusRes.json();
+
+          console.log("Payment status →", data.status);
+
+          // MoMo ipn đã cập nhật DB → success
+          if (data.status === "completed") {
+            clearInterval(interval);
+            popup.close();
+
+            resolve({
+              success: true,
+              message: "Thanh toán thành công!"
+            });
+          }
+        }
+
+        // Hết 2 phút → timeout
+        if (counter >= 60) {
+          clearInterval(interval);
+          popup.close();
+          resolve({
+            success: false,
+            message: "Quá thời gian chờ thanh toán"
+          });
+        }
+
+      }, 2000);
+    });
   }
+
+  // ======= CASH / OTHER METHODS =======
+  const body = {
+    OrderId: currentOrder.id,
+    Amount: Math.round(currentOrder.total_amount),
+    Method: method,
+    Status: "completed"
+  };
+
+  return await request("/payment/offlinepayment", { method: "POST", body });
 };
 
 
+
+
+
+
+
+
+
 const click_buttonCreateNewOrder = async () => {
+ 
+
   console.log("=== BẮT ĐẦU TẠO ĐƠN HÀNG ===");
   console.log("Current Order:", currentOrder);
   console.log("Khuyến mãi:", promotion);
@@ -264,6 +356,9 @@ const click_buttonCreateNewOrder = async () => {
         printOrder(currentOrder, listOrderProducts, promotion, payment);
       }
 
+      
+
+
       closeOrderModal();
     } else {
       console.log("Thanh toán thất bại hoặc bị hủy");
@@ -278,11 +373,28 @@ const click_buttonCreateNewOrder = async () => {
   console.log("=== KẾT THÚC TẠO ĐƠN HÀNG ===");
 };
 
+
+
+
+
+
+
+
+
+
+
+
 // In hóa đơn
 const printOrder = (order, products, promotion, payment) => {
-  const printWindow = window.open('', '', 'width=800,height=600');
+  // const printWindow = window.open('', '', 'width=800,height=600');
+  // if (!printWindow) {
+  //   alert("Trình duyệt chặn popup. Vui lòng cho phép popup để in phiếu.");
+  //   return;
+  // }
+  // Mở TAB mới (không phải popup) → trình duyệt sẽ không chặn
+  const printWindow = window.open('', '_blank');
   if (!printWindow) {
-    alert("Trình duyệt chặn popup. Vui lòng cho phép popup để in phiếu.");
+    alert("Trình duyệt đang chặn tab mới. Vui lòng cho phép.");
     return;
   }
 

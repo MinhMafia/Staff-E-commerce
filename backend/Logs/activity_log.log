@@ -108,3 +108,99 @@
 [2025-12-03 02:41:58] [User:1] [Action:UPDATE_Me] [Entity:Me#change-password] [IP:::1] {"currentPassword":"admin123","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}
 [2025-12-03 02:42:12] [User:1] [Action:UPDATE_Me] [Entity:Me#change-password] [IP:::1] {"currentPassword":"mansocho123","newPassword":"123123","confirmNewPassword":"123123"}
 [2025-12-03 02:42:27] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 21:20:02] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-03 21:20:23] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":31,"OrderNumber":"1a96369e-3d52-4d9d-92f5-d4e51e02fb0e","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":320000,"Discount":32000,"TotalAmount":288000,"PromotionId":1,"Note":"s","CreatedAt":"2025-12-03T14:20:23.900Z","UpdatedAt":"2025-12-03T14:20:23.900Z"}
+[2025-12-03 21:28:15] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-03 21:28:28] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":31,"OrderNumber":"ba775461-b2a2-42df-a86b-6ca5497fd660","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":320000,"Discount":32000,"TotalAmount":288000,"PromotionId":1,"Note":"Th\u1EED","CreatedAt":"2025-12-03T14:28:28.364Z","UpdatedAt":"2025-12-03T14:28:28.364Z"}
+[2025-12-03 21:28:28] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":31,"ProductId":80,"Quantity":1,"UnitPrice":320000,"TotalPrice":320000,"CreatedAt":"2025-12-03T14:28:28.364Z"}]
+[2025-12-03 21:28:28] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-03 21:30:49] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-03 21:31:06] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":32,"OrderNumber":"9565c9d2-055d-4178-87e0-cd9bc46f070b","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":320000,"Discount":0,"TotalAmount":320000,"PromotionId":null,"Note":"MoMo","CreatedAt":"2025-12-03T14:31:06.307Z","UpdatedAt":"2025-12-03T14:31:06.307Z"}
+[2025-12-03 21:31:06] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":32,"ProductId":80,"Quantity":1,"UnitPrice":320000,"TotalPrice":320000,"CreatedAt":"2025-12-03T14:31:06.307Z"}]
+[2025-12-03 21:31:06] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-03 21:33:33] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-03 21:33:42] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-03 21:33:57] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":33,"OrderNumber":"2de16191-67f1-445b-a2e9-22bbd62585e0","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":320000,"Discount":0,"TotalAmount":320000,"PromotionId":null,"Note":"Test","CreatedAt":"2025-12-03T14:33:57.101Z","UpdatedAt":"2025-12-03T14:33:57.101Z"}
+[2025-12-03 21:33:57] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":33,"ProductId":80,"Quantity":1,"UnitPrice":320000,"TotalPrice":320000,"CreatedAt":"2025-12-03T14:33:57.101Z"}]
+[2025-12-03 21:33:57] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-03 21:52:08] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-03 21:52:22] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":34,"OrderNumber":"028cc7fe-1844-408b-bfbb-0d3daa878bb7","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":320000,"Discount":0,"TotalAmount":320000,"PromotionId":null,"Note":"momo","CreatedAt":"2025-12-03T14:52:22.945Z","UpdatedAt":"2025-12-03T14:52:22.945Z"}
+[2025-12-03 21:52:22] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":34,"ProductId":80,"Quantity":1,"UnitPrice":320000,"TotalPrice":320000,"CreatedAt":"2025-12-03T14:52:22.945Z"}]
+[2025-12-03 21:52:23] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-03 22:00:16] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-03 22:00:35] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":35,"OrderNumber":"00e8de0f-5ed9-4af9-a4c1-3da12199df19","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":12000,"Discount":0,"TotalAmount":12000,"PromotionId":null,"Note":"Test","CreatedAt":"2025-12-03T15:00:35.405Z","UpdatedAt":"2025-12-03T15:00:35.405Z"}
+[2025-12-03 22:00:35] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":35,"ProductId":80,"Quantity":1,"UnitPrice":12000,"TotalPrice":12000,"CreatedAt":"2025-12-03T15:00:35.405Z"}]
+[2025-12-03 22:00:35] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-03 22:00:42] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-03 22:00:58] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":36,"OrderNumber":"c06dd4d5-b3a6-4c0c-ab5e-63d9702603ba","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":12000,"Discount":0,"TotalAmount":12000,"PromotionId":null,"Note":"m\u00F4m","CreatedAt":"2025-12-03T15:00:57.993Z","UpdatedAt":"2025-12-03T15:00:57.993Z"}
+[2025-12-03 22:00:58] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":36,"ProductId":80,"Quantity":1,"UnitPrice":12000,"TotalPrice":12000,"CreatedAt":"2025-12-03T15:00:57.993Z"}]
+[2025-12-03 22:00:58] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-03 22:23:33] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-03 22:23:55] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":37,"OrderNumber":"d70659b7-30b9-4f05-bf23-8f7d15af8c7e","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":12000,"Discount":0,"TotalAmount":12000,"PromotionId":null,"Note":"MoMM","CreatedAt":"2025-12-03T15:23:55.568Z","UpdatedAt":"2025-12-03T15:23:55.568Z"}
+[2025-12-03 22:23:55] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":37,"ProductId":80,"Quantity":1,"UnitPrice":12000,"TotalPrice":12000,"CreatedAt":"2025-12-03T15:23:55.568Z"}]
+[2025-12-03 22:23:55] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 00:28:30] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 00:29:01] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":38,"OrderNumber":"a89fd05b-ed5b-4c59-aab8-fa6321ed033d","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":24000,"Discount":0,"TotalAmount":24000,"PromotionId":null,"Note":"Test","CreatedAt":"2025-12-03T17:29:01.429Z","UpdatedAt":"2025-12-03T17:29:01.429Z"}
+[2025-12-04 00:29:01] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":38,"ProductId":80,"Quantity":1,"UnitPrice":12000,"TotalPrice":12000,"CreatedAt":"2025-12-03T17:29:01.429Z"},{"OrderId":38,"ProductId":80,"Quantity":1,"UnitPrice":12000,"TotalPrice":12000,"CreatedAt":"2025-12-03T17:29:01.429Z"}]
+[2025-12-04 00:29:01] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1},{"ProductId":80,"Quantity":1}]
+[2025-12-04 00:29:07] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 00:29:27] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":39,"OrderNumber":"8abd28be-63ee-4711-9381-00ec33dd0517","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":12000,"Discount":0,"TotalAmount":12000,"PromotionId":null,"Note":"momo","CreatedAt":"2025-12-03T17:29:27.561Z","UpdatedAt":"2025-12-03T17:29:27.561Z"}
+[2025-12-04 00:29:27] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":39,"ProductId":76,"Quantity":1,"UnitPrice":12000,"TotalPrice":12000,"CreatedAt":"2025-12-03T17:29:27.561Z"}]
+[2025-12-04 00:29:27] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":76,"Quantity":1}]
+[2025-12-04 00:31:08] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-04 00:31:22] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 00:31:36] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":40,"OrderNumber":"96781f64-04d4-4472-b833-258043412e0e","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":12000,"Discount":0,"TotalAmount":12000,"PromotionId":null,"Note":"test","CreatedAt":"2025-12-03T17:31:36.902Z","UpdatedAt":"2025-12-03T17:31:36.902Z"}
+[2025-12-04 00:31:36] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":40,"ProductId":80,"Quantity":1,"UnitPrice":12000,"TotalPrice":12000,"CreatedAt":"2025-12-03T17:31:36.902Z"}]
+[2025-12-04 00:31:37] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 00:52:52] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 00:54:15] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 00:54:39] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":41,"OrderNumber":"a50fb5b7-9857-461c-a0ec-117f80921d20","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"CreatedAt":"2025-12-03T17:54:39.610Z","UpdatedAt":"2025-12-03T17:54:39.610Z"}
+[2025-12-04 00:54:39] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":41,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-03T17:54:39.610Z"}]
+[2025-12-04 00:54:40] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 00:58:53] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 00:59:09] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 00:59:46] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":42,"OrderNumber":"741bf213-68cf-4be7-9c04-cfb839564fa4","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"n","CreatedAt":"2025-12-03T17:59:45.965Z","UpdatedAt":"2025-12-03T17:59:45.965Z"}
+[2025-12-04 00:59:46] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":42,"ProductId":77,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-03T17:59:45.965Z"}]
+[2025-12-04 00:59:46] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":77,"Quantity":1}]
+[2025-12-04 14:30:11] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 14:30:26] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":43,"OrderNumber":"c1775d16-4d14-4076-b454-b963f0c3a9d2","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"Test","CreatedAt":"2025-12-04T07:30:26.648Z","UpdatedAt":"2025-12-04T07:30:26.648Z"}
+[2025-12-04 14:30:26] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":43,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T07:30:26.648Z"}]
+[2025-12-04 14:30:26] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 14:30:32] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 14:30:51] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":44,"OrderNumber":"a338b884-a3f2-4205-b37b-81763a323711","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"Momo","CreatedAt":"2025-12-04T07:30:51.174Z","UpdatedAt":"2025-12-04T07:30:51.174Z"}
+[2025-12-04 14:30:51] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":44,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T07:30:51.175Z"}]
+[2025-12-04 14:30:51] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 14:31:41] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-04 14:31:48] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 14:31:59] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 14:32:16] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":45,"OrderNumber":"48be2c96-efe9-44ac-a06e-16320dc1f8ec","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"Test","CreatedAt":"2025-12-04T07:32:16.962Z","UpdatedAt":"2025-12-04T07:32:16.962Z"}
+[2025-12-04 14:32:16] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":45,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T07:32:16.963Z"}]
+[2025-12-04 14:32:17] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 14:34:15] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 14:34:32] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":46,"OrderNumber":"503f3ee6-9a69-43e0-9bb3-9148f0618574","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"test","CreatedAt":"2025-12-04T07:34:32.214Z","UpdatedAt":"2025-12-04T07:34:32.214Z"}
+[2025-12-04 14:34:32] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":46,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T07:34:32.214Z"}]
+[2025-12-04 14:34:32] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 14:37:00] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 14:37:26] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":47,"OrderNumber":"b21b616e-0eb3-4389-8310-ae8b0f88b973","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"MOMO","CreatedAt":"2025-12-04T07:37:26.150Z","UpdatedAt":"2025-12-04T07:37:26.150Z"}
+[2025-12-04 14:37:26] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":47,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T07:37:26.150Z"}]
+[2025-12-04 14:37:26] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 14:37:33] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 14:37:46] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":48,"OrderNumber":"1ce09a5f-a5f0-4077-8c52-49df36931427","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"TEST ","CreatedAt":"2025-12-04T07:37:46.910Z","UpdatedAt":"2025-12-04T07:37:46.910Z"}
+[2025-12-04 14:37:46] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":48,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T07:37:46.910Z"}]
+[2025-12-04 14:37:46] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 14:54:54] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 14:55:25] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":49,"OrderNumber":"0e9c7bb0-5f75-4c57-9949-4c669a36903f","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"Test momo","CreatedAt":"2025-12-04T07:55:25.275Z","UpdatedAt":"2025-12-04T07:55:25.275Z"}
+[2025-12-04 14:55:25] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":49,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T07:55:25.275Z"}]
+[2025-12-04 14:55:25] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 15:01:28] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 15:01:41] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":50,"OrderNumber":"b114c0f2-6021-4fe7-a8ca-5e5cb424ad95","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"test","CreatedAt":"2025-12-04T08:01:41.968Z","UpdatedAt":"2025-12-04T08:01:41.968Z"}
+[2025-12-04 15:01:42] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":50,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T08:01:41.968Z"}]
+[2025-12-04 15:01:42] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 15:02:11] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 15:02:24] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":51,"OrderNumber":"bf58f90e-502b-4fc5-ae01-653f8e254820","CustomerId":0,"UserId":1,"Status":"completed","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"test","CreatedAt":"2025-12-04T08:02:24.550Z","UpdatedAt":"2025-12-04T08:02:24.550Z"}
+[2025-12-04 15:02:24] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":51,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T08:02:24.551Z"}]
+[2025-12-04 15:02:24] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 15:02:44] [User:1] [Action:CREATE_Orders] [Entity:Orders#create-temp] [IP:::1] {"raw":"[Empty Body]"}
+[2025-12-04 15:03:00] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":52,"OrderNumber":"f4eb9a61-c8f3-4dcb-9e7d-1e5d5910b009","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"momo","CreatedAt":"2025-12-04T08:03:00.381Z","UpdatedAt":"2025-12-04T08:03:00.381Z"}
+[2025-12-04 15:03:00] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":52,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T08:03:00.382Z"}]
+[2025-12-04 15:03:00] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
