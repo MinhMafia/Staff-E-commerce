@@ -10,3 +10,6 @@
 *.dll
 *.exe
 *.webconfig
+
+## Log files
+backend/request_log.txt
