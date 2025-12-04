@@ -12,7 +12,17 @@ import Pagination from "../../components/ui/Pagination";
 import CategoryDetailModal from "../../components/categories/CategoryDetailModal";
 import CategoryEditModal from "../../components/categories/CategoryEditModal";
 import CategoryAddModal from "../../components/categories/CategoryAddModal";
-import { Search, Edit2, Power, Eye, RotateCcw } from "lucide-react";
+import {
+  Search,
+  Edit2,
+  Power,
+  Eye,
+  RotateCcw,
+  Tag,
+  CheckCircle,
+  Clock,
+  XCircle,
+} from "lucide-react";
 
 const CategoryList = () => {
   const dispatch = useDispatch();
@@ -135,22 +145,55 @@ const CategoryList = () => {
       </div>
 
       {/* Statistics */}
-      <div className="mb-6 grid grid-cols-2 gap-4">
+      <div className="mb-6 grid grid-cols-4 gap-4">
         <div
-          className="p-4 bg-green-50 border border-green-200 rounded-lg cursor-pointer hover:bg-green-100"
-          onClick={() => handleStatusFilter("active")}
+          className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => handleStatusFilter("all")}
         >
-          <p className="text-sm text-green-600">Đang Hoạt Động</p>
-          <p className="text-2xl font-bold text-green-800">
-            {categories.filter((c) => c.isActive).length}
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Tag className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Tổng số</p>
+          <p className="text-2xl font-bold text-gray-800">
+            {categories.length}
           </p>
         </div>
         <div
-          className="p-4 bg-red-50 border border-red-200 rounded-lg cursor-pointer hover:bg-red-100"
+          className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => handleStatusFilter("active")}
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Đang hoạt động</p>
+          <p className="text-2xl font-bold text-gray-800">
+            {categories.filter((c) => c.isActive).length}
+          </p>
+        </div>
+        <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <Clock className="w-5 h-5 text-red-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Hết hạn</p>
+          <p className="text-2xl font-bold text-gray-800">0</p>
+        </div>
+        <div
+          className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
           onClick={() => handleStatusFilter("inactive")}
         >
-          <p className="text-sm text-red-600">Ngừng Hoạt Động</p>
-          <p className="text-2xl font-bold text-red-800">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <XCircle className="w-5 h-5 text-gray-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Không hoạt động</p>
+          <p className="text-2xl font-bold text-gray-800">
             {categories.filter((c) => !c.isActive).length}
           </p>
         </div>
@@ -328,10 +371,17 @@ const CategoryList = () => {
       {/* Pagination */}
       <div className="mt-6">
         <Pagination meta={pagination} onPageChange={handlePageChange} />
-        <p className="mt-4 text-sm text-gray-600">
-          Hiển thị {categories.length} trên {pagination.pageSize} danh mục
-          (tổng: {pagination.totalItems})
-        </p>
+        <div className="mt-4 text-sm text-gray-600">
+          Hiển thị{" "}
+          <strong>
+            {(pagination.currentPage - 1) * pagination.pageSize + 1} -{" "}
+            {Math.min(
+              pagination.currentPage * pagination.pageSize,
+              pagination.totalItems
+            )}
+          </strong>{" "}
+          / {pagination.totalItems} danh mục
+        </div>
       </div>
 
       {/* Category Detail Modal */}
