@@ -23,6 +23,7 @@ import {
   Clock,
   XCircle,
 } from "lucide-react";
+import { getCategories } from "../../api/categoryApi";
 
 const CategoryList = () => {
   const dispatch = useDispatch();
@@ -38,6 +39,32 @@ const CategoryList = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+  });
+
+  // Fetch stats (total, active, inactive) on mount
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [totalData, activeData, inactiveData] = await Promise.all([
+          getCategories(1, 1, "", "all"),
+          getCategories(1, 1, "", "active"),
+          getCategories(1, 1, "", "inactive"),
+        ]);
+        setStats({
+          total: totalData.totalItems || 0,
+          active: activeData.totalItems || 0,
+          inactive: inactiveData.totalItems || 0,
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
 
   // Fetch categories when filters or pagination changes
   useEffect(() => {
@@ -100,6 +127,18 @@ const CategoryList = () => {
           })
         ).unwrap();
         console.log("Categories refetched successfully");
+
+        // Update stats
+        const [totalData, activeData, inactiveData] = await Promise.all([
+          getCategories(1, 1, "", "all"),
+          getCategories(1, 1, "", "active"),
+          getCategories(1, 1, "", "inactive"),
+        ]);
+        setStats({
+          total: totalData.totalItems || 0,
+          active: activeData.totalItems || 0,
+          inactive: inactiveData.totalItems || 0,
+        });
       } catch (error) {
         console.error("Error toggling status:", error);
       }
@@ -156,9 +195,7 @@ const CategoryList = () => {
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-1">Tổng số</p>
-          <p className="text-2xl font-bold text-gray-800">
-            {categories.length}
-          </p>
+          <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
         </div>
         <div
           className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
@@ -170,9 +207,7 @@ const CategoryList = () => {
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-1">Đang hoạt động</p>
-          <p className="text-2xl font-bold text-gray-800">
-            {categories.filter((c) => c.isActive).length}
-          </p>
+          <p className="text-2xl font-bold text-gray-800">{stats.active}</p>
         </div>
         <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3 mb-2">
@@ -193,9 +228,7 @@ const CategoryList = () => {
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-1">Không hoạt động</p>
-          <p className="text-2xl font-bold text-gray-800">
-            {categories.filter((c) => !c.isActive).length}
-          </p>
+          <p className="text-2xl font-bold text-gray-800">{stats.inactive}</p>
         </div>
       </div>
 
@@ -397,16 +430,27 @@ const CategoryList = () => {
         <CategoryEditModal
           categoryId={editingCategoryId}
           onClose={() => setEditingCategoryId(null)}
-          onSave={() => {
+          onSave={async () => {
             // Refresh category list after edit
-            dispatch(
+            await dispatch(
               fetchCategories({
                 page: pagination.currentPage,
                 pageSize: pagination.pageSize,
                 search: filters.search,
                 status: filters.status,
               })
-            );
+            ).unwrap();
+            // Update stats
+            const [totalData, activeData, inactiveData] = await Promise.all([
+              getCategories(1, 1, "", "all"),
+              getCategories(1, 1, "", "active"),
+              getCategories(1, 1, "", "inactive"),
+            ]);
+            setStats({
+              total: totalData.totalItems || 0,
+              active: activeData.totalItems || 0,
+              inactive: inactiveData.totalItems || 0,
+            });
           }}
         />
       )}
@@ -415,16 +459,27 @@ const CategoryList = () => {
       <CategoryAddModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSuccess={() => {
+        onSuccess={async () => {
           // Refresh category list after adding
-          dispatch(
+          await dispatch(
             fetchCategories({
               page: pagination.currentPage,
               pageSize: pagination.pageSize,
               search: filters.search,
               status: filters.status,
             })
-          );
+          ).unwrap();
+          // Update stats
+          const [totalData, activeData, inactiveData] = await Promise.all([
+            getCategories(1, 1, "", "all"),
+            getCategories(1, 1, "", "active"),
+            getCategories(1, 1, "", "inactive"),
+          ]);
+          setStats({
+            total: totalData.totalItems || 0,
+            active: activeData.totalItems || 0,
+            inactive: inactiveData.totalItems || 0,
+          });
         }}
       />
     </div>

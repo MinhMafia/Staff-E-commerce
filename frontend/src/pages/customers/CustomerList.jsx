@@ -25,6 +25,7 @@ import {
   Upload,
 } from "lucide-react";
 import ImportModal from "../../components/import/ImportModal";
+import { getCustomers } from "../../api/customerApi";
 
 const CustomerList = () => {
   const dispatch = useDispatch();
@@ -41,6 +42,32 @@ const CustomerList = () => {
   const [editingCustomerId, setEditingCustomerId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+  });
+
+  // Fetch stats (total, active, inactive) on mount
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [totalData, activeData, inactiveData] = await Promise.all([
+          getCustomers(1, 1, "", "all"),
+          getCustomers(1, 1, "", "active"),
+          getCustomers(1, 1, "", "inactive"),
+        ]);
+        setStats({
+          total: totalData.totalItems || 0,
+          active: activeData.totalItems || 0,
+          inactive: inactiveData.totalItems || 0,
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
 
   // Fetch customers when filters or pagination changes
   useEffect(() => {
@@ -103,6 +130,18 @@ const CustomerList = () => {
           })
         ).unwrap();
         console.log("Customers refetched successfully");
+
+        // Update stats
+        const [totalData, activeData, inactiveData] = await Promise.all([
+          getCustomers(1, 1, "", "all"),
+          getCustomers(1, 1, "", "active"),
+          getCustomers(1, 1, "", "inactive"),
+        ]);
+        setStats({
+          total: totalData.totalItems || 0,
+          active: activeData.totalItems || 0,
+          inactive: inactiveData.totalItems || 0,
+        });
       } catch (error) {
         console.error("Error toggling status:", error);
       }
@@ -168,7 +207,7 @@ const CustomerList = () => {
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-1">Tổng số</p>
-          <p className="text-2xl font-bold text-gray-800">{customers.length}</p>
+          <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
         </div>
         <div
           className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
@@ -180,9 +219,7 @@ const CustomerList = () => {
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-1">Đang hoạt động</p>
-          <p className="text-2xl font-bold text-gray-800">
-            {customers.filter((c) => c.isActive).length}
-          </p>
+          <p className="text-2xl font-bold text-gray-800">{stats.active}</p>
         </div>
         <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow">
           <div className="flex items-center gap-3 mb-2">
@@ -203,9 +240,7 @@ const CustomerList = () => {
             </div>
           </div>
           <p className="text-sm text-gray-600 mb-1">Không hoạt động</p>
-          <p className="text-2xl font-bold text-gray-800">
-            {customers.filter((c) => !c.isActive).length}
-          </p>
+          <p className="text-2xl font-bold text-gray-800">{stats.inactive}</p>
         </div>
       </div>
 
@@ -410,16 +445,27 @@ const CustomerList = () => {
         <CustomerEditModal
           customerId={editingCustomerId}
           onClose={() => setEditingCustomerId(null)}
-          onSave={() => {
+          onSave={async () => {
             // Refresh customer list after edit
-            dispatch(
+            await dispatch(
               fetchCustomers({
                 page: pagination.currentPage,
                 pageSize: pagination.pageSize,
                 search: filters.search,
                 status: filters.status,
               })
-            );
+            ).unwrap();
+            // Update stats
+            const [totalData, activeData, inactiveData] = await Promise.all([
+              getCustomers(1, 1, "", "all"),
+              getCustomers(1, 1, "", "active"),
+              getCustomers(1, 1, "", "inactive"),
+            ]);
+            setStats({
+              total: totalData.totalItems || 0,
+              active: activeData.totalItems || 0,
+              inactive: inactiveData.totalItems || 0,
+            });
           }}
         />
       )}
@@ -428,16 +474,27 @@ const CustomerList = () => {
       <CustomerAddModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSuccess={() => {
+        onSuccess={async () => {
           // Refresh customer list after adding
-          dispatch(
+          await dispatch(
             fetchCustomers({
               page: pagination.currentPage,
               pageSize: pagination.pageSize,
               search: filters.search,
               status: filters.status,
             })
-          );
+          ).unwrap();
+          // Update stats
+          const [totalData, activeData, inactiveData] = await Promise.all([
+            getCustomers(1, 1, "", "all"),
+            getCustomers(1, 1, "", "active"),
+            getCustomers(1, 1, "", "inactive"),
+          ]);
+          setStats({
+            total: totalData.totalItems || 0,
+            active: activeData.totalItems || 0,
+            inactive: inactiveData.totalItems || 0,
+          });
         }}
       />
 
@@ -445,16 +502,27 @@ const CustomerList = () => {
       <ImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
-        onSuccess={() => {
+        onSuccess={async () => {
           // Refresh customer list after import
-          dispatch(
+          await dispatch(
             fetchCustomers({
               page: pagination.currentPage,
               pageSize: pagination.pageSize,
               search: filters.search,
               status: filters.status,
             })
-          );
+          ).unwrap();
+          // Update stats
+          const [totalData, activeData, inactiveData] = await Promise.all([
+            getCustomers(1, 1, "", "all"),
+            getCustomers(1, 1, "", "active"),
+            getCustomers(1, 1, "", "inactive"),
+          ]);
+          setStats({
+            total: totalData.totalItems || 0,
+            active: activeData.totalItems || 0,
+            inactive: inactiveData.totalItems || 0,
+          });
         }}
         type="customers"
       />

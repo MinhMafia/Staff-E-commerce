@@ -204,3 +204,4 @@
 [2025-12-04 15:03:00] [User:1] [Action:CREATE_Orders] [Entity:Orders#create] [IP:::1] {"Id":52,"OrderNumber":"f4eb9a61-c8f3-4dcb-9e7d-1e5d5910b009","CustomerId":0,"UserId":1,"Status":"pending","Subtotal":1000,"Discount":0,"TotalAmount":1000,"PromotionId":null,"Note":"momo","CreatedAt":"2025-12-04T08:03:00.381Z","UpdatedAt":"2025-12-04T08:03:00.381Z"}
 [2025-12-04 15:03:00] [User:1] [Action:CREATE_Orderitem] [Entity:Orderitem#create] [IP:::1] [{"OrderId":52,"ProductId":80,"Quantity":1,"UnitPrice":1000,"TotalPrice":1000,"CreatedAt":"2025-12-04T08:03:00.382Z"}]
 [2025-12-04 15:03:00] [User:1] [Action:CREATE_Inventory] [Entity:Inventory#reduce-multiple] [IP:::1] [{"ProductId":80,"Quantity":1}]
+[2025-12-04 20:43:55] [User:1] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
