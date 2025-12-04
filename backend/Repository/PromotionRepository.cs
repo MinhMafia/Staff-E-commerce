@@ -97,7 +97,7 @@ namespace backend.Repository
         {
             return await _context.Promotions
                 .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.Code == code && !p.IsDeleted);
+                .FirstOrDefaultAsync(p => p.Code.ToUpper() == code.ToUpper() && !p.IsDeleted);
         }
 
         // Create promotion
