@@ -22,7 +22,9 @@ import {
   CheckCircle,
   Clock,
   XCircle,
+  Upload,
 } from "lucide-react";
+import ImportModal from "../../components/import/ImportModal";
 
 const CustomerList = () => {
   const dispatch = useDispatch();
@@ -38,6 +40,7 @@ const CustomerList = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [editingCustomerId, setEditingCustomerId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // Fetch customers when filters or pagination changes
   useEffect(() => {
@@ -136,12 +139,21 @@ const CustomerList = () => {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Quản Lý Khách Hàng</h1>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          + Thêm Khách Hàng
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setIsImportModalOpen(true)}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center gap-2"
+          >
+            <Upload size={18} />
+            Import Khách Hàng
+          </button>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            + Thêm Khách Hàng
+          </button>
+        </div>
       </div>
 
       {/* Statistics */}
@@ -427,6 +439,24 @@ const CustomerList = () => {
             })
           );
         }}
+      />
+
+      {/* Import Modal */}
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onSuccess={() => {
+          // Refresh customer list after import
+          dispatch(
+            fetchCustomers({
+              page: pagination.currentPage,
+              pageSize: pagination.pageSize,
+              search: filters.search,
+              status: filters.status,
+            })
+          );
+        }}
+        type="customers"
       />
     </div>
   );

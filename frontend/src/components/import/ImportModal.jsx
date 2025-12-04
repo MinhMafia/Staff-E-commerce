@@ -1,6 +1,6 @@
 // src/components/import/ImportModal.jsx
 import React, { useState, useRef } from "react";
-import { importProducts, downloadProductTemplate } from "../../api/importApi";
+import { importProducts, importCustomers, downloadProductTemplate, downloadCustomerTemplate } from "../../api/importApi";
 
 export default function ImportModal({ isOpen, onClose, onSuccess, type = "products" }) {
   const [file, setFile] = useState(null);
@@ -80,10 +80,10 @@ export default function ImportModal({ isOpen, onClose, onSuccess, type = "produc
       let importResult;
       if (type === "products") {
         importResult = await importProducts(file);
+      } else if (type === "customers") {
+        importResult = await importCustomers(file);
       } else {
-        // Nếu có importCustomers function
-        // importResult = await importCustomers(file);
-        throw new Error("Import khách hàng chưa được implement");
+        throw new Error("Loại import không được hỗ trợ");
       }
 
       setResult(importResult);
@@ -107,6 +107,9 @@ export default function ImportModal({ isOpen, onClose, onSuccess, type = "produc
       setError(null); // Clear previous errors
       if (type === "products") {
         await downloadProductTemplate(format);
+        // File will automatically download, no need to show message
+      } else if (type === "customers") {
+        await downloadCustomerTemplate(format);
         // File will automatically download, no need to show message
       }
     } catch (err) {
@@ -253,7 +256,7 @@ export default function ImportModal({ isOpen, onClose, onSuccess, type = "produc
           {result && !importing && (
             <div className="mt-4 space-y-4">
               {/* Summary */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <div className="p-4 bg-green-50 rounded-lg text-center">
                   <div className="text-2xl font-bold text-green-600">
                     {result.created || 0}
@@ -265,6 +268,12 @@ export default function ImportModal({ isOpen, onClose, onSuccess, type = "produc
                     {result.updated || 0}
                   </div>
                   <div className="text-sm text-gray-600">Đã cập nhật</div>
+                </div>
+                <div className="p-4 bg-yellow-50 rounded-lg text-center">
+                  <div className="text-2xl font-bold text-yellow-600">
+                    {result.skipped || 0}
+                  </div>
+                  <div className="text-sm text-gray-600">Đã bỏ qua</div>
                 </div>
                 <div className="p-4 bg-red-50 rounded-lg text-center">
                   <div className="text-2xl font-bold text-red-600">

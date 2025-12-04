@@ -58,5 +58,10 @@ namespace backend.Models
         public virtual ICollection<Order>? Orders { get; set; }         // orders created by this user
         public virtual ICollection<InventoryAdjustment>? InventoryAdjustments { get; set; }
         public virtual ICollection<ActivityLog>? ActivityLogs { get; set; }
+
+        internal static string? FindFirst(string v)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

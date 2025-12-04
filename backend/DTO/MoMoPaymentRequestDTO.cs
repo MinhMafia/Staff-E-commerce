@@ -19,8 +19,8 @@ namespace backend.DTO
         public decimal Amount { get; set; }
 
         public string ReturnUrl { get; set; } = string.Empty;
-        
+
         public string NotifyUrl { get; set; } = string.Empty;
 
-    }  
+    }
 }

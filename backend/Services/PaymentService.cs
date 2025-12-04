@@ -18,7 +18,7 @@ namespace backend.Services
         // Lưu Payment (Cash, Card, ECard,...)
         public async Task<Payment> CreatePaymentAsync(Payment payment)
         {
-            
+
             return await _paymentRepo.AddPaymentAsync(payment);
         }
 
@@ -80,7 +80,7 @@ namespace backend.Services
                 redirectUrl,
                 ipnUrl,
                 extraData = "",
-                requestType =  requestType ,
+                requestType = requestType,
                 signature
             };
 
@@ -154,13 +154,29 @@ namespace backend.Services
                 {
                     payment.Status = "completed";
                     await _paymentRepo.UpdatePaymentAsync(payment);
-                    await _orderRepo.UpdateOrderStatusAsync(payment.OrderId, "paid");
+                    await _orderRepo.UpdateOrderStatusAsync(payment.OrderId, "completed");
                     await _logService.LogAsync(payment.OrderId, "PAYMENT_SUCCESS", "Payment", payment.TransactionRef, JsonConvert.SerializeObject(callback), "system");
                 }
             }
 
             return true;
         }
+
+        public async Task<PaymentResponseDTO?> GetByOrderIdAsync(int orderId)
+        {
+            var payment = await _paymentRepo.GetByOrderIdAsyncVer2(orderId);
+
+            if (payment == null)
+                return null;
+
+            return new PaymentResponseDTO(
+                method: payment.Method,
+                transaction_ref: payment.TransactionRef,
+                status: payment.Status
+            );
+        }
+
+    
 
     }
 }
@@ -172,4 +188,3 @@ namespace backend.Services
 
 
 
-    

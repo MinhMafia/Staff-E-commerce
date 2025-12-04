@@ -1,10 +1,14 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Builder;
 using backend.Data;
 using backend.Repository;
 using backend.Services;
+
 using backend.Middlewares;
 using Microsoft.Extensions.FileProviders;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Features;
@@ -51,6 +55,11 @@ builder.Services.AddScoped<InventoryRepository>();
 builder.Services.AddScoped<PaymentRepository>();
 builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<SupplierRepository>();
+builder.Services.AddScoped<ReportsRepository>();
+builder.Services.AddScoped<UnitRepository>();
+
+builder.Services.AddHttpContextAccessor();
+
 
 
 
@@ -69,11 +78,37 @@ builder.Services.AddScoped<OrderItemService>();
 builder.Services.AddScoped<InventoryService>();
 builder.Services.AddScoped<PaymentService>();
 builder.Services.AddScoped<ImportService>();
+builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<SupplierService>();
+builder.Services.AddScoped<ReportsService>();
+builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<UnitService>();
 
 // Configure file upload size limit
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 10485760; // 10MB
+});
+
+// Authentication JWT
+var key = builder.Configuration["Jwt:Key"];
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false; // true in production
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+    };
 });
 
 // -------------------------
@@ -108,12 +143,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 
-// Bật middleware logging ngay sau routing
+// Xác thực JWT trước
+app.UseAuthentication();
+app.UseAuthorization();
+
+// Middleware logging bây giờ sẽ đọc context.User chính xác
 app.UseMiddleware<RequestLoggingMiddleware>();
 
 app.UseCors("AllowReact");
 app.UseHttpsRedirection();
-app.UseAuthorization();
 
 app.MapControllers();
 

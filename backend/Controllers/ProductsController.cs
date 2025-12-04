@@ -18,6 +18,7 @@ namespace backend.Controllers
 
         // GET api/products/paginated
         // GET api/products/paginated - ENDPOINT CHÍNH
+
         [HttpGet("paginated")]
         public async Task<ActionResult<PaginationResult<ProductDTO>>> GetPaginatedProducts(
             [FromQuery] int page = 1,
@@ -32,6 +33,12 @@ namespace backend.Controllers
         {
             if (page < 1) page = 1;
             if (pageSize < 1 || pageSize > 100) pageSize = 12;
+
+            // var userId = User.FindFirst("uid")?.Value;
+            // Console.WriteLine($"🔍 User ID from claims: {userId}");
+
+            // if (string.IsNullOrEmpty(userId))
+            //     return BadRequest("User ID not found in token");
 
             var result = await _productService.GetPaginatedProductsAsync(
                 page, pageSize, search, categoryId, supplierId, minPrice, maxPrice, sortBy, status);
@@ -85,7 +92,7 @@ namespace backend.Controllers
                     SupplierId = productDto.SupplierId,
                     Price = productDto.Price,
                     Cost = productDto.Cost,
-                    Unit = productDto.Unit,
+                    UnitId = productDto.UnitId,
                     Description = productDto.Description,
                     ImageUrl = productDto.ImageUrl,
                     IsActive = productDto.IsActive,
@@ -238,7 +245,7 @@ namespace backend.Controllers
         }
 
         // TÌM KIẾM
-         // GET api/products/search?keyword=...
+        // GET api/products/search?keyword=...
         [HttpGet("search")]
         public async Task<ActionResult<IEnumerable<ProductDTO>>> SearchProducts([FromQuery] string keyword)
         {
@@ -256,6 +263,6 @@ namespace backend.Controllers
             }
         }
 
-       
+
     }
 }

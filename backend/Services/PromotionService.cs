@@ -20,10 +20,15 @@ namespace backend.Services
             return promotions.Select(MapToDTO).ToList();
         }
 
-        // Get paginated promotions
-        public async Task<PaginationResult<PromotionDTO>> GetPaginatedPromotionsAsync(int page, int pageSize)
+        // Get paginated promotions with search and filter
+        public async Task<PaginationResult<PromotionDTO>> GetPaginatedPromotionsAsync(
+            int page, 
+            int pageSize, 
+            string? search = null, 
+            string? status = null, 
+            string? type = null)
         {
-            var result = await _promotionRepository.GetPaginatedAsync(page, pageSize);
+            var result = await _promotionRepository.GetPaginatedAsync(page, pageSize, search, status, type);
             return new PaginationResult<PromotionDTO>
             {
                 Items = result.Items.Select(MapToDTO).ToList(),
@@ -131,7 +136,7 @@ namespace backend.Services
         public async Task<ValidatePromotionResult> ValidatePromotionAsync(string code, decimal orderAmount)
         {
             var promotion = await _promotionRepository.GetByCodeAsync(code);
-            
+
             if (promotion == null)
             {
                 return new ValidatePromotionResult
@@ -216,11 +221,11 @@ namespace backend.Services
         private decimal CalculateDiscount(Promotion promotion, decimal orderAmount)
         {
             decimal discount = 0;
-            
+
             if (promotion.Type == "percent")
             {
                 discount = orderAmount * (promotion.Value / 100);
-                
+
                 // Áp dụng giới hạn giảm tối đa nếu có
                 if (promotion.MaxDiscount.HasValue && discount > promotion.MaxDiscount.Value)
                 {
@@ -231,7 +236,7 @@ namespace backend.Services
             {
                 discount = Math.Min(promotion.Value, orderAmount);
             }
-            
+
             return discount;
         }
 
@@ -241,8 +246,11 @@ namespace backend.Services
             var promotion = await _promotionRepository.GetByIdAsync(promotionId);
             if (promotion == null) return false;
 
-            // Increment used count
-            await _promotionRepository.IncrementUsedCountAsync(promotionId);
+            // Nếu UsedCount != null → mới được tính giới hạn → mới tăng
+            if (promotion.UsedCount != null)
+            {
+                await _promotionRepository.IncrementUsedCountAsync(promotionId);
+            }
 
             // Add redemption record
             await _promotionRepository.AddRedemptionAsync(new PromotionRedemption
@@ -254,6 +262,7 @@ namespace backend.Services
 
             return true;
         }
+
 
         // Get active promotions
         public async Task<List<PromotionDTO>> GetActivePromotionsAsync()
@@ -284,12 +293,12 @@ namespace backend.Services
         {
             var allPromotions = await _promotionRepository.GetAllAsync();
             var now = DateTime.UtcNow;
-            
+
             var total = allPromotions.Count;
             var active = allPromotions.Count(p => p.Active && (!p.EndDate.HasValue || p.EndDate >= now));
             var expired = allPromotions.Count(p => p.EndDate.HasValue && p.EndDate < now);
             var inactive = allPromotions.Count(p => !p.Active);
-            
+
             return new
             {
                 total,
@@ -318,8 +327,8 @@ namespace backend.Services
                                              .Select(r => r.CustomerId)
                                              .Distinct()
                                              .Count(),
-                AverageOrderValue = redemptions.Any() 
-                    ? redemptions.Average(r => r.Order?.TotalAmount ?? 0) 
+                AverageOrderValue = redemptions.Any()
+                    ? redemptions.Average(r => r.Order?.TotalAmount ?? 0)
                     : 0
             };
         }

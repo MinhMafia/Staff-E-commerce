@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-using System.Text;
 using backend.DTO;
 using backend.Models;
 using backend.Repository;
@@ -188,16 +186,11 @@ namespace backend.Services
             return normalized == "admin" ? "admin" : "staff";
         }
 
-        private static string HashPassword(string password)
-        {
-            var passwordBytes = Encoding.UTF8.GetBytes(password);
-            var hash = SHA256.HashData(passwordBytes);
-            return Convert.ToHexString(hash);
-        }
+        private const int BcryptWorkFactor = 11;
 
-        private static bool VerifyPassword(string hashedPassword, string password)
-        {
-            return string.Equals(hashedPassword, HashPassword(password), StringComparison.OrdinalIgnoreCase);
-        }
+        private static string HashPassword(string password) => BCrypt.Net.BCrypt.HashPassword(password, workFactor: BcryptWorkFactor);
+
+        private static bool VerifyPassword(string hashedPassword, string password) =>
+            BCrypt.Net.BCrypt.Verify(password, hashedPassword);
     }
 }

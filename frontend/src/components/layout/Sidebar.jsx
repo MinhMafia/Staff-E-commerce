@@ -1,5 +1,7 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
+import React, { useState } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { logout } from "../../api/apiClient";
+import { useAuth } from "../../hook/useAuth";
 
 /**
  * Nếu bạn không dùng react-router, thay NavLink bằng <a href="..."> và className active logic
@@ -33,9 +35,29 @@ const IconUsers = () => (
 );
 
 export default function Sidebar({ collapsed, onClose }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user } = useAuth();
+  const [isProductsMenuOpen, setIsProductsMenuOpen] = useState(
+    location.pathname.startsWith("/products") ||
+      location.pathname.startsWith("/inventory")
+  );
+
+  const handleLogout = () => {
+    if (confirm("Bạn có chắc muốn đăng xuất?")) {
+      logout();
+      navigate("/login");
+    }
+  };
+
   // collapsed = true : hide labels (for mobile or small)
   const linkClass = ({ isActive }) =>
-    `flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-100 ${
+    `flex items-center gap-3 px-3 py-2 rounded-md border-b mb-2 hover:bg-gray-100 ${
+      isActive ? "bg-indigo-50 text-indigo-600 font-semibold" : "text-gray-700"
+    }`;
+
+  const subLinkClass = ({ isActive }) =>
+    `flex items-center gap-3 px-3 py-2 pl-8 rounded-md border-b mb-2 hover:bg-gray-100 text-sm ${
       isActive ? "bg-indigo-50 text-indigo-600 font-semibold" : "text-gray-700"
     }`;
 
@@ -45,13 +67,13 @@ export default function Sidebar({ collapsed, onClose }) {
         collapsed ? "hidden md:block" : "block"
       } h-screen fixed z-999`}
     >
-      <div className="flex items-center gap-3 px-4 py-4 border-b">
+      <div className="flex items-center gap-3 px-4 py-7  border-b">
         <div className="w-8 h-8 rounded-md bg-indigo-600 text-white flex items-center justify-center font-bold">
           SM
         </div>
         <div className="hidden md:block">
-          <div className="text-lg font-semibold">StoreMgr</div>
-          <div className="text-xs text-gray-500">Quản lý cửa hàng</div>
+          <div className="text-lg font-semibold">StoreManager</div>
+          {/* <div className="text-xs text-gray-500">Quản lý cửa hàng</div> */}
         </div>
         <div className="md:hidden ml-auto">
           <button onClick={onClose} className="p-2 rounded hover:bg-gray-100">
@@ -83,37 +105,86 @@ export default function Sidebar({ collapsed, onClose }) {
           <span className="text-sm">Bán hàng (POS)</span>
         </NavLink>
 
-        <div className="border-t my-2" />
+        {/* <div className="border-t my-2" /> */}
 
-        {/* Products */}
-        <NavLink to="/products" className={linkClass}>
-          <span className="w-5 h-5">
-            <IconProducts />
-          </span>
-          <span className="text-sm">Quản lý Sản phẩm</span>
-        </NavLink>
+        {/* Products Menu với submenu */}
+        <div className="border-b mb-2">
+          <button
+            onClick={() => setIsProductsMenuOpen(!isProductsMenuOpen)}
+            className={`w-full flex items-center justify-between gap-3 px-3 py-2 rounded-md hover:bg-gray-100 ${
+              location.pathname.startsWith("/products") ||
+              location.pathname.startsWith("/inventory")
+                ? "bg-indigo-50 text-indigo-600 font-semibold"
+                : "text-gray-700"
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="w-5 h-5">
+                <IconProducts />
+              </span>
+              <span className="text-sm">Quản lý Sản phẩm</span>
+            </div>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              className={`transition-transform ${
+                isProductsMenuOpen ? "rotate-45" : ""
+              }`}
+            >
+              <path
+                d="M9 18l6-6-6-6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+          {isProductsMenuOpen && (
+            <div className="mt-1 space-y-1">
+              <NavLink to="/products" className={subLinkClass}>
+                <span className="w-5 h-5">📋</span>
+                <span className="text-sm">Danh sách sản phẩm</span>
+              </NavLink>
+              <NavLink to="/inventory" className={subLinkClass}>
+                <span className="w-5 h-5">📦</span>
+                <span className="text-sm">Quản lý Tồn kho</span>
+              </NavLink>
+            </div>
+          )}
+        </div>
 
-        <NavLink to="/users" className={linkClass}>
-          <span className="w-5 h-5">👥</span>
-          <span className="text-sm">Quản lý Nhân Viên</span>
-        </NavLink>
+        {user?.role === "admin" && (
+          <NavLink to="/users" className={linkClass}>
+            <span className="w-5 h-5">👨‍💼</span>
+            <span className="text-sm">Quản lý Nhân Viên</span>
+          </NavLink>
+        )}
 
         {/* Customers */}
         <NavLink to="/customers" className={linkClass}>
-          <span className="w-5 h-5">👥</span>
+          <span className="w-5 h-5">👤</span>
           <span className="text-sm">Quản lý Khách hàng</span>
         </NavLink>
 
         {/* Categories */}
         <NavLink to="/categories" className={linkClass}>
-          <span className="w-5 h-5">👥</span>
+          <span className="w-5 h-5">📂</span>
           <span className="text-sm">Quản lý danh mục</span>
+        </NavLink>
+
+        {/* Suppliers */}
+        <NavLink to="/suppliers" className={linkClass}>
+          <span className="w-5 h-5">🏭</span>
+          <span className="text-sm">Qu ản lý nhà cung cấp</span>
         </NavLink>
 
         {/* Units */}
         <NavLink to="/units" className={linkClass}>
-          <span className="w-5 h-5">👥</span>
-          <span className="text-sm">Quản lý đơn vị</span>
+          <span className="w-5 h-5">📏</span>
+          <span className="text-sm">Đơn vị tính</span>
         </NavLink>
 
         {/* Promotions */}
@@ -123,7 +194,7 @@ export default function Sidebar({ collapsed, onClose }) {
         </NavLink>
 
         {/* Reports */}
-        <NavLink to="/statistics" className={linkClass}>
+        <NavLink to="/reports" className={linkClass}>
           <span className="w-5 h-5">📊</span>
           <span className="text-sm">Báo cáo/Thống kê</span>
         </NavLink>
@@ -135,26 +206,21 @@ export default function Sidebar({ collapsed, onClose }) {
         </NavLink>
 
         {/* Settings */}
-        <NavLink to="/settings" className={linkClass}>
+        {/* <NavLink to="/settings" className={linkClass}>
           <span className="w-5 h-5">⚙️</span>
           <span className="text-sm">Cài đặt</span>
-        </NavLink>
+        </NavLink> */}
+      </nav>
 
+      <div className="absolute bottom-4 left-4 right-4 ">
         <div className="border-t my-2" />
 
         <button
-          className="w-full text-left px-3 py-2 rounded-md hover:bg-gray-100 text-gray-700"
-          onClick={() => {
-            /* logout logic */
-          }}
+          className="w-full text-left px-3 py-2 bottom-2 rounded-md hover:bg-gray-100 text-gray-700"
+          onClick={handleLogout}
         >
           🚪 Đăng xuất
         </button>
-      </nav>
-
-      <div className="absolute bottom-4 left-4 right-4 text-xs text-gray-400">
-        <div>Version</div>
-        <div>v.0.1</div>
       </div>
     </aside>
   );

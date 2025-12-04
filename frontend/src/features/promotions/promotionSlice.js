@@ -8,9 +8,9 @@ import {
 
 export const fetchPromotionsPaginated = createAsyncThunk(
   'promotions/fetchPaginated',
-  async ({ page = 1, pageSize = 12 } = {}, { rejectWithValue }) => {
+  async ({ page = 1, pageSize = 12, search = '', status = 'all', type = 'all' } = {}, { rejectWithValue }) => {
     try {
-      const data = await getPromotionsPaginated(page, pageSize);
+      const data = await getPromotionsPaginated(page, pageSize, search, status, type);
       const items = data.items ?? data.Items ?? [];
       const meta = {
         totalItems: data.totalItems ?? data.TotalItems ?? 0,

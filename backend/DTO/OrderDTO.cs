@@ -2,7 +2,7 @@ namespace backend.DTO
 {
     public class OrderDTO
     {
-        public int Id { get; set; }                    
+        public int Id { get; set; }
         public string OrderNumber { get; set; } = string.Empty; // mã đơn hàng "DH+id+timestamp" => Tách cái này ra tim kiếm nha Cường
         public int? CustomerId { get; set; } = 0;
         public int? UserId { get; set; }

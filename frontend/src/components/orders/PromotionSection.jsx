@@ -4,53 +4,75 @@ export default function PromotionSection({ isCreateMode, promotion, setPromotion
   const [promotions, setPromotions] = useState([]);
   const [selectedPromotionId, setSelectedPromotionId] = useState(promotion?.id || null);
 
-  // Fetch promotions khi tạo đơn
   useEffect(() => {
     if (isCreateMode === "create") {
-      
       fetch(`api/promotions/active`)
         .then((res) => res.json())
-        .then((data) => {
-          setPromotions(data);
-
-          // Auto chọn voucher đầu tiên nếu chưa có promotion
-          if (!promotion && data.length > 0) {
-            handleSelect(data[0]);
-          }
-        })
+        .then((data) => setPromotions(data))
         .catch((err) => console.error("Failed to fetch promotions:", err));
-    } else {
+    }
+  }, [isCreateMode]);
+
+  useEffect(() => {
+    if (isCreateMode !== "create") {
       setSelectedPromotionId(promotion?.id || null);
     }
-  }, [isCreateMode, currentOrder, promotion]);
+  }, [promotion, isCreateMode]);
 
-  // Khi chọn promotion
+
+
   const handleSelect = (promo) => {
+    const subtotal = currentOrder?.subtotal || 0;
+
+    const now = new Date();
+
+    //  Không đủ mức tối thiểu
+    if (promo.minOrderAmount > 0 && subtotal < promo.minOrderAmount) {
+      alert(`Đơn hàng phải đạt tối thiểu ${promo.minOrderAmount.toLocaleString()}₫ để dùng mã này!`);
+      return;
+    }
+
+    //  Chưa đến ngày bắt đầu
+    if (promo.startDate && new Date(promo.startDate) > now) {
+      alert("Mã giảm giá này chưa đến thời gian áp dụng!");
+      return;
+    }
+
+    //  Hết hạn
+    if (promo.endDate && new Date(promo.endDate) < now) {
+      alert("Mã giảm giá này đã hết hạn!");
+      return;
+    }
+
+    //  Hết lượt sử dụng
+    if (promo.usageLimit !== null && promo.usedCount >= promo.usageLimit) {
+      alert("Mã này đã hết lượt sử dụng!");
+      return;
+    }
+
+    // Nếu hợp lệ → ÁP MÃ
     setSelectedPromotionId(promo.id);
     setPromotion(promo);
 
-    // Tính discount
     let discountAmount = 0;
-    const subtotal = currentOrder?.subtotal || 0;
 
     if (promo.type === "percent") {
-      discountAmount = Math.floor((subtotal * promo.value) / 100); // tròn xuống
+      discountAmount = Math.floor((subtotal * promo.value) / 100);
     } else {
       discountAmount = promo.value;
     }
 
-    // Nếu subtotal < minOrderAmount, không áp dụng
-    if (promo.minOrderAmount > 0 && subtotal < promo.minOrderAmount) {
-      discountAmount = 0;
-    }
-
-    // Cập nhật currentOrder
-    setCurrentOrder(prev => ({
+    // cập nhật order
+    setCurrentOrder((prev) => ({
       ...prev,
       discount: discountAmount,
-      total_amount: subtotal - discountAmount
+      total_amount: subtotal - discountAmount,
     }));
   };
+
+
+
+
 
   const formatValue = (promo) => {
     if (promo.type === "percent") return `${promo.value}%`;

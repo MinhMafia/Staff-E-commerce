@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Services;
+using Microsoft.AspNetCore.Authorization;
 using backend.DTO;
 
 namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "admin")]
     public class UsersController : ControllerBase
     {
         private readonly UserService _userService;
@@ -28,7 +30,7 @@ namespace backend.Controllers
             return Ok(users);
         }
 
-        [HttpGet ("getalluser")]
+        [HttpGet("getalluser")]
         public async Task<ActionResult> GetAllUsers()
         {
             var users = await _userService.GetAllUsersAsync();

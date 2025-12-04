@@ -22,5 +22,5 @@ namespace backend.DTO
 
         public bool Success { get; set; }
 
-    }  
+    }
 }

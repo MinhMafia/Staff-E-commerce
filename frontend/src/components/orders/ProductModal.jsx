@@ -27,6 +27,7 @@ export default function ProductModal({ onClose, selectedProduct, setSelectedProd
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch products");
       const data = await res.json();
+      console.log("Danh sách sản phẩm còn hàng",data);
       
 
       if (searchMode) {
@@ -57,7 +58,8 @@ export default function ProductModal({ onClose, selectedProduct, setSelectedProd
       const normalized = {
         id: selectedProduct.id,
         name: selectedProduct.name,
-        price: Number(selectedProduct.price ?? 0)
+        price: Number(selectedProduct.price ?? 0),
+        quantity: selectedProduct.quantity
       };
       setSelectedProduct(normalized); // Cập nhật lên component cha
       onClose(); // Đóng modal
@@ -148,7 +150,7 @@ export default function ProductModal({ onClose, selectedProduct, setSelectedProd
                         className={`hover:bg-gray-50 cursor-pointer ${
                           selectedProduct?.id === p.id ? "bg-blue-50" : ""
                         }`}
-                        onClick={() => setSelectedProduct({ id: p.id, name: p.product_name, price: p.price})}
+                        onClick={() => setSelectedProduct({ id: p.id, name: p.productName, price: p.price, quantity: p.inventory.quantity})}
                       >
                         <td className="px-4 py-2">{p.id}</td>
                         <td className="px-4 py-2">{p.productName}</td>
@@ -160,7 +162,7 @@ export default function ProductModal({ onClose, selectedProduct, setSelectedProd
                             type="radio"
                             name="selectedProduct"
                             checked={selectedProduct?.id === p.id}
-                            onChange={() => setSelectedProduct({ id: p.id, name: p.productName, price: p.price})}
+                            onChange={() => setSelectedProduct({ id: p.id, name: p.productName, price: p.price, quantity: p.inventory.quantity})}
                           />
                         </td>
                       </tr>

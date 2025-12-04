@@ -49,6 +49,14 @@ namespace backend.Controllers
             return Ok(new { message = "Đã xóa các item của đơn hàng." });
         }
 
+                // GET: api/orderitems/by-order/5
+        [HttpGet("byorder/{orderId}")]
+        public async Task<IActionResult> GetByOrder(int orderId)
+        {
+            var data = await _orderItemService.GetItemsByOrderAsync(orderId);
+            return Ok(data);
+        }
+
         
     }
 }

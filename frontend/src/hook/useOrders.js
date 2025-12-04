@@ -1,5 +1,6 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState,useEffect } from "react";
+
+import { request } from "../api/apiClient"; 
 
 
 export const useOrders = () => {
@@ -39,15 +40,17 @@ export const useOrders = () => {
     }
   )
 
-  const postJSON = async (url, data) => {
-    try {
-      const res = await axios.post(url, data);
-      return res.data;
-    } catch (err) {
-      console.error(`API Error [${url}]:`, err.response?.data || err.message);
-      return null;
-    }
-  };
+  //Trạng thái phân trang 
+    const [listOrders, setListOrders] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(10);
+    const [totalPages, setTotalPages] = useState(1);
+
+    const [selectedStatus, setSelectedStatus] = useState(null);
+    const [selectedStartDate, setSelectedStartDate] = useState(null);
+    const [selectedEndDate, setSelectedEndDate] = useState(null);
+    const [searchKeyword, setSearchKeyword] = useState(null);
+
   // --- Modal controls ---
   const openCustomerModal = () => setShowCustomerModal(true);
   const closeCustomerModal = () => setShowCustomerModal(false);
@@ -88,41 +91,31 @@ export const useOrders = () => {
   // --- API: tạo đơn tạm ---
   const createNewOrder = async () => {
     try {
-      const response = await fetch("http://localhost:5099/api/orders/create-temp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+     
+      const orderData = await request("/orders/create-temp", { 
+        method: "POST" 
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        console.error("Lỗi khi tạo đơn hàng:", error.message || response.statusText);
-        return;
-      }
-      //Tạo ra một đơn hàng tạm
-      const orderData = await response.json();
+   
       openOrderModal("create", orderData, []);
+      
     } catch (err) {
-      console.error("Lỗi khi gọi API:", err);
+      console.error("Lỗi khi tạo đơn tạm:", err.message || err);
+      alert("Không thể tạo đơn hàng mới: " + (err.message || "Lỗi không xác định"));
     }
   };
 
   //Lưu đon hàng lên database
+
   async function createOrder(orderData) {
     try {
       console.log("Dữ liệu gửi lên:", orderData);
 
-      const response = await fetch("http://localhost:5099/api/orders/create", {
+      const result = await request("/orders/create", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
+        body: orderData,  
       });
 
-      if (!response.ok) {
-        console.error("Lỗi khi gọi API:", response.status);
-        return false;
-      }
-
-      const result = await response.json();
       return result === true;
     } catch (error) {
       console.error("Lỗi khi tạo đơn hàng:", error);
@@ -132,137 +125,181 @@ export const useOrders = () => {
 
 
 
-  async function createOrderItems(orderItems) {
-    try {
 
-      const res = await axios.post("http://localhost:5099/api/orderitem/create", orderItems);
-      return res.data === true;
-    } catch (error) {
-      console.error("Lỗi khi lưu order items:", error);
+  const createOrderItems = async (orderItems) => {
+    try {
+      const result = await request("/orderitem/create", {
+        method: "POST",
+        body: orderItems,
+      });
+      return result === true;
+    } catch (err) {
+      alert("Lưu sản phẩm thất bại: " + err.message);
       return false;
     }
-  }
+  };
 
-  // src/api/promotionApi.js
 
-  async function applyPromotion(promotionId, orderId, customerId) {
+
+  const applyPromotion = async (promotionId, orderId, customerId) => {
     try {
-      const res = await fetch("http://localhost:5099/api/promotions/apply", {
+      await request("/promotions/apply", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          PromotionId: promotionId,   // phải đúng tên property
-          OrderId: orderId,
-          CustomerId: customerId
-        })
+        body: { PromotionId: promotionId, OrderId: orderId, CustomerId: customerId },
       });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.error("Apply Promotion failed:", errorData);
-        return false;
-      }
-
       return true;
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error("Apply promotion error:", err.message);
       return false;
     }
-  }
+  };
 
  
-  async function reduceInventory(items) {
-  try {
-    const res = await fetch("http://localhost:5099/api/inventory/reduce-multiple", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(items)
-    });
 
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      console.error("Reduce inventory failed:", errorData?.message || "Unknown error");
+
+  const reduceInventory = async (items) => {
+    try {
+      await request("/inventory/reduce-multiple", {
+        method: "POST",
+        body: items,
+      });
+      return true;
+    } catch (err) {
+      alert("Cập nhật kho thất bại: " + err.message);
       return false;
     }
+  };
 
-    return true;
-  } catch (err) {
-    console.error("Fetch error:", err);
-    return false;
-  }
-}
+// const pay = async (method = "cash") => {
+//   if (!currentOrder) return;
 
-
-
+//   if (method === "other") {
+//     const body = {
+//       OrderId: currentOrder.id,
+//       Amount: Math.round(currentOrder.total_amount),
+//       ReturnUrl: "http://localhost:5173/orders",
+//       NotifyUrl: "http://localhost:5099/api/payment/momo/ipn"
+//     };
+//     const res = await request("/payment/momo/create", { method: "POST", body });
+//     if (res?.payUrl) window.location.href = res.payUrl;
+//     return res;
+//   } else {
+//     const body = {
+//       OrderId: currentOrder.id,
+//       Amount: Math.round(currentOrder.total_amount),
+//       Method: method,
+//       Status: "completed",
+//     };
+//     return await request("/payment/offlinepayment", { method: "POST", body });
+//   }
+// };
 
 const pay = async (method = "cash") => {
   if (!currentOrder) return;
 
-  const baseUrl = "http://localhost:5099/api/payment";
-
+  // ======= THANH TOÁN MOMO =======
   if (method === "other") {
-    // Thanh toán MoMo
-    const body = {
-      OrderId: currentOrder.id,                          // ID đơn hàng hệ thống
-      Amount: Math.round(currentOrder.total_amount),     // Số tiền integer
-      ReturnUrl: "http://localhost:5173/orders",         // Redirect sau thanh toán
-      NotifyUrl: `${baseUrl}/momo/ipn`                  // Callback backend
-    };
 
-    try {
-      const res = await postJSON(`${baseUrl}/momo/create`, body);
-
-      if (res?.payUrl) {
-        // Redirect người dùng tới MoMo để thanh toán
-        window.location.href = res.payUrl;
-      } else {
-        alert("Tạo payment MoMo thất bại. Kiểm tra backend logs.");
-      }
-
-      return res;
-    } catch (err) {
-      console.error(err);
-      alert("Lỗi khi gọi API thanh toán MoMo");
-      return null;
-    }
-  } else {
-    // Thanh toán offline / cash / card
+    // 1. Gọi API tạo payment
     const body = {
       OrderId: currentOrder.id,
       Amount: Math.round(currentOrder.total_amount),
-      Method: payment.method,   // cash, card, etc.
-      TransactionRef: null,
-      Status: 'completed',
-      CreatedAt: new Date().toISOString()
+
+      // Không cần ReturnUrl vì thanh toán mở popup
+      ReturnUrl: "",
+
+      NotifyUrl: "https://stainful-asher-unfeigningly.ngrok-free.dev/api/payment/momo/ipn"
     };
 
-    try {
-      const res = await postJSON(`${baseUrl}/offlinepayment`, body);
-      if (res) console.log("Thanh toán trực tiếp thành công!");
-      return res;
-    } catch (err) {
-      console.error(err);
-      console.log("Lỗi khi thanh toán trực tiếp");
+    const res = await request("/payment/momo/create", { method: "POST", body });
+
+    if (!res?.payUrl) {
+      alert("Không lấy được payUrl từ MoMo");
       return null;
     }
+
+    // 2. Mở popup momo
+    const popup = window.open(res.payUrl, "_blank", "width=480,height=700");
+
+    if (!popup) {
+      alert("Trình duyệt chặn popup. Hãy cho phép mở popup.");
+      return null;
+    }
+
+    // 3. Polling để chờ trạng thái thanh toán
+    return new Promise((resolve) => {
+      let counter = 0;
+
+      const interval = setInterval(async () => {
+        counter++;
+
+        const statusRes = await fetch(`http://localhost:5099/api/payment/status/${currentOrder.id}`);
+
+        if (statusRes.ok) {
+          const data = await statusRes.json();
+
+          console.log("Payment status →", data.status);
+
+          // MoMo ipn đã cập nhật DB → success
+          if (data.status === "completed") {
+            clearInterval(interval);
+            popup.close();
+
+            resolve({
+              success: true,
+              message: "Thanh toán thành công!"
+            });
+          }
+        }
+
+        // Hết 2 phút → timeout
+        if (counter >= 60) {
+          clearInterval(interval);
+          popup.close();
+          resolve({
+            success: false,
+            message: "Quá thời gian chờ thanh toán"
+          });
+        }
+
+      }, 2000);
+    });
   }
+
+  // ======= CASH / OTHER METHODS =======
+  const body = {
+    OrderId: currentOrder.id,
+    Amount: Math.round(currentOrder.total_amount),
+    Method: method,
+    Status: "completed"
+  };
+
+  return await request("/payment/offlinepayment", { method: "POST", body });
 };
 
 
 
-const click_buttonCreateNewOrder = async () => {
-  console.log("===== THÔNG TIN ĐƠN HÀNG HIỆN TẠI =====");
-  console.log("Đơn hàng:", currentOrder);
-  console.log("Sản phẩm trong đơn:", listOrderProducts);
-  console.log("Khuyến mãi:", promotion);
-  console.log("Thanh toán:", payment);
 
-  if (listOrderProducts.length === 0) {
+
+
+
+
+
+const click_buttonCreateNewOrder = async () => {
+ 
+
+  console.log("=== BẮT ĐẦU TẠO ĐƠN HÀNG ===");
+  console.log("Current Order:", currentOrder);
+  console.log("Khuyến mãi:", promotion);
+  console.log("Danh sách sản phẩm:", listOrderProducts);
+
+  // Check xem có sản phẩm trong đơn không
+  if (!listOrderProducts || listOrderProducts.length === 0) {
     alert("Vui lòng thêm sản phẩm vào đơn hàng!");
     return;
   }
 
-
+  // Chuẩn bị dữ liệu
   const orderData = orderObject(currentOrder, promotion, payment);
   const listOrderItem = listOrderItemObject(listOrderProducts, currentOrder);
   const listreduceItem = listReduceItemObject(listOrderProducts);
@@ -270,30 +307,33 @@ const click_buttonCreateNewOrder = async () => {
   console.log("===== THÔNG TIN TRUYỀN LÊN DB =====");
   console.log("Đơn hàng:", orderData);
   console.log("Sản phẩm trong đơn:", listOrderItem);
-  console.log("Sản phẩm bị trừ:", listreduceItem );
+  console.log("Sản phẩm bị trừ:", listreduceItem);
 
+  // --- Lưu đơn hàng ---
   const success = await createOrder(orderData);
   if (!success) {
     alert("Lưu đơn thất bại");
     return;
   }
 
+  // --- Lưu sản phẩm trong đơn ---
   const success1 = await createOrderItems(listOrderItem);
   if (!success1) {
-    alert("Lưu item thất bại");
+    alert("Lưu sản phẩm thất bại");
     return;
   }
 
+  // --- Giảm inventory ---
   const success2 = await reduceInventory(listreduceItem);
   if (!success2) {
-    console.log("Cập nhật inventory thất bại");
-    alert("Cập nhật inventory thất bại");
+    alert("Cập nhật kho thất bại");
     return;
   } else {
     console.log("Giảm số lượng sản phẩm trong inventory thành công");
   }
 
-  if (promotion?.id != null) {
+  // --- Apply promotion nếu có ---
+  if (promotion?.id != null && currentOrder.customerId) {
     const success3 = await applyPromotion(
       promotion.id,
       currentOrder.id,
@@ -302,18 +342,27 @@ const click_buttonCreateNewOrder = async () => {
     console.log(success3 ? "Apply promotion thành công" : "Apply promotion thất bại");
   }
 
-    // --- Bước thanh toán ---
+  // --- Thanh toán ---
+  if (!payment?.method) payment.method = "cash"; // mặc định cash
   try {
-
     const paymentResult = await pay(payment.method);
     if (paymentResult) {
       console.log("Thanh toán thành công:", paymentResult);
       alert("Thanh toán thành công");
+
+      // --- Hỏi có muốn in phiếu không ---
+      const printConfirm = window.confirm("Đơn hàng đã lưu thành công. Bạn có muốn in phiếu không?");
+      if (printConfirm) {
+        printOrder(currentOrder, listOrderProducts, promotion, payment);
+      }
+
+      
+
+
       closeOrderModal();
     } else {
       console.log("Thanh toán thất bại hoặc bị hủy");
       closeOrderModal();
-
     }
   } catch (err) {
     console.error("Lỗi khi thanh toán:", err);
@@ -321,10 +370,95 @@ const click_buttonCreateNewOrder = async () => {
     closeOrderModal();
   }
 
+  console.log("=== KẾT THÚC TẠO ĐƠN HÀNG ===");
 };
 
 
 
+
+
+
+
+
+
+
+
+
+// In hóa đơn
+const printOrder = (order, products, promotion, payment) => {
+  // const printWindow = window.open('', '', 'width=800,height=600');
+  // if (!printWindow) {
+  //   alert("Trình duyệt chặn popup. Vui lòng cho phép popup để in phiếu.");
+  //   return;
+  // }
+  // Mở TAB mới (không phải popup) → trình duyệt sẽ không chặn
+  const printWindow = window.open('', '_blank');
+  if (!printWindow) {
+    alert("Trình duyệt đang chặn tab mới. Vui lòng cho phép.");
+    return;
+  }
+
+  // Format số tiền
+  const formatMoney = (value) => {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+  };
+
+  // HTML với CSS
+  let html = `
+    <html>
+      <head>
+        <title>Phiếu Đơn Hàng #${order.orderNumber}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
+          h2 { text-align: center; color: #4CAF50; }
+          p { margin: 5px 0; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+          th { background-color: #f2f2f2; }
+          tr:nth-child(even) { background-color: #f9f9f9; }
+          tr:hover { background-color: #f1f1f1; }
+          .total { font-weight: bold; font-size: 1.1em; }
+          .promotion { color: #d32f2f; font-weight: bold; }
+          .payment { margin-top: 10px; font-weight: bold; }
+          .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: #666; }
+        </style>
+      </head>
+      <body>
+        <h2>Phiếu Đơn Hàng #${order.orderNumber}</h2>
+        <p><strong>Khách hàng:</strong> ${order.customerName || "Khách lẻ"}</p>
+        <p><strong>Ngày tạo:</strong> ${new Date().toLocaleString()}</p>
+
+        <table>
+          <tr>
+            <th>Sản phẩm</th>
+            <th>Số lượng</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+          </tr>
+  `;
+
+  products.forEach(p => {
+    html += `
+      <tr>
+        <td>${p.product}</td>
+        <td>${p.qty}</td>
+        <td>${formatMoney(p.price)}</td>
+        <td>${formatMoney(p.total)}</td>
+      </tr>
+    `;
+  });
+
+  html += `</table>`;
+  html += `<p class="total">Tổng tiền: ${formatMoney(order.total_amount)}</p>`;
+  if (promotion?.code) html += `<p class="promotion">Khuyến mãi: ${promotion.code} - Giảm ${formatMoney(promotion.value)}</p>`;
+  html += `<p class="payment">Thanh toán: ${payment.method}</p>`;
+  html += `<div class="footer">Cảm ơn quý khách! Hẹn gặp lại.</div>`;
+
+  printWindow.document.write(html);
+  printWindow.document.close();
+  printWindow.focus();
+  printWindow.print();
+};
 
 
 
@@ -353,7 +487,7 @@ const orderObject = (currentOrder, promotion, payment) => {
     Subtotal: currentOrder.subtotal,
     Discount: currentOrder.discount,
     TotalAmount: currentOrder.total_amount,
-    PromotionId: promotion?.id ?? null, // nếu promotion null thì trả null
+    PromotionId: promotion?.id ?? null, 
     Note: currentOrder.note,
     CreatedAt: new Date().toISOString(),
     UpdatedAt: new Date().toISOString()
@@ -384,6 +518,196 @@ const listReduceItemObject = (listOrderProducts)=>{
     Quantity: product.qty
   }));
 }
+
+
+/**
+ * Api lấy danh sách có phân trang nâng cao (Phân trang bình thường, lọc theo trạng thái đơn hàng, lọc theo ngày bắt đầu kết thúc, tìm kiếm )
+ */
+
+const loadOrdersAdvanced = async () => {
+    try {
+        const params = new URLSearchParams();
+        params.append("pageNumber", currentPage);
+        params.append("pageSize", pageSize);
+
+        if (selectedStatus) params.append("status", selectedStatus);
+        if (searchKeyword?.trim()) params.append("search", searchKeyword.trim());
+
+        // Format ngày (nếu có)
+        if (selectedStartDate) {
+            params.append("startDate", new Date(selectedStartDate).toISOString());
+        }
+        if (selectedEndDate) {
+            params.append("endDate", new Date(selectedEndDate).toISOString());
+        }
+
+        const url = `http://localhost:5099/api/orders/search?${params.toString()}`;
+
+        const res = await fetch(url);
+
+        if (!res.ok) {
+            console.error("Lỗi tải danh sách đơn hàng:", res.status, await res.text());
+            return;
+        }
+
+        const data = await res.json();
+
+        setListOrders(data.items || []);
+        setTotalPages(data.totalPages);
+
+        console.log("Danh sách đơn hàng:", data);
+        console.log("Params gửi lên:", {
+            status: selectedStatus,
+            search: searchKeyword,
+            startDate: selectedStartDate,
+            endDate: selectedEndDate,
+            page: currentPage
+        });
+
+
+
+    } catch (err) {
+        console.error("loadOrdersAdvanced error:", err);
+    }
+};
+
+useEffect(() => {
+    console.log("totalPages đã cập nhật:", totalPages);
+}, [totalPages]);
+useEffect(() => {
+    console.log(" currentPage đã cập nhật:", currentPage);
+}, [currentPage]);
+
+
+
+//Api lấy danh sách orderitem
+async function loadOrderItemsByOrderId(orderId) {
+    try {
+        const res = await fetch(`http://localhost:5099/api/orderitem/byorder/${orderId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!res.ok) {
+            throw new Error("Không thể tải dữ liệu Order Items");
+        }
+
+        const data = await res.json();
+        console.log("Order Items:", data);
+        return data;
+
+    } catch (err) {
+        console.error("Lỗi:", err);
+        return [];
+    }
+}
+
+//Lấy khuyến mãi
+async function getPromotionById(id) {
+    try {
+        const res = await fetch(`http://localhost:5099/api/promotions/${id}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText);
+        }
+
+        const data = await res.json();
+        console.log("Promotion data:", data);
+        return data;
+
+    } catch (err) {
+        console.error("Lỗi:", err.message);
+        return null;
+    }
+}
+
+// Lấy payment
+async function getPaymentByOrder(orderId) {
+  const url = `http://localhost:5099/api/payment/getbyorder/${orderId}`;
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json"
+
+      }
+    });
+
+    if (response.status === 404) {
+      return null; // không có payment
+    }
+
+    if (!response.ok) {
+      throw new Error("Server error " + response.status);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching payment:", error);
+    return null;
+  }
+}
+
+
+// Hàm xử lí xem chi tiết đơn hàng 
+const showOrder = async (index) => {
+    const item = listOrders[index];
+    if (!item) return;
+
+    try {
+        // Chuyển sang chế độ xem chi tiết
+        setOrdersFormMode("detail");
+
+        // Set thông tin đơn hàng chính
+        setCurrentOrder(item);
+
+        // ========== Lấy Order Items ==========
+        const orderItems = await loadOrderItemsByOrderId(item.id);
+        setListOrderProducts(orderItems);
+
+        // Reset sản phẩm đang chọn (nếu modal có tab sản phẩm)
+        setSelectedProduct(null);
+
+        // ========== Lấy thông tin Payment ==========
+        const payment = await getPaymentByOrder(item.id);
+        setPayment(payment);
+
+        // ========== Lấy thông tin Promotion ==========
+        // item.PromotionId có thể null/undefined → cần kiểm tra
+        if (item.promotionId || item.PromotionId) {
+            const promoId = item.promotionId ?? item.PromotionId;
+            const promo = await getPromotionById(promoId);
+            setPromotion(promo);
+        } else {
+            setPromotion(null);
+        }
+
+        // Mở modal xem chi tiết
+        setShowOrderModal(true);
+
+    } catch (err) {
+        console.error("showOrder error:", err);
+        
+    }
+};
+
+
+
+
+
+
+useEffect(() => {
+    loadOrdersAdvanced();
+}, [selectedStatus]);
 
 
 
@@ -424,8 +748,28 @@ return {
   orderObject,
   listOrderItemObject,
   reduceInventory,
-  listReduceItemObject
+  listReduceItemObject,
 
+  currentPage,
+  pageSize,
+  totalPages,
+  setCurrentPage,
+  setTotalPages,
+  selectedStatus,
+  setSelectedStatus,
+  selectedStartDate,
+  selectedEndDate,
+  setSelectedStartDate,
+  setSelectedEndDate,
+  searchKeyword,
+  setSearchKeyword,
+  loadOrdersAdvanced ,
+  listOrders,
+  setListOrders,
+  loadOrderItemsByOrderId,
+  getPromotionById,
+  getPaymentByOrder,
+  showOrder
 
 };
 

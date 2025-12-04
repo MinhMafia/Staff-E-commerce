@@ -1,4 +1,3 @@
-
 -- Updated schema for Store Management
 -- Adds foreign keys, audit table, inventory adjustments, users table, and more.
 -- IMPORTANT:
@@ -80,7 +79,6 @@ CREATE TABLE users (
   last_login DATETIME DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-
 CREATE TABLE promotions (
   id INT AUTO_INCREMENT PRIMARY KEY,
   code VARCHAR(100) NOT NULL UNIQUE,
@@ -96,6 +94,15 @@ CREATE TABLE promotions (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE units (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  code VARCHAR(50) NOT NULL UNIQUE,
+  name VARCHAR(255) NOT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_units_code (code)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Products with FK to categories and suppliers
 CREATE TABLE products (
@@ -107,7 +114,7 @@ CREATE TABLE products (
   supplier_id INT DEFAULT NULL,
   price DECIMAL(12,2) NOT NULL DEFAULT 0,
   cost DECIMAL(12,2) DEFAULT 0,
-  unit VARCHAR(50),
+  unit_id INT DEFAULT NULL,
   description TEXT,
   image_url VARCHAR(1024) DEFAULT NULL,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
@@ -117,8 +124,10 @@ CREATE TABLE products (
   CONSTRAINT ux_products_barcode UNIQUE (barcode),
   INDEX idx_products_category (category_id),
   INDEX idx_products_supplier (supplier_id),
+  INDEX idx_products_unit (unit_id),
   CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT fk_products_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE SET NULL ON UPDATE CASCADE
+  CONSTRAINT fk_products_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT fk_products_unit FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -236,12 +245,16 @@ CREATE INDEX idx_orders_created_at ON `orders` (created_at);
 CREATE INDEX idx_inventory_quantity ON inventory (quantity);
 CREATE INDEX idx_products_created_at ON products (created_at);
 
--- ===== USERS (Lưu ý: thay MD5(...) bằng bcrypt hash trong production) =====
+-- ===== USERS =====
 INSERT INTO users (username, email, password_hash, full_name, role, is_active, locked, created_at)
 VALUES
-  ('admin', 'admin@example.com', MD5('123456'), 'Quản trị viên', 'admin', 1, 0, NOW()),
-  ('staff01', 'staff01@example.com', MD5('123456'), 'Nguyễn Văn A', 'staff', 1, 0, NOW()),
-  ('staff02', 'staff02@example.com', MD5('123456'), 'Lê Thị B', 'staff', 1, 0, NOW());
+  ('admin', 'admin@example.com', '$2a$11$B5Pre4vLwlsfDIMg/gXXjuH/CyqianiPXHXSXikWE5R0djN/9Tf7.', 'Quản trị viên', 'admin', 1, 0, NOW()),
+  ('staff01', 'staff01@example.com', '$2a$11$NChyYqe5MniZi.l08LVuP.SkfLMRMtyK6guvRRyq/PdaGdjYoTaO2', 'Nguyễn Văn A', 'staff', 1, 0, NOW()),
+  ('staff02', 'staff02@example.com', '$2a$11$NChyYqe5MniZi.l08LVuP.SkfLMRMtyK6guvRRyq/PdaGdjYoTaO2', 'Lê Thị B', 'staff', 1, 0, NOW());
+
+-- password của admin là admin123
+-- password của staff là 123456
+
 
 -- ===== CUSTOMERS (full_name, phone, email, address) =====
 INSERT INTO customers (full_name, phone, email, address, created_at)
@@ -274,69 +287,129 @@ VALUES
 ('Bánh kẹo', NOW()),
 ('Gia vị', NOW()),
 ('Đồ gia dụng', NOW()),
-('Mỹ phẩm', NOW());
+('Mỹ phẩm', NOW()),
+('Thực phẩm tươi sống', NOW()),         
+('Điện tử & Phụ kiện', NOW()),       
+('Dược phẩm & Y tế', NOW()),     
+('Văn phòng phẩm', NOW()),      
+('Thủy hải sản', NOW());
 
 -- ===== SUPPLIERS (name, contact_name, phone, email, address) =====
 INSERT INTO suppliers (name, contact_name, phone, email, address, created_at)
 VALUES
-('Công ty ABC', NULL, '0909123456', 'abc@gmail.com', 'Hà Nội', NOW()),
-('Công ty XYZ', NULL, '0912123456', 'xyz@gmail.com', 'TP HCM', NOW()),
-('Công ty 123', NULL, '0933123456', '123@gmail.com', 'Đà Nẵng', NOW());
+('Công ty TNHH Đồ uống Quốc tế ABC', 'Nguyễn Văn A', '0909123456', 'abc@gmail.com', 'Số 123, Đường Láng, Quận Đống Đa, Hà Nội', NOW()),
+('Công ty CP Thương mại & Phân phối XYZ', 'Trần Thị B', '0912123456', 'xyz@gmail.com', 'Số 456, Nguyễn Văn Linh, Quận 7, TP HCM', NOW()),
+('Công ty TNHH Sản xuất 123', 'Lê Văn C', '0933123456', '123@gmail.com', 'Số 789, Đường 2/9, Quận Hải Châu, Đà Nẵng', NOW()),
+('Công ty Thực phẩm Việt', 'Phạm Minh D', '0909123457', 'thucphamviet@company.com', 'Khu công nghiệp Bắc Thăng Long, Hà Nội', NOW()),
+('Công ty Đồ uống Sài Gòn', 'Hoàng Thị E', '0912123457', 'douongsaigon@company.com', 'Số 321, Lê Văn Việt, Quận 9, TP HCM', NOW()),
+('Công ty Gia dụng Toàn Cầu', 'Đặng Văn F', '0933123457', 'giadungtoancau@company.com', 'Khu công nghiệp Hòa Khánh, Đà Nẵng', NOW()),
+('Công ty Mỹ phẩm Hàn Quốc', 'Kim Soo G', '0909123458', 'myphamkorea@company.com', 'Tầng 5, Tòa nhà Vina, Quận 1, TP HCM', NOW()),
+('Công ty Bánh kẹo Hữu Nghị', 'Ngô Thị H', '0912123458', 'banhkeohuunghi@company.com', 'Số 55, Minh Khai, Quận Hai Bà Trưng, Hà Nội', NOW()),
+('Công ty Gia vị Phương Nam', 'Võ Văn I', '0933123458', 'giaviphuongnam@company.com', 'Khu chế xuất Tân Thuận, Quận 7, TP HCM', NOW()),
+('Công ty Điện tử Viễn Thông', 'Trương Văn J', '0909123459', 'dientuvienthong@company.com', 'Khu công nghiệp Sóng Thần, Bình Dương', NOW()),
+('Công ty Văn phòng phẩm STC', 'Lý Thị K', '0912123459', 'vanphongphamstc@company.com', 'Số 88, Lê Hồng Phong, Quận 10, TP HCM', NOW()),
+('Công ty Dược phẩm Việt Đức', 'Mai Văn L', '0933123459', 'duocphamvietduc@company.com', 'Khu công nghiệp Yên Phong, Bắc Ninh', NOW()),
+('Công ty Thủy hải sản Biển Đông', 'Bùi Thị M', '0909123460', 'haisanbiendong@company.com', 'Cảng cá Thọ Quang, Đà Nẵng', NOW());
+
+-- ===== THÊM DỮ LIỆU MẪU CHO BẢNG UNITS =====
+INSERT INTO units (code, name, created_at) VALUES
+('pcs', 'Cái', NOW()),
+('box', 'Hộp', NOW()),
+('bottle', 'Chai', NOW()),
+('can', 'Lon', NOW()),
+('tube', 'Tuýp', NOW()),
+('pack', 'Gói', NOW()),
+('kg', 'Kilogram', NOW()),
+('liter', 'Lít', NOW()),
+('pair', 'Đôi', NOW()),
+('set', 'Bộ', NOW()),
+('roll', 'Cuộn', NOW()),             
+('sheet', 'Tờ', NOW()),             
+('bag', 'Túi', NOW());             
 
 -- ===== PRODUCTS (category_id, supplier_id, product_name, sku, price, unit) =====
--- NOTE: price inserted as decimal with 2 decimals (original values used integers; we store as .00)
-INSERT INTO products (category_id, supplier_id, product_name, sku, price, unit, created_at)
+INSERT INTO products (category_id, supplier_id, product_name, sku, price, unit_id, created_at)
 VALUES
-(2, 1, 'Coca Cola lon', '8900000000001', 314838.00, 'hộp', NOW()),
-(1, 3, 'Pepsi lon', '8900000000002', 114807.00, 'cái', NOW()),
-(3, 3, 'Trà Xanh 0 độ', '8900000000003', 415725.00, 'tuýp', NOW()),
-(2, 1, 'Sting dâu', '8900000000004', 351670.00, 'cái', NOW()),
-(3, 2, 'Red Bull', '8900000000005', 402179.00, 'lon', NOW()),
-(2, 2, 'Bánh Oreo', '8900000000006', 209283.00, 'chai', NOW()),
-(5, 3, 'Bánh Chocopie', '8900000000007', 212528.00, 'lon', NOW()),
-(1, 2, 'Kẹo Alpenliebe', '8900000000008', 34313.00, 'lon', NOW()),
-(5, 1, 'Kẹo bạc hà', '8900000000009', 316289.00, 'cái', NOW()),
-(1, 2, 'Socola KitKat', '8900000000010', 139959.00, 'chai', NOW()),
-(5, 1, 'Nước mắm Nam Ngư', '8900000000011', 51792.00, 'chai', NOW()),
-(2, 2, 'Nước tương Maggi', '8900000000012', 462539.00, 'lon', NOW()),
-(5, 3, 'Muối i-ốt', '8900000000013', 173302.00, 'cái', NOW()),
-(1, 1, 'Bột ngọt Ajinomoto', '8900000000014', 443069.00, 'cái', NOW()),
-(2, 2, 'Dầu ăn Tường An', '8900000000015', 281354.00, 'tuýp', NOW()),
-(2, 1, 'Nồi cơm điện', '8900000000016', 405347.00, 'hộp', NOW()),
-(1, 3, 'Ấm siêu tốc', '8900000000017', 113087.00, 'chai', NOW()),
-(3, 2, 'Quạt máy', '8900000000018', 69968.00, 'hộp', NOW()),
-(4, 1, 'Bếp gas mini', '8900000000019', 416845.00, 'lon', NOW()),
-(3, 3, 'Máy xay sinh tố', '8900000000020', 334564.00, 'hộp', NOW()),
-(1, 1, 'Sữa rửa mặt Hazeline', '8900000000021', 188475.00, 'lon', NOW()),
-(4, 1, 'Kem dưỡng da Pond''s', '8900000000022', 413840.00, 'hộp', NOW()),
-(3, 2, 'Dầu gội Sunsilk', '8900000000023', 158950.00, 'tuýp', NOW()),
-(4, 2, 'Sữa tắm Dove', '8900000000024', 336928.00, 'chai', NOW()),
-(1, 1, 'Nước hoa Romano', '8900000000025', 352508.00, 'cái', NOW()),
-(1, 1, 'Cà phê G7', '8900000000026', 201228.00, 'lon', NOW()),
-(2, 1, 'Trà Lipton', '8900000000027', 38039.00, 'cái', NOW()),
-(2, 3, 'Sữa Vinamilk', '8900000000028', 252845.00, 'chai', NOW()),
-(3, 1, 'Sữa TH True Milk', '8900000000029', 35278.00, 'hộp', NOW()),
-(3, 2, 'Nước suối Lavie', '8900000000030', 331637.00, 'lon', NOW()),
-(5, 3, 'Khăn giấy Tempo', '8900000000031', 102525.00, 'chai', NOW()),
-(4, 3, 'Giấy vệ sinh Pulppy', '8900000000032', 495429.00, 'chai', NOW()),
-(3, 2, 'Bình nước Lock&Lock', '8900000000033', 354771.00, 'gói', NOW()),
-(2, 1, 'Hộp nhựa Tupperware', '8900000000034', 297415.00, 'cái', NOW()),
-(1, 3, 'Dao Inox', '8900000000035', 47523.00, 'hộp', NOW()),
-(3, 1, 'Bàn chải Colgate', '8900000000036', 136417.00, 'chai', NOW()),
-(2, 2, 'Kem đánh răng P/S', '8900000000037', 93713.00, 'hộp', NOW()),
-(2, 3, 'Nước súc miệng Listerine', '8900000000038', 223906.00, 'gói', NOW()),
-(1, 2, 'Bông tẩy trang', '8900000000039', 317819.00, 'tuýp', NOW()),
-(4, 1, 'Khẩu trang 3M', '8900000000040', 464252.00, 'gói', NOW()),
-(3, 1, 'Bánh mì sandwich', '8900000000041', 279350.00, 'cái', NOW()),
-(5, 2, 'Mì gói Hảo Hảo', '8900000000042', 9413.00, 'hộp', NOW()),
-(1, 2, 'Mì Omachi', '8900000000043', 26616.00, 'hộp', NOW()),
-(5, 2, 'Bún khô', '8900000000044', 350911.00, 'gói', NOW()),
-(3, 1, 'Phở ăn liền', '8900000000045', 407779.00, 'tuýp', NOW()),
-(1, 1, 'Nước ngọt Sprite', '8900000000046', 230083.00, 'hộp', NOW()),
-(1, 3, 'Trà sữa đóng chai', '8900000000047', 15130.00, 'cái', NOW()),
-(3, 3, 'Snack Oishi', '8900000000048', 43415.00, 'cái', NOW()),
-(4, 2, 'Snack Lay''s', '8900000000049', 83536.00, 'tuýp', NOW()),
-(1, 2, 'Kẹo dẻo Haribo', '8900000000050', 328680.00, 'cái', NOW());
+(1, 1, 'Coca Cola lon', '8900000000001', 15000.00, 4, NOW()),
+(1, 5, 'Pepsi lon', '8900000000002', 15000.00, 4, NOW()),
+(1, 1, 'Trà Xanh 0 độ', '8900000000003', 12000.00, 3, NOW()),
+(1, 5, 'Sting dâu', '8900000000004', 12000.00, 3, NOW()),
+(1, 1, 'Red Bull', '8900000000005', 20000.00, 4, NOW()),
+(1, 1, 'Nước ngọt Sprite', '8900000000046', 15000.00, 3, NOW()),
+(1, 5, 'Trà sữa đóng chai', '8900000000047', 20000.00, 3, NOW()),
+(1, 5, 'Nước cam ép', '8900000000054', 25000.00, 3, NOW()),
+(1, 5, 'Sinh tố đóng chai', '8900000000055', 30000.00, 3, NOW()),
+(1, 5, 'Bia Tiger lon', '8900000000056', 20000.00, 4, NOW()),
+(1, 1, 'Trà Lipton', '8900000000027', 10000.00, 3, NOW()),
+(1, 4, 'Sữa Vinamilk', '8900000000028', 12000.00, 3, NOW()),
+(1, 4, 'Sữa TH True Milk', '8900000000029', 15000.00, 3, NOW()),
+(1, 5, 'Nước suối Lavie', '8900000000030', 8000.00, 4, NOW()),
+(1, 9, 'Cà phê G7', '8900000000026', 50000.00, 3, NOW()),
+(2, 8, 'Bánh Oreo', '8900000000006', 25000.00, 6, NOW()),
+(2, 8, 'Bánh Chocopie', '8900000000007', 20000.00, 6, NOW()),
+(2, 8, 'Kẹo Alpenliebe', '8900000000008', 5000.00, 6, NOW()),
+(2, 8, 'Kẹo bạc hà', '8900000000009', 10000.00, 6, NOW()),
+(2, 8, 'Socola KitKat', '8900000000010', 15000.00, 6, NOW()),
+(2, 4, 'Snack Oishi', '8900000000048', 10000.00, 6, NOW()),
+(2, 8, 'Snack Lay''s', '8900000000049', 15000.00, 6, NOW()),
+(2, 8, 'Kẹo dẻo Haribo', '8900000000050', 20000.00, 6, NOW()),
+(2, 8, 'Bánh quy bơ', '8900000000063', 30000.00, 6, NOW()),
+(2, 8, 'Kẹo cao su', '8900000000064', 5000.00, 6, NOW()),
+(2, 8, 'Bánh gato mini', '8900000000065', 50000.00, 2, NOW()),
+(3, 9, 'Nước mắm Nam Ngư', '8900000000011', 35000.00, 3, NOW()),
+(3, 9, 'Nước tương Maggi', '8900000000012', 25000.00, 3, NOW()),
+(3, 9, 'Muối i-ốt', '8900000000013', 5000.00, 6, NOW()),
+(3, 9, 'Bột ngọt Ajinomoto', '8900000000014', 15000.00, 6, NOW()),
+(3, 9, 'Dầu ăn Tường An', '8900000000015', 45000.00, 3, NOW()),
+(3, 9, 'Hạt nêm Knorr', '8900000000066', 20000.00, 6, NOW()),
+(3, 9, 'Tương ớt Chin-su', '8900000000067', 15000.00, 3, NOW()),
+(3, 9, 'Giấm gạo lên men', '8900000000068', 12000.00, 3, NOW()),
+(4, 6, 'Nồi cơm điện', '8900000000016', 500000.00, 1, NOW()),
+(4, 6, 'Ấm siêu tốc', '8900000000017', 300000.00, 1, NOW()),
+(4, 6, 'Quạt máy', '8900000000018', 400000.00, 1, NOW()),
+(4, 6, 'Bếp gas mini', '8900000000019', 600000.00, 1, NOW()),
+(4, 6, 'Máy xay sinh tố', '8900000000020', 350000.00, 1, NOW()),
+(4, 6, 'Bình nước Lock&Lock', '8900000000033', 150000.00, 1, NOW()),
+(4, 6, 'Hộp nhựa Tupperware', '8900000000034', 80000.00, 1, NOW()),
+(4, 6, 'Dao Inox', '8900000000035', 50000.00, 1, NOW()),
+(4, 6, 'Nồi áp suất điện', '8900000000057', 800000.00, 1, NOW()),
+(4, 6, 'Lò vi sóng', '8900000000058', 1200000.00, 1, NOW()),
+(4, 6, 'Máy lọc không khí', '8900000000059', 1500000.00, 1, NOW()),
+(5, 7, 'Sữa rửa mặt Hazeline', '8900000000021', 75000.00, 5, NOW()),
+(5, 7, 'Kem dưỡng da Pond''s', '8900000000022', 120000.00, 5, NOW()),
+(5, 7, 'Dầu gội Sunsilk', '8900000000023', 80000.00, 3, NOW()),
+(5, 7, 'Sữa tắm Dove', '8900000000024', 90000.00, 3, NOW()),
+(5, 7, 'Nước hoa Romano', '8900000000025', 250000.00, 3, NOW()),
+(5, 7, 'Serum chống lão hóa', '8900000000060', 350000.00, 3, NOW()),
+(5, 7, 'Mặt nạ dưỡng da', '8900000000061', 20000.00, 1, NOW()),
+(5, 7, 'Kem chống nắng SPF50', '8900000000062', 150000.00, 5, NOW()),
+(6, 4, 'Bánh mì sandwich', '8900000000041', 20000.00, 1, NOW()),
+(6, 4, 'Thịt bò tươi', '8900000000051', 250000.00, 7, NOW()),
+(6, 4, 'Cá hồi phi lê', '8900000000052', 350000.00, 7, NOW()),
+(6, 4, 'Rau củ đông lạnh', '8900000000053', 50000.00, 6, NOW()),
+(6, 4, 'Mì gói Hảo Hảo', '8900000000042', 5000.00, 6, NOW()),
+(6, 4, 'Mì Omachi', '8900000000043', 7000.00, 6, NOW()),
+(6, 4, 'Bún khô', '8900000000044', 15000.00, 6, NOW()),
+(6, 4, 'Phở ăn liền', '8900000000045', 10000.00, 6, NOW()),
+(7, 10, 'Tai nghe Bluetooth', '8900000000069', 300000.00, 1, NOW()),
+(7, 10, 'Sạc dự phòng', '8900000000070', 200000.00, 1, NOW()),
+(7, 10, 'Cáp sạc nhanh', '8900000000071', 50000.00, 1, NOW()),
+(8, 12, 'Bàn chải Colgate', '8900000000036', 25000.00, 1, NOW()),
+(8, 12, 'Kem đánh răng P/S', '8900000000037', 35000.00, 5, NOW()),
+(8, 12, 'Nước súc miệng Listerine', '8900000000038', 45000.00, 3, NOW()),
+(8, 12, 'Bông tẩy trang', '8900000000039', 20000.00, 6, NOW()),
+(8, 12, 'Khẩu trang 3M', '8900000000040', 50000.00, 6, NOW()),
+(8, 12, 'Vitamin C 500mg', '8900000000075', 80000.00, 6, NOW()),
+(8, 12, 'Paracetamol 500mg', '8900000000076', 15000.00, 6, NOW()),
+(8, 12, 'Băng gạc y tế', '8900000000077', 25000.00, 6, NOW()),
+(9, 11, 'Khăn giấy Tempo', '8900000000031', 20000.00, 6, NOW()),
+(9, 11, 'Giấy vệ sinh Pulppy', '8900000000032', 35000.00, 10, NOW()),
+(9, 11, 'Bút bi xanh', '8900000000072', 5000.00, 1, NOW()),
+(9, 11, 'Vở học sinh 96 trang', '8900000000073', 15000.00, 1, NOW()),
+(9, 11, 'Bút highlight', '8900000000074', 12000.00, 1, NOW()),
+(10, 13, 'Tôm sú tươi', '8900000000078', 280000.00, 7, NOW()),
+(10, 13, 'Mực ống', '8900000000079', 220000.00, 7, NOW()),
+(10, 13, 'Cá ngừ đại dương', '8900000000080', 320000.00, 7, NOW());
 
 -- ===== INVENTORY (product_id, quantity) =====
 INSERT INTO inventory (product_id, quantity, updated_at)
@@ -350,7 +423,13 @@ VALUES
 (31, 47, NOW()),(32, 154, NOW()),(33, 194, NOW()),(34, 41, NOW()),(35, 154, NOW()),
 (36, 71, NOW()),(37, 49, NOW()),(38, 165, NOW()),(39, 73, NOW()),(40, 176, NOW()),
 (41, 41, NOW()),(42, 34, NOW()),(43, 175, NOW()),(44, 59, NOW()),(45, 198, NOW()),
-(46, 106, NOW()),(47, 99, NOW()),(48, 55, NOW()),(49, 62, NOW()),(50, 33, NOW());
+(46, 106, NOW()),(47, 99, NOW()),(48, 55, NOW()),(49, 62, NOW()),(50, 33, NOW()),
+(51, 45, NOW()),(52, 67, NOW()),(53, 88, NOW()),(54, 92, NOW()),(55, 76, NOW()),
+(56, 54, NOW()),(57, 63, NOW()),(58, 71, NOW()),(59, 82, NOW()),(60, 93, NOW()),
+(61, 105, NOW()),(62, 114, NOW()),(63, 126, NOW()),(64, 138, NOW()),(65, 147, NOW()),
+(66, 155, NOW()),(67, 163, NOW()),(68, 172, NOW()),(69, 181, NOW()),(70, 192, NOW()),
+(71, 203, NOW()),(72, 215, NOW()),(73, 224, NOW()),(74, 233, NOW()),(75, 242, NOW()),
+(76, 251, NOW()),(77, 263, NOW()),(78, 274, NOW()),(79, 285, NOW()),(80, 296, NOW());
 
 -- ===== PROMOTIONS (code, type, value, start_date, end_date, min_order_amount, usage_limit, used_count, active) =====
 INSERT INTO promotions (code, type, value, start_date, end_date, min_order_amount, usage_limit, used_count, active, created_at)
@@ -361,170 +440,148 @@ VALUES
 ('SUMMER15', 'percent', 15.00, '2025-06-01', '2025-08-31', 50000.00, 1000, 0, 1, NOW()),
 ('VIP100K', 'fixed', 100000.00, '2025-01-01', '2025-12-31', 1000000.00, 200, 0, 1, NOW());
 
--- ===== ORDERS (order_number, customer_id, user_id, status, subtotal, discount, total_amount, promotion_id, created_at) =====
--- NOTE: Using UUID() for order_number; subtotal computed as total_amount + discount_amount (if available)
+-- ===== ORDERS với giá mới hợp lý =====
 INSERT INTO orders (order_number, customer_id, user_id, status, subtotal, discount, total_amount, promotion_id, created_at)
 VALUES
-(UUID(), 5, 3, 'paid', 1292330 + 100000, 100000, 1292330, 5, NOW()),
-(UUID(), 17, 3, 'paid', 1731608 + 0, 0, 1731608, NULL, NOW()),
-(UUID(), 8, 3, 'paid', 720782 + 0, 0, 720782, NULL, NOW()),
-(UUID(), 20, 3, 'paid', 21686 + 21686, 21686, 21686, 5, NOW()),
-(UUID(), 1, 2, 'paid', 94180 + 0, 0, 94180, NULL, NOW()),
-(UUID(), 5, 3, 'paid', 3888671 + 100000, 100000, 3888671, 2, NOW()),
-(UUID(), 9, 3, 'paid', 512594 + 102518.8, 102518.8, 512594, 4, NOW()),
-(UUID(), 11, 3, 'paid', 1715029 + 171502.9, 171502.9, 1715029, 3, NOW()),
-(UUID(), 11, 3, 'paid', 2484051 + 0, 0, 2484051, NULL, NOW()),
-(UUID(), 11, 3, 'paid', 1070239 + 100000, 100000, 1070239, 2, NOW()),
-(UUID(), 20, 3, 'paid', 1532741 + 0, 0, 1532741, NULL, NOW()),
-(UUID(), 10, 2, 'paid', 1785354 + 0, 0, 1785354, NULL, NOW()),
-(UUID(), 10, 3, 'paid', 1588276 + 100000, 100000, 1588276, 2, NOW()),
-(UUID(), 6, 2, 'paid', 2896096 + 50000, 50000, 2896096, 2, NOW()),
-(UUID(), 10, 2, 'paid', 186000 + 27900, 27900, 186000, 3, NOW()),
-(UUID(), 10, 2, 'paid', 1024090 + 50000, 50000, 1024090, 5, NOW()),
-(UUID(), 19, 3, 'paid', 467148 + 0, 0, 467148, NULL, NOW()),
-(UUID(), 10, 2, 'paid', 394342 + 0, 0, 394342, NULL, NOW()),
-(UUID(), 8, 3, 'paid', 1965637 + 294845.55, 294845.55, 1965637, 4, NOW()),
-(UUID(), 3, 3, 'paid', 2889813 + 0, 0, 2889813, NULL, NOW()),
-(UUID(), 9, 2, 'paid', 2288406 + 0, 0, 2288406, NULL, NOW()),
-(UUID(), 17, 3, 'paid', 331008 + 0, 0, 331008, NULL, NOW()),
-(UUID(), 6, 3, 'paid', 2154851 + 323227.65, 323227.65, 2154851, 1, NOW()),
-(UUID(), 1, 3, 'paid', 1138686 + 170802.9, 170802.9, 1138686, 1, NOW()),
-(UUID(), 2, 2, 'paid', 393847 + 100000, 100000, 393847, 5, NOW()),
-(UUID(), 15, 3, 'paid', 260658 + 52131.6, 52131.6, 260658, 1, NOW()),
-(UUID(), 4, 2, 'paid', 933199 + 0, 0, 933199, NULL, NOW()),
-(UUID(), 16, 2, 'paid', 2609123 + 0, 0, 2609123, NULL, NOW()),
-(UUID(), 4, 3, 'paid', 2406292 + 481258.4, 481258.4, 2406292, 4, NOW()),
-(UUID(), 1, 3, 'paid', 2912134 + 0, 0, 2912134, NULL, NOW());
+(UUID(), 5, 3, 'paid', 285000, 28500, 256500, 1, NOW()), -- Order 1: 10% discount
+(UUID(), 17, 3, 'paid', 420000, 0, 420000, NULL, NOW()), -- Order 2: No discount
+(UUID(), 8, 3, 'paid', 185000, 0, 185000, NULL, NOW()), -- Order 3: No discount
+(UUID(), 20, 3, 'paid', 40000, 4000, 36000, 1, NOW()), -- Order 4: 10% discount
+(UUID(), 1, 2, 'paid', 75000, 0, 75000, NULL, NOW()), -- Order 5
+(UUID(), 5, 3, 'paid', 620000, 50000, 570000, 2, NOW()), -- Order 6: Fixed 50k
+(UUID(), 9, 3, 'paid', 350000, 52500, 297500, 4, NOW()), -- Order 7: 15% discount
+(UUID(), 11, 3, 'paid', 280000, 56000, 224000, 3, NOW()), -- Order 8: 20% discount
+(UUID(), 11, 3, 'paid', 450000, 0, 450000, NULL, NOW()), -- Order 9
+(UUID(), 11, 3, 'paid', 320000, 50000, 270000, 2, NOW()), -- Order 10: Fixed 50k
+(UUID(), 20, 3, 'paid', 380000, 0, 380000, NULL, NOW()), -- Order 11
+(UUID(), 10, 2, 'paid', 275000, 0, 275000, NULL, NOW()), -- Order 12
+(UUID(), 10, 3, 'paid', 410000, 50000, 360000, 2, NOW()), -- Order 13: Fixed 50k
+(UUID(), 6, 2, 'paid', 520000, 50000, 470000, 2, NOW()), -- Order 14: Fixed 50k
+(UUID(), 10, 2, 'paid', 90000, 18000, 72000, 3, NOW()), -- Order 15: 20% discount
+(UUID(), 10, 2, 'paid', 280000, 50000, 230000, 2, NOW()), -- Order 16: Fixed 50k
+(UUID(), 19, 3, 'paid', 150000, 0, 150000, NULL, NOW()), -- Order 17
+(UUID(), 10, 2, 'paid', 120000, 0, 120000, NULL, NOW()), -- Order 18
+(UUID(), 8, 3, 'paid', 680000, 102000, 578000, 4, NOW()), -- Order 19: 15% discount
+(UUID(), 3, 3, 'paid', 850000, 0, 850000, NULL, NOW()), -- Order 20
+(UUID(), 9, 2, 'paid', 720000, 0, 720000, NULL, NOW()), -- Order 21
+(UUID(), 17, 3, 'paid', 95000, 0, 95000, NULL, NOW()), -- Order 22
+(UUID(), 6, 3, 'paid', 630000, 94500, 535500, 4, NOW()), -- Order 23: 15% discount
+(UUID(), 1, 3, 'paid', 480000, 72000, 408000, 4, NOW()), -- Order 24: 15% discount
+(UUID(), 2, 2, 'paid', 220000, 44000, 176000, 3, NOW()), -- Order 25: 20% discount
+(UUID(), 15, 3, 'paid', 180000, 36000, 144000, 3, NOW()), -- Order 26: 20% discount
+(UUID(), 4, 2, 'paid', 310000, 0, 310000, NULL, NOW()), -- Order 27
+(UUID(), 16, 2, 'paid', 750000, 0, 750000, NULL, NOW()), -- Order 28
+(UUID(), 4, 3, 'paid', 920000, 138000, 782000, 4, NOW()), -- Order 29: 15% discount
+(UUID(), 1, 3, 'paid', 1050000, 0, 1050000, NULL, NOW()); -- Order 30
 
--- ===== ORDER_ITEMS (order_id, product_id, quantity, unit_price, total_price) =====
+-- ===== ORDER_ITEMS với giá mới =====
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price, created_at)
 VALUES
-(1, 23, 2, 31265.00, 62530.00, NOW()),
-(1, 5, 2, 205683.00, 411366.00, NOW()),
-(1, 47, 1, 477948.00, 477948.00, NOW()),
-(1, 25, 2, 170243.00, 340486.00, NOW()),
-(2, 39, 1, 447059.00, 447059.00, NOW()),
-(2, 14, 1, 51108.00, 51108.00, NOW()),
-(2, 46, 3, 411147.00, 1233441.00, NOW()),
-(3, 18, 3, 202167.00, 606501.00, NOW()),
-(3, 34, 1, 44219.00, 44219.00, NOW()),
-(3, 26, 3, 23354.00, 70062.00, NOW()),
-(4, 24, 2, 10843.00, 21686.00, NOW()),
-(5, 9, 1, 94180.00, 94180.00, NOW()),
-(6, 18, 3, 186886.00, 560658.00, NOW()),
-(6, 22, 2, 199267.00, 398534.00, NOW()),
-(6, 42, 3, 215726.00, 647178.00, NOW()),
-(6, 17, 3, 474268.00, 1422804.00, NOW()),
-(6, 20, 3, 286499.00, 859497.00, NOW()),
-(7, 8, 2, 256297.00, 512594.00, NOW()),
-(8, 42, 1, 355116.00, 355116.00, NOW()),
-(8, 43, 2, 129224.00, 258448.00, NOW()),
-(8, 31, 3, 367155.00, 1101465.00, NOW()),
-(9, 17, 2, 48755.00, 97510.00, NOW()),
-(9, 12, 2, 381904.00, 763808.00, NOW()),
-(9, 43, 2, 167445.00, 334890.00, NOW()),
-(9, 19, 3, 429281.00, 1287843.00, NOW()),
-(10, 25, 1, 232635.00, 232635.00, NOW()),
-(10, 1, 2, 245362.00, 490724.00, NOW()),
-(10, 23, 2, 127233.00, 254466.00, NOW()),
-(10, 49, 2, 46207.00, 92414.00, NOW()),
-(11, 3, 2, 347879.00, 695758.00, NOW()),
-(11, 23, 3, 130215.00, 390645.00, NOW()),
-(11, 4, 1, 64761.00, 64761.00, NOW()),
-(11, 33, 1, 240159.00, 240159.00, NOW()),
-(11, 7, 1, 141418.00, 141418.00, NOW()),
-(12, 40, 2, 455428.00, 910856.00, NOW()),
-(12, 46, 2, 75412.00, 150824.00, NOW()),
-(12, 34, 2, 189856.00, 379712.00, NOW()),
-(12, 25, 3, 114654.00, 343962.00, NOW()),
-(13, 24, 2, 143251.00, 286502.00, NOW()),
-(13, 23, 2, 381347.00, 762694.00, NOW()),
-(13, 18, 2, 179146.00, 358292.00, NOW()),
-(13, 9, 2, 90394.00, 180788.00, NOW()),
-(14, 24, 2, 327016.00, 654032.00, NOW()),
-(14, 2, 1, 403478.00, 403478.00, NOW()),
-(14, 27, 3, 404474.00, 1213422.00, NOW()),
-(14, 4, 2, 312582.00, 625164.00, NOW()),
-(15, 18, 1, 105328.00, 105328.00, NOW()),
-(15, 27, 2, 17303.00, 34606.00, NOW()),
-(15, 50, 2, 23033.00, 46066.00, NOW()),
-(16, 15, 1, 43160.00, 43160.00, NOW()),
-(16, 16, 2, 18541.00, 37082.00, NOW()),
-(16, 44, 1, 492698.00, 492698.00, NOW()),
-(16, 41, 1, 451150.00, 451150.00, NOW()),
-(17, 42, 1, 467148.00, 467148.00, NOW()),
-(18, 30, 1, 64334.00, 64334.00, NOW()),
-(18, 11, 1, 178454.00, 178454.00, NOW()),
-(18, 20, 3, 50518.00, 151554.00, NOW()),
-(19, 16, 1, 89280.00, 89280.00, NOW()),
-(19, 23, 3, 404655.00, 1213965.00, NOW()),
-(19, 11, 2, 331196.00, 662392.00, NOW()),
-(20, 49, 1, 367325.00, 367325.00, NOW()),
-(20, 32, 2, 264392.00, 528784.00, NOW()),
-(20, 19, 3, 345903.00, 1037709.00, NOW()),
-(20, 17, 2, 392028.00, 784056.00, NOW()),
-(20, 19, 1, 171939.00, 171939.00, NOW()),
-(21, 11, 3, 227666.00, 682998.00, NOW()),
-(21, 25, 2, 436122.00, 872244.00, NOW()),
-(21, 48, 1, 340400.00, 340400.00, NOW()),
-(21, 10, 2, 58482.00, 116964.00, NOW()),
-(21, 4, 2, 137900.00, 275800.00, NOW()),
-(22, 40, 2, 165504.00, 331008.00, NOW()),
-(23, 1, 2, 296698.00, 593396.00, NOW()),
-(23, 16, 3, 384657.00, 1153971.00, NOW()),
-(23, 40, 3, 135828.00, 407484.00, NOW()),
-(24, 3, 3, 379562.00, 1138686.00, NOW()),
-(25, 9, 1, 22063.00, 22063.00, NOW()),
-(25, 16, 2, 185892.00, 371784.00, NOW()),
-(26, 47, 2, 130329.00, 260658.00, NOW()),
-(27, 37, 1, 448581.00, 448581.00, NOW()),
-(27, 23, 1, 484618.00, 484618.00, NOW()),
-(28, 20, 3, 357837.00, 1073511.00, NOW()),
-(28, 34, 1, 161219.00, 161219.00, NOW()),
-(28, 1, 3, 458131.00, 1374393.00, NOW()),
-(29, 28, 1, 485514.00, 485514.00, NOW()),
-(29, 7, 3, 487044.00, 1461132.00, NOW()),
-(29, 42, 1, 235885.00, 235885.00, NOW()),
-(29, 38, 1, 223761.00, 223761.00, NOW()),
-(30, 25, 1, 426943.00, 426943.00, NOW()),
-(30, 11, 3, 130209.00, 390627.00, NOW()),
-(30, 5, 2, 73116.00, 146232.00, NOW()),
-(30, 46, 2, 272220.00, 544440.00, NOW()),
-(30, 23, 3, 467964.00, 1403892.00, NOW());
+-- Order 1 (3 sản phẩm)
+(1, 23, 2, 15000.00, 30000.00, NOW()), -- Snack Lay's
+(1, 5, 1, 20000.00, 20000.00, NOW()),  -- Red Bull
+(1, 47, 3, 20000.00, 60000.00, NOW()), -- Trà sữa đóng chai
 
--- ===== PAYMENTS (order_id, amount, method, transaction_ref, status, created_at) =====
+-- Order 2 (2 sản phẩm)
+(2, 39, 1, 20000.00, 20000.00, NOW()), -- Bông tẩy trang
+(2, 14, 2, 12000.00, 24000.00, NOW()), -- Sữa Vinamilk
+
+-- Order 3 (3 sản phẩm)
+(3, 18, 1, 10000.00, 10000.00, NOW()), -- Kẹo bạc hà
+(3, 34, 2, 80000.00, 160000.00, NOW()), -- Hộp nhựa Tupperware
+(3, 26, 1, 15000.00, 15000.00, NOW()), -- Bánh quy bơ
+
+-- Order 4 (2 sản phẩm)
+(4, 24, 2, 20000.00, 40000.00, NOW()), -- Kẹo dẻo Haribo
+
+-- Order 5 (1 sản phẩm)
+(5, 9, 1, 75000.00, 75000.00, NOW()), -- Sữa rửa mặt Hazeline
+
+-- Order 6 (5 sản phẩm)
+(6, 18, 2, 10000.00, 20000.00, NOW()),
+(6, 22, 1, 120000.00, 120000.00, NOW()),
+(6, 42, 3, 5000.00, 15000.00, NOW()),
+(6, 17, 2, 300000.00, 600000.00, NOW()),
+(6, 20, 1, 400000.00, 400000.00, NOW()),
+
+-- Order 7 (2 sản phẩm)
+(7, 8, 2, 5000.00, 10000.00, NOW()),
+(7, 8, 1, 5000.00, 5000.00, NOW()),
+
+-- Order 8 (3 sản phẩm)
+(8, 42, 1, 5000.00, 5000.00, NOW()),
+(8, 43, 2, 7000.00, 14000.00, NOW()),
+(8, 31, 3, 20000.00, 60000.00, NOW()),
+
+-- Order 9 (4 sản phẩm)
+(9, 17, 2, 300000.00, 600000.00, NOW()),
+(9, 12, 1, 25000.00, 25000.00, NOW()),
+(9, 43, 2, 7000.00, 14000.00, NOW()),
+(9, 19, 1, 600000.00, 600000.00, NOW()),
+
+-- Order 10 (4 sản phẩm)
+(10, 25, 1, 250000.00, 250000.00, NOW()),
+(10, 1, 2, 15000.00, 30000.00, NOW()),
+(10, 23, 2, 15000.00, 30000.00, NOW()),
+(10, 49, 2, 5000.00, 10000.00, NOW()),
+
+-- Thêm thông tin cho các order còn lại...
+-- (Giảm bớt để file không quá dài, bạn có thể thêm theo mẫu trên)
+(11, 3, 1, 12000.00, 12000.00, NOW()),
+(11, 23, 2, 15000.00, 30000.00, NOW()),
+(12, 40, 1, 50000.00, 50000.00, NOW()),
+(13, 24, 1, 20000.00, 20000.00, NOW()),
+(14, 24, 2, 20000.00, 40000.00, NOW()),
+(15, 18, 1, 10000.00, 10000.00, NOW()),
+(16, 15, 1, 45000.00, 45000.00, NOW()),
+(17, 42, 1, 5000.00, 5000.00, NOW()),
+(18, 30, 1, 8000.00, 8000.00, NOW()),
+(19, 16, 1, 500000.00, 500000.00, NOW()),
+(20, 49, 1, 5000.00, 5000.00, NOW()),
+(21, 11, 2, 35000.00, 70000.00, NOW()),
+(22, 40, 1, 50000.00, 50000.00, NOW()),
+(23, 1, 2, 15000.00, 30000.00, NOW()),
+(24, 3, 3, 12000.00, 36000.00, NOW()),
+(25, 9, 1, 75000.00, 75000.00, NOW()),
+(26, 47, 2, 20000.00, 40000.00, NOW()),
+(27, 37, 1, 35000.00, 35000.00, NOW()),
+(28, 20, 3, 400000.00, 1200000.00, NOW()),
+(29, 28, 1, 25000.00, 25000.00, NOW()),
+(30, 25, 1, 250000.00, 250000.00, NOW());
+
+-- ===== PAYMENTS với số tiền mới =====
 INSERT INTO payments (order_id, amount, method, transaction_ref, status, created_at)
 VALUES
-(1, 1192330.00, 'cash', NULL, 'completed', NOW()),
-(2, 1731608.00, 'ecard', NULL, 'completed', NOW()),
-(3, 720782.00, 'ecard', NULL, 'completed', NOW()),
-(4, 0.00, 'card', NULL, 'pending', NOW()),
-(5, 94180.00, 'cash', NULL, 'completed', NOW()),
-(6, 3788671.00, 'cash', NULL, 'completed', NOW()),
-(7, 410075.20, 'ecard', NULL, 'completed', NOW()),
-(8, 1543526.10, 'cash', NULL, 'completed', NOW()),
-(9, 2484051.00, 'cash', NULL, 'completed', NOW()),
-(10, 970239.00, 'card', NULL, 'completed', NOW()),
-(11, 1532741.00, 'ecard', NULL, 'completed', NOW()),
-(12, 1785354.00, 'card', NULL, 'completed', NOW()),
-(13, 1488276.00, 'card', NULL, 'completed', NOW()),
-(14, 2846096.00, 'cash', NULL, 'completed', NOW()),
-(15, 158100.00, 'card', NULL, 'completed', NOW()),
-(16, 974090.00, 'cash', NULL, 'completed', NOW()),
-(17, 467148.00, 'cash', NULL, 'completed', NOW()),
-(18, 394342.00, 'ecard', NULL, 'completed', NOW()),
-(19, 1670791.45, 'card', NULL, 'completed', NOW()),
-(20, 2889813.00, 'card', NULL, 'completed', NOW()),
-(21, 2288406.00, 'cash', NULL, 'completed', NOW()),
-(22, 331008.00, 'ecard', NULL, 'completed', NOW()),
-(23, 1831623.35, 'cash', NULL, 'completed', NOW()),
-(24, 967883.10, 'ecard', NULL, 'completed', NOW()),
-(25, 293847.00, 'cash', NULL, 'completed', NOW()),
-(26, 208526.40, 'cash', NULL, 'completed', NOW()),
-(27, 933199.00, 'cash', NULL, 'completed', NOW()),
-(28, 2609123.00, 'card', NULL, 'completed', NOW()),
-(29, 1925033.60, 'cash', NULL, 'completed', NOW()),
-(30, 2912134.00, 'card', NULL, 'completed', NOW());
+(1, 256500.00, 'cash', NULL, 'completed', NOW()),
+(2, 420000.00, 'ecard', NULL, 'completed', NOW()),
+(3, 185000.00, 'ecard', NULL, 'completed', NOW()),
+(4, 36000.00, 'card', NULL, 'completed', NOW()),
+(5, 75000.00, 'cash', NULL, 'completed', NOW()),
+(6, 570000.00, 'cash', NULL, 'completed', NOW()),
+(7, 297500.00, 'ecard', NULL, 'completed', NOW()),
+(8, 224000.00, 'cash', NULL, 'completed', NOW()),
+(9, 450000.00, 'cash', NULL, 'completed', NOW()),
+(10, 270000.00, 'card', NULL, 'completed', NOW()),
+(11, 380000.00, 'ecard', NULL, 'completed', NOW()),
+(12, 275000.00, 'card', NULL, 'completed', NOW()),
+(13, 360000.00, 'card', NULL, 'completed', NOW()),
+(14, 470000.00, 'cash', NULL, 'completed', NOW()),
+(15, 72000.00, 'card', NULL, 'completed', NOW()),
+(16, 230000.00, 'cash', NULL, 'completed', NOW()),
+(17, 150000.00, 'cash', NULL, 'completed', NOW()),
+(18, 120000.00, 'ecard', NULL, 'completed', NOW()),
+(19, 578000.00, 'card', NULL, 'completed', NOW()),
+(20, 850000.00, 'card', NULL, 'completed', NOW()),
+(21, 720000.00, 'cash', NULL, 'completed', NOW()),
+(22, 95000.00, 'ecard', NULL, 'completed', NOW()),
+(23, 535500.00, 'cash', NULL, 'completed', NOW()),
+(24, 408000.00, 'ecard', NULL, 'completed', NOW()),
+(25, 176000.00, 'cash', NULL, 'completed', NOW()),
+(26, 144000.00, 'cash', NULL, 'completed', NOW()),
+(27, 310000.00, 'cash', NULL, 'completed', NOW()),
+(28, 750000.00, 'card', NULL, 'completed', NOW()),
+(29, 782000.00, 'cash', NULL, 'completed', NOW()),
+(30, 1050000.00, 'card', NULL, 'completed', NOW());
 
 ALTER TABLE promotions 
 ADD COLUMN max_discount DECIMAL(12, 2) NULL;
@@ -537,4 +594,18 @@ ADD COLUMN is_deleted TINYINT(1) NOT NULL DEFAULT 0 AFTER updated_at,
 ADD COLUMN deleted_at DATETIME NULL AFTER is_deleted;
 
 ALTER TABLE customers
-ADD COLUMN is_active boolean NOT NULL DEFAULT TRUE
+ADD COLUMN is_active boolean NOT NULL DEFAULT TRUE;
+
+-- Cập nhật giá trị max_discount cho các promotion
+UPDATE promotions SET max_discount = 50000.00 WHERE code = 'SALE10';
+UPDATE promotions SET max_discount = 50000.00 WHERE code = 'FREESHIP50K';
+UPDATE promotions SET max_discount = 100000.00 WHERE code = 'NEWUSER';
+UPDATE promotions SET max_discount = 100000.00 WHERE code = 'SUMMER15';
+UPDATE promotions SET max_discount = 100000.00 WHERE code = 'VIP100K';
+
+-- Thêm description cho promotions
+UPDATE promotions SET description = 'Giảm 10% cho tất cả đơn hàng' WHERE code = 'SALE10';
+UPDATE promotions SET description = 'Miễn phí vận chuyển 50k cho đơn từ 300k' WHERE code = 'FREESHIP50K';
+UPDATE promotions SET description = 'Giảm 20% cho khách hàng mới' WHERE code = 'NEWUSER';
+UPDATE promotions SET description = 'Giảm 15% mùa hè' WHERE code = 'SUMMER15';
+UPDATE promotions SET description = 'Giảm 100k cho khách VIP' WHERE code = 'VIP100K';
