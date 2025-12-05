@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 import AiChat from "./AiChat";
+import AiChatErrorBoundary from "./AiChatErrorBoundary";
 
 const AiChatWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,10 +12,12 @@ const AiChatWidget = () => {
 
   return (
     <>
-      {/* Chat Window */}
+      {/* Chat Window with Error Boundary */}
       {isOpen && (
         <div className="fixed bottom-24 right-6 w-[400px] h-[550px] z-50 shadow-2xl rounded-lg overflow-hidden animate-slide-up">
-          <AiChat />
+          <AiChatErrorBoundary>
+            <AiChat />
+          </AiChatErrorBoundary>
         </div>
       )}
 

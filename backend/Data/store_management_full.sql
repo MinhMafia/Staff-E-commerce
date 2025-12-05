@@ -443,36 +443,36 @@ VALUES
 -- ===== ORDERS với giá mới hợp lý =====
 INSERT INTO orders (order_number, customer_id, user_id, status, subtotal, discount, total_amount, promotion_id, created_at)
 VALUES
-(UUID(), 5, 3, 'paid', 285000, 28500, 256500, 1, NOW()), -- Order 1: 10% discount
-(UUID(), 17, 3, 'paid', 420000, 0, 420000, NULL, NOW()), -- Order 2: No discount
-(UUID(), 8, 3, 'paid', 185000, 0, 185000, NULL, NOW()), -- Order 3: No discount
-(UUID(), 20, 3, 'paid', 40000, 4000, 36000, 1, NOW()), -- Order 4: 10% discount
-(UUID(), 1, 2, 'paid', 75000, 0, 75000, NULL, NOW()), -- Order 5
-(UUID(), 5, 3, 'paid', 620000, 50000, 570000, 2, NOW()), -- Order 6: Fixed 50k
-(UUID(), 9, 3, 'paid', 350000, 52500, 297500, 4, NOW()), -- Order 7: 15% discount
-(UUID(), 11, 3, 'paid', 280000, 56000, 224000, 3, NOW()), -- Order 8: 20% discount
-(UUID(), 11, 3, 'paid', 450000, 0, 450000, NULL, NOW()), -- Order 9
-(UUID(), 11, 3, 'paid', 320000, 50000, 270000, 2, NOW()), -- Order 10: Fixed 50k
-(UUID(), 20, 3, 'paid', 380000, 0, 380000, NULL, NOW()), -- Order 11
-(UUID(), 10, 2, 'paid', 275000, 0, 275000, NULL, NOW()), -- Order 12
-(UUID(), 10, 3, 'paid', 410000, 50000, 360000, 2, NOW()), -- Order 13: Fixed 50k
-(UUID(), 6, 2, 'paid', 520000, 50000, 470000, 2, NOW()), -- Order 14: Fixed 50k
-(UUID(), 10, 2, 'paid', 90000, 18000, 72000, 3, NOW()), -- Order 15: 20% discount
-(UUID(), 10, 2, 'paid', 280000, 50000, 230000, 2, NOW()), -- Order 16: Fixed 50k
-(UUID(), 19, 3, 'paid', 150000, 0, 150000, NULL, NOW()), -- Order 17
-(UUID(), 10, 2, 'paid', 120000, 0, 120000, NULL, NOW()), -- Order 18
-(UUID(), 8, 3, 'paid', 680000, 102000, 578000, 4, NOW()), -- Order 19: 15% discount
-(UUID(), 3, 3, 'paid', 850000, 0, 850000, NULL, NOW()), -- Order 20
-(UUID(), 9, 2, 'paid', 720000, 0, 720000, NULL, NOW()), -- Order 21
-(UUID(), 17, 3, 'paid', 95000, 0, 95000, NULL, NOW()), -- Order 22
-(UUID(), 6, 3, 'paid', 630000, 94500, 535500, 4, NOW()), -- Order 23: 15% discount
-(UUID(), 1, 3, 'paid', 480000, 72000, 408000, 4, NOW()), -- Order 24: 15% discount
-(UUID(), 2, 2, 'paid', 220000, 44000, 176000, 3, NOW()), -- Order 25: 20% discount
-(UUID(), 15, 3, 'paid', 180000, 36000, 144000, 3, NOW()), -- Order 26: 20% discount
-(UUID(), 4, 2, 'paid', 310000, 0, 310000, NULL, NOW()), -- Order 27
-(UUID(), 16, 2, 'paid', 750000, 0, 750000, NULL, NOW()), -- Order 28
-(UUID(), 4, 3, 'paid', 920000, 138000, 782000, 4, NOW()), -- Order 29: 15% discount
-(UUID(), 1, 3, 'paid', 1050000, 0, 1050000, NULL, NOW()); -- Order 30
+(UUID(), 5, 3, 'completed', 285000, 28500, 256500, 1, NOW()), -- Order 1: 10% discount
+(UUID(), 17, 3, 'completed', 420000, 0, 420000, NULL, NOW()), -- Order 2: No discount
+(UUID(), 8, 3, 'completed', 185000, 0, 185000, NULL, NOW()), -- Order 3: No discount
+(UUID(), 20, 3, 'completed', 40000, 4000, 36000, 1, NOW()), -- Order 4: 10% discount
+(UUID(), 1, 2, 'completed', 75000, 0, 75000, NULL, NOW()), -- Order 5
+(UUID(), 5, 3, 'completed', 620000, 50000, 570000, 2, NOW()), -- Order 6: Fixed 50k
+(UUID(), 9, 3, 'completed', 350000, 52500, 297500, 4, NOW()), -- Order 7: 15% discount
+(UUID(), 11, 3, 'completed', 280000, 56000, 224000, 3, NOW()), -- Order 8: 20% discount
+(UUID(), 11, 3, 'completed', 450000, 0, 450000, NULL, NOW()), -- Order 9
+(UUID(), 11, 3, 'completed', 320000, 50000, 270000, 2, NOW()), -- Order 10: Fixed 50k
+(UUID(), 20, 3, 'completed', 380000, 0, 380000, NULL, NOW()), -- Order 11
+(UUID(), 10, 2, 'completed', 275000, 0, 275000, NULL, NOW()), -- Order 12
+(UUID(), 10, 3, 'completed', 410000, 50000, 360000, 2, NOW()), -- Order 13: Fixed 50k
+(UUID(), 6, 2, 'completed', 520000, 50000, 470000, 2, NOW()), -- Order 14: Fixed 50k
+(UUID(), 10, 2, 'completed', 90000, 18000, 72000, 3, NOW()), -- Order 15: 20% discount
+(UUID(), 10, 2, 'completed', 280000, 50000, 230000, 2, NOW()), -- Order 16: Fixed 50k
+(UUID(), 19, 3, 'completed', 150000, 0, 150000, NULL, NOW()), -- Order 17
+(UUID(), 10, 2, 'completed', 120000, 0, 120000, NULL, NOW()), -- Order 18
+(UUID(), 8, 3, 'completed', 680000, 102000, 578000, 4, NOW()), -- Order 19: 15% discount
+(UUID(), 3, 3, 'completed', 850000, 0, 850000, NULL, NOW()), -- Order 20
+(UUID(), 9, 2, 'completed', 720000, 0, 720000, NULL, NOW()), -- Order 21
+(UUID(), 17, 3, 'completed', 95000, 0, 95000, NULL, NOW()), -- Order 22
+(UUID(), 6, 3, 'completed', 630000, 94500, 535500, 4, NOW()), -- Order 23: 15% discount
+(UUID(), 1, 3, 'completed', 480000, 72000, 408000, 4, NOW()), -- Order 24: 15% discount
+(UUID(), 2, 2, 'completed', 220000, 44000, 176000, 3, NOW()), -- Order 25: 20% discount
+(UUID(), 15, 3, 'completed', 180000, 36000, 144000, 3, NOW()), -- Order 26: 20% discount
+(UUID(), 4, 2, 'completed', 310000, 0, 310000, NULL, NOW()), -- Order 27
+(UUID(), 16, 2, 'completed', 750000, 0, 750000, NULL, NOW()), -- Order 28
+(UUID(), 4, 3, 'completed', 920000, 138000, 782000, 4, NOW()), -- Order 29: 15% discount
+(UUID(), 1, 3, 'completed', 1050000, 0, 1050000, NULL, NOW()); -- Order 30
 
 -- ===== ORDER_ITEMS với giá mới =====
 INSERT INTO order_items (order_id, product_id, quantity, unit_price, total_price, created_at)
@@ -609,3 +609,26 @@ UPDATE promotions SET description = 'Miễn phí vận chuyển 50k cho đơn t�
 UPDATE promotions SET description = 'Giảm 20% cho khách hàng mới' WHERE code = 'NEWUSER';
 UPDATE promotions SET description = 'Giảm 15% mùa hè' WHERE code = 'SUMMER15';
 UPDATE promotions SET description = 'Giảm 100k cho khách VIP' WHERE code = 'VIP100K';
+ 
+-- ===== AI CONVERSATIONS & MESSAGES =====
+CREATE TABLE ai_conversations (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  title VARCHAR(255),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_ai_conversations_user (user_id),
+  CONSTRAINT fk_ai_conversations_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE ai_messages (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY,
+  conversation_id INT NOT NULL,
+  role VARCHAR(20) NOT NULL,
+  content LONGTEXT NOT NULL,
+  function_called VARCHAR(100),
+  function_data JSON,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_ai_messages_conversation (conversation_id),
+  CONSTRAINT fk_ai_messages_conversation FOREIGN KEY (conversation_id) REFERENCES ai_conversations(id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

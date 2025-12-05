@@ -33,11 +33,20 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Memory Cache for AI Service
+builder.Services.AddMemoryCache();
+
 // Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 // .EnableSensitiveDataLogging() // Dev only
+);
+
+// DbContext Factory for parallel operations (AI Service)
+builder.Services.AddDbContextFactory<AppDbContext>(options =>
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)),
+    ServiceLifetime.Scoped
 );
 
 // -------------------------
@@ -57,6 +66,7 @@ builder.Services.AddScoped<CategoryRepository>();
 builder.Services.AddScoped<SupplierRepository>();
 builder.Services.AddScoped<ReportsRepository>();
 builder.Services.AddScoped<UnitRepository>();
+builder.Services.AddScoped<AiRepository>();
 
 builder.Services.AddHttpContextAccessor();
 
@@ -83,6 +93,14 @@ builder.Services.AddScoped<SupplierService>();
 builder.Services.AddScoped<ReportsService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<UnitService>();
+
+// AI Services - Token management theo chuẩn industry
+builder.Services.AddSingleton<TokenizerService>(); // Singleton vì tokenizer là stateless
+builder.Services.AddScoped<ChatContextManager>();
+builder.Services.AddScoped<backend.Services.AI.AiToolExecutor>(); // Tool executor với DI scope
+builder.Services.AddScoped<AiService>();
+
+builder.Services.AddHttpClient();
 
 // Configure file upload size limit
 builder.Services.Configure<FormOptions>(options =>

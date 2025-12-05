@@ -4,6 +4,16 @@ namespace backend.DTO
     {
         public string Message { get; set; } = string.Empty;
         public int? ConversationId { get; set; }
+        /// <summary>
+        /// Frontend gửi history để không cần load từ DB
+        /// </summary>
+        public List<ClientMessageDTO>? History { get; set; }
+    }
+
+    public class ClientMessageDTO
+    {
+        public string Role { get; set; } = string.Empty; // "user" or "assistant"
+        public string Content { get; set; } = string.Empty;
     }
 
     public class AiConversationDTO
