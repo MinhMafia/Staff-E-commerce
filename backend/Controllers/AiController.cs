@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using backend.Services;
+using backend.Services.AI;
 using backend.DTO;
 using System.Security.Claims;
 
@@ -11,10 +11,10 @@ namespace backend.Controllers
     [Authorize]
     public class AiController : ControllerBase
     {
-        private readonly AiService _aiService;
+        private readonly SemanticKernelService _aiService;
         private readonly ILogger<AiController> _logger;
 
-        public AiController(AiService aiService, ILogger<AiController> logger)
+        public AiController(SemanticKernelService aiService, ILogger<AiController> logger)
         {
             _aiService = aiService;
             _logger = logger;
@@ -270,11 +270,14 @@ namespace backend.Controllers
         [AllowAnonymous]
         public ActionResult HealthCheck()
         {
+            var stats = _aiService.GetPluginStats();
             return Ok(new
             {
                 status = "ok",
-                message = "AI Service is running",
-                timestamp = DateTime.UtcNow
+                message = "AI Service (Semantic Kernel) is running",
+                timestamp = DateTime.UtcNow,
+                pluginCount = stats.pluginCount,
+                functionCount = stats.functionCount
             });
         }
 

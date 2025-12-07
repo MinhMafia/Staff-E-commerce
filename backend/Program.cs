@@ -94,11 +94,9 @@ builder.Services.AddScoped<ReportsService>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<UnitService>();
 
-// AI Services - Token management theo chuẩn industry
-builder.Services.AddSingleton<TokenizerService>(); // Singleton vì tokenizer là stateless
-builder.Services.AddScoped<ChatContextManager>();
-builder.Services.AddScoped<backend.Services.AI.AiToolExecutor>(); // Tool executor với DI scope
-builder.Services.AddScoped<AiService>();
+// AI Service - Semantic Kernel
+builder.Services.AddSingleton<TokenizerService>();
+builder.Services.AddScoped<backend.Services.AI.SemanticKernelService>();
 
 builder.Services.AddHttpClient();
 
