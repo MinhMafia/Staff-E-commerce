@@ -120,9 +120,25 @@ export default function Topbar({ onToggleSidebar }) {
         </button>
 
         <div className="hidden md:block">
-          <h1 className="text-xl font-bold text-gray-800">
-            Xin chào, {user?.fullName || user?.username || "User"}! 👋
-          </h1>
+          <>
+            <style jsx>{`
+              @keyframes typing {
+                from {
+                  width: 0;
+                }
+                to {
+                  width: 30ch;
+                }
+              }
+            `}</style>
+
+            <h1
+              className="font-mono overflow-hidden whitespace-nowrap text-xl font-bold text-gray-800"
+              style={{ animation: "typing 2s steps(30) infinite alternate" }}
+            >
+              Xin chào, {user?.fullName || user?.username || "User"}! 👋
+            </h1>
+          </>
           <p className="text-sm text-gray-500">
             {new Date().toLocaleDateString("vi-VN", {
               weekday: "long",

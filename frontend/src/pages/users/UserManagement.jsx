@@ -73,7 +73,8 @@ export default function UserManagement() {
       setUsers(result.items ?? []);
       setMeta({
         currentPage: result.currentPage ?? page,
-        totalPages: result.totalPages && result.totalPages > 0 ? result.totalPages : 1,
+        totalPages:
+          result.totalPages && result.totalPages > 0 ? result.totalPages : 1,
         totalItems: result.totalItems ?? 0,
         pageSize: result.pageSize ?? pageSize,
       });
@@ -215,7 +216,10 @@ export default function UserManagement() {
         delete payload.password;
       }
       const updated = await updateUser(editUserId, payload);
-      setAlert({ type: "success", message: `Đã cập nhật ${updated.username}.` });
+      setAlert({
+        type: "success",
+        message: `Đã cập nhật ${updated.username}.`,
+      });
       closeEditModal();
       fetchUsers();
     } catch (err) {
@@ -386,19 +390,25 @@ export default function UserManagement() {
                       >
                         Xem
                       </button>
-                      <button
-                        className="text-xs px-2 py-1 border rounded hover:bg-gray-50"
-                        onClick={() => openEditModal(user)}
-                      >
-                        Sửa
-                      </button>
-                      <button
-                        className="text-xs px-2 py-1 border rounded text-red-600 hover:bg-red-50 disabled:opacity-50"
-                        disabled={deleteLoadingId === user.id}
-                        onClick={() => handleDelete(user)}
-                      >
-                        {deleteLoadingId === user.id ? "Đang xóa..." : "Xóa"}
-                      </button>
+                      {user.role !== "admin" && (
+                        <>
+                          <button
+                            className="text-xs px-2 py-1 border rounded hover:bg-gray-50"
+                            onClick={() => openEditModal(user)}
+                          >
+                            Sửa
+                          </button>
+                          <button
+                            className="text-xs px-2 py-1 border rounded text-red-600 hover:bg-red-50 disabled:opacity-50"
+                            disabled={deleteLoadingId === user.id}
+                            onClick={() => handleDelete(user)}
+                          >
+                            {deleteLoadingId === user.id
+                              ? "Đang xóa..."
+                              : "Xóa"}
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -460,12 +470,13 @@ export default function UserManagement() {
         </Modal>
       )}
 
-
       {createModalOpen && (
         <Modal title="Thêm nhân viên" onClose={closeCreateModal}>
           <form className="space-y-4" onSubmit={handleCreateSubmit}>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Username</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Username
+              </label>
               <input
                 type="text"
                 className="mt-1 w-full rounded-md border px-3 py-2"
@@ -478,11 +489,15 @@ export default function UserManagement() {
                 aria-invalid={Boolean(fieldErrors.username)}
               />
               {fieldErrors.username && (
-                <p className="text-sm text-red-600 mt-1">{fieldErrors.username}</p>
+                <p className="text-sm text-red-600 mt-1">
+                  {fieldErrors.username}
+                </p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
               <input
                 type="email"
                 className="mt-1 w-full rounded-md border px-3 py-2"
@@ -498,7 +513,9 @@ export default function UserManagement() {
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Ho ten</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Ho ten
+              </label>
               <input
                 type="text"
                 className="mt-1 w-full rounded-md border px-3 py-2"
@@ -510,7 +527,9 @@ export default function UserManagement() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Vai tro</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Vai tro
+                </label>
                 <select
                   className="mt-1 w-full rounded-md border px-3 py-2"
                   value={formData.role}
@@ -523,7 +542,9 @@ export default function UserManagement() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Trang thai</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Trang thai
+                </label>
                 <select
                   className="mt-1 w-full rounded-md border px-3 py-2"
                   value={formData.isActive ? "true" : "false"}
@@ -540,7 +561,9 @@ export default function UserManagement() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Mat khau</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Mat khau
+              </label>
               <input
                 type="password"
                 className="mt-1 w-full rounded-md border px-3 py-2"
@@ -553,7 +576,9 @@ export default function UserManagement() {
                 aria-invalid={Boolean(fieldErrors.password)}
               />
               {fieldErrors.password && (
-                <p className="text-sm text-red-600 mt-1">{fieldErrors.password}</p>
+                <p className="text-sm text-red-600 mt-1">
+                  {fieldErrors.password}
+                </p>
               )}
             </div>
             <div className="flex justify-end gap-2 pt-2">
@@ -595,7 +620,9 @@ export default function UserManagement() {
                 readOnly
               />
               {fieldErrors.username && (
-                <p className="text-sm text-red-600 mt-1">{fieldErrors.username}</p>
+                <p className="text-sm text-red-600 mt-1">
+                  {fieldErrors.username}
+                </p>
               )}
             </div>
             <div>
@@ -681,7 +708,9 @@ export default function UserManagement() {
                 aria-invalid={Boolean(fieldErrors.password)}
               />
               {fieldErrors.password && (
-                <p className="text-sm text-red-600 mt-1">{fieldErrors.password}</p>
+                <p className="text-sm text-red-600 mt-1">
+                  {fieldErrors.password}
+                </p>
               )}
             </div>
 

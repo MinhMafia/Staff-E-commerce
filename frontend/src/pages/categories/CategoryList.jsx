@@ -24,6 +24,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { getCategories } from "../../api/categoryApi";
+import { useAuth } from "../../hook/useAuth";
 
 const CategoryList = () => {
   const dispatch = useDispatch();
@@ -44,6 +45,9 @@ const CategoryList = () => {
     active: 0,
     inactive: 0,
   });
+
+  const { user } = useAuth();
+  const isStaff = user?.role?.toLowerCase() === "staff";
 
   // Fetch stats (total, active, inactive) on mount
   useEffect(() => {
@@ -175,12 +179,14 @@ const CategoryList = () => {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Quản Lý Danh Mục</h1>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          + Thêm Danh Mục
-        </button>
+        {!isStaff && (
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            + Thêm Danh Mục
+          </button>
+        )}
       </div>
 
       {/* Statistics */}
@@ -371,26 +377,32 @@ const CategoryList = () => {
                         >
                           <Eye size={18} />
                         </button>
-                        <button
-                          onClick={() => handleEdit(category.id)}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
-                          title="Sửa"
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleToggleStatus(category.id)}
-                          className={`p-2 rounded-lg transition ${
-                            category.isActive
-                              ? "text-red-600 hover:bg-red-50"
-                              : "text-orange-600 hover:bg-orange-50"
-                          }`}
-                          title={
-                            category.isActive ? "Ngừng hoạt động" : "Kích hoạt"
-                          }
-                        >
-                          <Power size={18} />
-                        </button>
+                        {!isStaff && (
+                          <>
+                            <button
+                              onClick={() => handleEdit(category.id)}
+                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
+                              title="Sửa"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleToggleStatus(category.id)}
+                              className={`p-2 rounded-lg transition ${
+                                category.isActive
+                                  ? "text-red-600 hover:bg-red-50"
+                                  : "text-orange-600 hover:bg-orange-50"
+                              }`}
+                              title={
+                                category.isActive
+                                  ? "Ngừng hoạt động"
+                                  : "Kích hoạt"
+                              }
+                            >
+                              <Power size={18} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

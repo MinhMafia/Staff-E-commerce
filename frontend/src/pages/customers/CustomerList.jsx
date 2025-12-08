@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import ImportModal from "../../components/import/ImportModal";
 import { getCustomers } from "../../api/customerApi";
+import { useAuth } from "../../hook/useAuth";
 
 const CustomerList = () => {
   const dispatch = useDispatch();
@@ -36,6 +37,9 @@ const CustomerList = () => {
     pagination,
     filters,
   } = useSelector((state) => state.customers);
+
+  const { user } = useAuth();
+  const isStaff = user?.role?.toLowerCase() === "staff";
 
   const [localSearchTerm, setLocalSearchTerm] = useState("");
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
@@ -386,26 +390,32 @@ const CustomerList = () => {
                         >
                           <Eye size={18} />
                         </button>
-                        <button
-                          onClick={() => handleEdit(customer.id)}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
-                          title="Sửa"
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleToggleStatus(customer.id)}
-                          className={`p-2 rounded-lg transition ${
-                            customer.isActive
-                              ? "text-red-600 hover:bg-red-50"
-                              : "text-orange-600 hover:bg-orange-50"
-                          }`}
-                          title={
-                            customer.isActive ? "Ngừng hoạt động" : "Kích hoạt"
-                          }
-                        >
-                          <Power size={18} />
-                        </button>
+                        {!isStaff && (
+                          <>
+                            <button
+                              onClick={() => handleEdit(customer.id)}
+                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
+                              title="Sửa"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleToggleStatus(customer.id)}
+                              className={`p-2 rounded-lg transition ${
+                                customer.isActive
+                                  ? "text-red-600 hover:bg-red-50"
+                                  : "text-orange-600 hover:bg-orange-50"
+                              }`}
+                              title={
+                                customer.isActive
+                                  ? "Ngừng hoạt động"
+                                  : "Kích hoạt"
+                              }
+                            >
+                              <Power size={18} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>

@@ -1,12 +1,17 @@
-// src/pages/products/ProductList.jsx
+// Updated ProductList.jsx with role-based access control
 import React, { useEffect, useState, useCallback } from "react";
 import { getProductsPaginated, request } from "../../api/apiClient";
 import { formatPrice } from "../../utils/formatPrice";
 import ProductModal from "../../components/products/ProductModal";
 import ImportModal from "../../components/import/ImportModal";
 import { getAllCategories } from "../../api/categoryApi";
+import { useAuth } from "../../hook/useAuth";
 
 export default function ProductList() {
+  // Get current user and role
+  const { user } = useAuth();
+  const isStaff = user?.role?.toLowerCase() === "staff";
+
   // --- state
   const [items, setItems] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -180,6 +185,14 @@ export default function ProductList() {
 
   // --- Xóa (sử dụng debouncedSearch để refresh consistent)
   const handleDelete = async (id, isActive) => {
+    if (isStaff) {
+      setNotification({
+        type: "error",
+        message: "Bạn không có quyền thực hiện thao tác này",
+      });
+      return;
+    }
+
     if (
       !window.confirm(
         `Bạn có chắc chắn muốn ${
@@ -211,6 +224,14 @@ export default function ProductList() {
 
   // --- Lưu (create / edit)
   const handleSave = async (productData, mode) => {
+    if (isStaff) {
+      setNotification({
+        type: "error",
+        message: "Bạn không có quyền thực hiện thao tác này",
+      });
+      return;
+    }
+
     setSaving(true);
     setNotification(null);
     try {
@@ -291,7 +312,7 @@ export default function ProductList() {
 
           <div className="flex items-center gap-3">
             <input
-              type="  "
+              type="text"
               placeholder="Tìm kiếm sản phẩm..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -306,18 +327,22 @@ export default function ProductList() {
             >
               Tìm kiếm
             </button>
-            <button
-              className="px-3 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700"
-              onClick={() => setImportModalOpen(true)}
-            >
-              Import
-            </button>
-            <button
-              className="px-3 py-2 rounded-md bg-green-500 text-white hover:bg-green-700"
-              onClick={() => openModal("create")}
-            >
-              Thêm sản phẩm
-            </button>
+            {!isStaff && (
+              <>
+                <button
+                  className="px-3 py-2 rounded-md bg-blue-500 text-white hover:bg-blue-700"
+                  onClick={() => setImportModalOpen(true)}
+                >
+                  Import
+                </button>
+                <button
+                  className="px-3 py-2 rounded-md bg-green-500 text-white hover:bg-green-700"
+                  onClick={() => openModal("create")}
+                >
+                  Thêm sản phẩm
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -476,9 +501,6 @@ export default function ProductList() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                   Id
                 </th>
-                {/* <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
-                    SKU
-                  </th> */}
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                   Tên
                 </th>
@@ -531,9 +553,6 @@ export default function ProductList() {
                     <td className="px-4 py-3 text-sm text-gray-700">
                       {(meta.currentPage - 1) * meta.pageSize + idx + 1}
                     </td>
-                    {/* <td className="px-4 py-3 text-sm text-gray-700">
-                        {p.sku ?? p.barcode}
-                      </td> */}
                     <td className="px-4 py-3 text-sm text-gray-800">
                       {getName(p)}
                     </td>
@@ -567,22 +586,26 @@ export default function ProductList() {
                         >
                           Chi tiết
                         </button>
-                        <button
-                          onClick={() => openModal("edit", p)}
-                          className="px-2 py-1 bg-yellow-100 rounded text-yellow-800 hover:bg-yellow-200"
-                        >
-                          Sửa
-                        </button>
-                        <button
-                          onClick={() => handleDelete(p.id, p.isActive)}
-                          className={`px-2 py-1  rounded ${
-                            p.isActive
-                              ? "bg-red-100 text-red-800 hover:bg-red-200"
-                              : "text-green-800 bg-green-100 hover:bg-green-200"
-                          } `}
-                        >
-                          {p.isActive ? "Vô hiệu" : "Kích hoạt"}
-                        </button>
+                        {!isStaff && (
+                          <>
+                            <button
+                              onClick={() => openModal("edit", p)}
+                              className="px-2 py-1 bg-yellow-100 rounded text-yellow-800 hover:bg-yellow-200"
+                            >
+                              Sửa
+                            </button>
+                            <button
+                              onClick={() => handleDelete(p.id, p.isActive)}
+                              className={`px-2 py-1  rounded ${
+                                p.isActive
+                                  ? "bg-red-100 text-red-800 hover:bg-red-200"
+                                  : "text-green-800 bg-green-100 hover:bg-green-200"
+                              } `}
+                            >
+                              {p.isActive ? "Vô hiệu" : "Kích hoạt"}
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -646,12 +669,12 @@ export default function ProductList() {
       {/* Universal Modal */}
       {modalState.open && (
         <ProductModal
-          mode={modalState.mode}
+          mode={isStaff ? "view" : modalState.mode}
           product={modalState.product}
           onSave={handleSave}
           onCancel={closeModal}
           onDelete={() => {
-            if (modalState.product?.id) {
+            if (modalState.product?.id && !isStaff) {
               handleDelete(modalState.product.id);
               closeModal();
             }
@@ -664,19 +687,21 @@ export default function ProductList() {
       )}
 
       {/* Import Modal */}
-      <ImportModal
-        isOpen={importModalOpen}
-        onClose={() => setImportModalOpen(false)}
-        onSuccess={() => {
-          // Refresh product list after successful import
-          fetchProducts(page, pageSize, debouncedSearch);
-          setNotification({
-            type: "success",
-            message: "Import sản phẩm thành công",
-          });
-        }}
-        type="products"
-      />
+      {!isStaff && (
+        <ImportModal
+          isOpen={importModalOpen}
+          onClose={() => setImportModalOpen(false)}
+          onSuccess={() => {
+            // Refresh product list after successful import
+            fetchProducts(page, pageSize, debouncedSearch);
+            setNotification({
+              type: "success",
+              message: "Import sản phẩm thành công",
+            });
+          }}
+          type="products"
+        />
+      )}
     </div>
   );
 }

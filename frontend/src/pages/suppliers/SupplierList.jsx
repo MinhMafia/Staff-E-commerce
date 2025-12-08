@@ -1,3 +1,4 @@
+// Updated SupplierList.jsx with role-based access control
 import React, { useState, useEffect } from "react";
 import {
   getAllSuppliers,
@@ -6,8 +7,13 @@ import {
   deleteSupplier,
 } from "../../api/supplierApi";
 import SupplierModal from "../../components/suppliers/SupplierModel";
+import { useAuth } from "../../hook/useAuth";
 
 export default function SupplierList() {
+  // Get current user and role
+  const { user } = useAuth();
+  const isStaff = user?.role?.toLowerCase() === "staff";
+
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -55,6 +61,10 @@ export default function SupplierList() {
 
   // Handlers
   const handleCreate = () => {
+    if (isStaff) {
+      alert("Bạn không có quyền thêm mới nhà cung cấp");
+      return;
+    }
     setSelectedSupplier(null);
     setModalMode("create");
     setShowModal(true);
@@ -67,12 +77,21 @@ export default function SupplierList() {
   };
 
   const handleEdit = (supplier) => {
+    if (isStaff) {
+      alert("Bạn không có quyền chỉnh sửa");
+      return;
+    }
     setSelectedSupplier(supplier);
     setModalMode("edit");
     setShowModal(true);
   };
 
   const handleSave = async (formData) => {
+    if (isStaff) {
+      alert("Bạn không có quyền thực hiện thao tác này");
+      return;
+    }
+
     try {
       setSaving(true);
       if (modalMode === "create") {
@@ -90,6 +109,11 @@ export default function SupplierList() {
   };
 
   const handleDelete = async () => {
+    if (isStaff) {
+      alert("Bạn không có quyền xóa nhà cung cấp");
+      return;
+    }
+
     if (!selectedSupplier) return;
     if (
       !confirm(`Bạn có chắc muốn xóa nhà cung cấp "${selectedSupplier.name}"?`)
@@ -260,24 +284,28 @@ export default function SupplierList() {
               Ngừng ({stats.inactive})
             </button>
 
-            <div className="w-px h-8 bg-gray-200 mx-1" />
+            {!isStaff && (
+              <>
+                <div className="w-px h-8 bg-gray-200 mx-1" />
 
-            <button
-              onClick={handleCreate}
-              className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium flex items-center gap-2"
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              Thêm mới
-            </button>
+                <button
+                  onClick={handleCreate}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors text-sm font-medium flex items-center gap-2"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  Thêm mới
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -428,23 +456,25 @@ export default function SupplierList() {
                             <circle cx="12" cy="12" r="3" />
                           </svg>
                         </button>
-                        <button
-                          onClick={() => handleEdit(supplier)}
-                          className="p-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors"
-                          title="Chỉnh sửa"
-                        >
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
+                        {!isStaff && (
+                          <button
+                            onClick={() => handleEdit(supplier)}
+                            className="p-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors"
+                            title="Chỉnh sửa"
                           >
-                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                          </svg>
-                        </button>
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                            >
+                              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                            </svg>
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -469,7 +499,7 @@ export default function SupplierList() {
       {/* Modal */}
       {showModal && (
         <SupplierModal
-          mode={modalMode}
+          mode={isStaff ? "view" : modalMode}
           supplier={selectedSupplier}
           onSave={handleSave}
           onCancel={() => setShowModal(false)}
