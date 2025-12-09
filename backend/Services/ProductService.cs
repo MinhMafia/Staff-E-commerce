@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using backend.Models;
 using backend.Repository;
 using backend.DTO;
+using backend.Services.AI.SemanticSearch;
 
 namespace backend.Services
 {
@@ -13,13 +14,21 @@ namespace backend.Services
         private readonly ProductRepository _productRepository;
         private readonly CategoryRepository _categoryRepository;
         private readonly SupplierRepository _supplierRepository;
+        private readonly IProductIndexingService? _indexingService;
+        private readonly ILogger<ProductService>? _logger;
 
-        public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository, SupplierRepository supplierRepository)
+        public ProductService(
+            ProductRepository productRepository,
+            CategoryRepository categoryRepository,
+            SupplierRepository supplierRepository,
+            IProductIndexingService? indexingService = null,
+            ILogger<ProductService>? logger = null)
         {
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _supplierRepository = supplierRepository;
-
+            _indexingService = indexingService;
+            _logger = logger;
         }
 
 
@@ -63,22 +72,14 @@ namespace backend.Services
             var validator = await ValidateProductAsync(product, imageFile, mode: "create");
             if (validator.HasErrors) throw validator;
 
-            // if (string.IsNullOrWhiteSpace(product.ProductName))
-            // throw new ArgumentException("Product name is required", nameof(product.ProductName));
-
-            // if (product.Price <= 0)
-            // throw new ArgumentException("Product price must be greater than 0", nameof(product.Price));
-
-            // if ((product?.Inventory.Quantity ?? 0) == 0)
-            // {
-            //     product.IsActive = false;
-            // }
-
             // set timestamps (repository may override)
             product.CreatedAt = DateTime.UtcNow;
             product.UpdatedAt = DateTime.UtcNow;
 
             var created = await _productRepository.CreateAsync(product);
+
+            // Index to Qdrant for semantic search (fire-and-forget)
+            _ = IndexProductToQdrantAsync(created);
 
             return MapToProductDto(created);
         }
@@ -98,13 +99,40 @@ namespace backend.Services
 
             var updated = await _productRepository.UpdateAsync(product);
 
+            // Re-index to Qdrant for semantic search (fire-and-forget)
+            _ = IndexProductToQdrantAsync(updated);
+
             return MapToProductDto(updated);
         }
 
         public async Task<bool> DeleteProductAsync(int id)
         {
             if (id <= 0) throw new ArgumentException("Product ID must be greater than 0", nameof(id));
-            return await _productRepository.DeleteAsync(id);
+            var result = await _productRepository.DeleteAsync(id);
+
+            // Update Qdrant index (product deactivated, re-index with is_active=false)
+            if (result)
+            {
+                var product = await _productRepository.GetByIdAsync(id);
+                if (product != null)
+                    _ = IndexProductToQdrantAsync(product);
+            }
+
+            return result;
+        }
+
+        private async Task IndexProductToQdrantAsync(Product product)
+        {
+            if (_indexingService == null) return;
+
+            try
+            {
+                await _indexingService.IndexProductAsync(product);
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogWarning(ex, "Failed to index product {ProductId} to Qdrant", product.Id);
+            }
         }
 
 

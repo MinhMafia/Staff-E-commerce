@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using backend.Services.AI;
+using backend.Services.AI.Shared;
 using backend.DTO;
 using System.Security.Claims;
 
@@ -57,12 +58,12 @@ namespace backend.Controllers
                 });
             }
 
-            if (request.Message.Length > 4000)
+            if (request.Message.Length > AiConstants.MaxMessageLength)
             {
                 return BadRequest(new AiChatResponseDTO
                 {
                     Success = false,
-                    Error = "Tin nhắn quá dài (tối đa 4000 ký tự)"
+                    Error = $"Tin nhắn quá dài (tối đa {AiConstants.MaxMessageLength} ký tự)"
                 });
             }
 
@@ -119,9 +120,9 @@ namespace backend.Controllers
                 return;
             }
 
-            if (request.Message.Length > 4000)
+            if (request.Message.Length > AiConstants.MaxMessageLength)
             {
-                await SendStreamError("Tin nhắn quá dài (tối đa 4000 ký tự)");
+                await SendStreamError($"Tin nhắn quá dài (tối đa {AiConstants.MaxMessageLength} ký tự)");
                 return;
             }
 

@@ -82,6 +82,7 @@ Bạn cần hỗ trợ gì?`,
         } catch (err) {
           console.warn("Could not load saved conversation:", err);
           localStorage.removeItem("ai_chat_conversation_id");
+          setConversationId(null);
         }
       }
       setMessages([welcomeMessage]);

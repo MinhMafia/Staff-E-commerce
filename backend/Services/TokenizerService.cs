@@ -1,6 +1,6 @@
 using Microsoft.ML.Tokenizers;
 using System.Collections.Concurrent;
-using backend.Services.AI;
+using backend.Services.AI.Shared;
 
 namespace backend.Services
 {

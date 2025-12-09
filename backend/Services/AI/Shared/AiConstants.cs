@@ -1,4 +1,4 @@
-namespace backend.Services.AI
+namespace backend.Services.AI.Shared
 {
     public static class AiConstants
     {
@@ -21,29 +21,41 @@ namespace backend.Services.AI
 
         #region Rate Limiting
 
-        public const int RateLimitRequestsPerMinute = 30;
+        public const int RateLimitRequestsPerMinute = 100;
         public const int RateLimitCleanupIntervalMinutes = 5;
         public const int RateLimitEntryExpirationMinutes = 10;
 
         #endregion
 
-        #region Retry & Timeout
+        #region Retry & Timeout (Reserved for future use)
 
-        public const int MaxRetryAttempts = 3;
-        public const int ToolTimeoutSeconds = 30;
+        // TODO: Implement retry logic using these constants
+        // public const int MaxRetryAttempts = 3;
+        // public const int ToolTimeoutSeconds = 30;
 
         #endregion
 
         #region Cache
 
-        public const int ToolCacheDurationSeconds = 60;
+        // TODO: Implement tool result caching
+        // public const int ToolCacheDurationSeconds = 60;
         public const int TokenCacheMaxSize = 2000;
 
         #endregion
 
         #region Function Tools
 
-        public const int EstimatedFunctionCount = 9;
+        public const int EstimatedFunctionCount = 10;
+
+        #endregion
+
+        #region Vector Store
+
+        public const string ProductCollectionName = "products";
+        
+        // TODO: Use these for search filtering
+        // public const int DefaultSearchLimit = 20;
+        // public const float MinSearchScore = 0.5f;
 
         #endregion
     }

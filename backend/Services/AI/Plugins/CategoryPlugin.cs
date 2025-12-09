@@ -4,9 +4,6 @@ using backend.Services;
 
 namespace backend.Services.AI.Plugins
 {
-    /// <summary>
-    /// Plugin cho các thao tác liên quan đến danh mục
-    /// </summary>
     public class CategoryPlugin
     {
         private readonly IServiceProvider _serviceProvider;
