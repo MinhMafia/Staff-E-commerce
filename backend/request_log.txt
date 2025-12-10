@@ -252,3 +252,12 @@
 2025-12-03 02:41:58 | User:admin | Action:UPDATE_Me | Entity:Me#change-password | IP:::1 | Payload:{"currentPassword":"admin123","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}
 2025-12-03 02:42:12 | User:admin | Action:UPDATE_Me | Entity:Me#change-password | IP:::1 | Payload:{"currentPassword":"mansocho123","newPassword":"123123","confirmNewPassword":"123123"}
 2025-12-03 02:42:27 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-12-10 00:32:45 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-12-10 00:33:13 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-12-10 00:36:26 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-12-10 00:36:29 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-12-10 00:36:32 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-12-10 00:38:41 | User:anonymous | Action:CREATE_Auth | Entity:Auth#login | IP:::1 | Payload:{"username":"admin","password":"[REDACTED]"}
+2025-12-10 00:39:31 | User:admin | Action:UPDATE_Me | Entity:Me#change-password | IP:::1 | Payload:{"currentPassword":"admin123","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}
+2025-12-10 00:45:05 | User:admin | Action:UPDATE_Me | Entity:Me#change-password | IP:::1 | Payload:{"currentPassword":"mansocho1234","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}
+2025-12-10 00:45:44 | User:admin | Action:UPDATE_Me | Entity:Me#change-password | IP:::1 | Payload:{"currentPassword":"mansocho1234","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}

@@ -44,6 +44,9 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [passwordSaving, setPasswordSaving] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [alert, setAlert] = useState(null);
 
@@ -217,8 +220,12 @@ export default function ProfilePage() {
               <button
                 type="button"
                 className="text-sm text-indigo-600 hover:text-indigo-700"
-                onClick={() => {
+              onClick={() => {
                   setPasswordAlert(null);
+                  setPasswordForm(emptyPassword);
+                  setShowCurrentPassword(false);
+                  setShowNewPassword(false);
+                  setShowConfirmPassword(false);
                   setShowPasswordModal(true);
                 }}
               >
@@ -242,6 +249,10 @@ export default function ProfilePage() {
           onClose={() => {
             setShowPasswordModal(false);
             setPasswordAlert(null);
+            setPasswordForm(emptyPassword);
+            setShowCurrentPassword(false);
+            setShowNewPassword(false);
+            setShowConfirmPassword(false);
           }}
         >
           <form className="space-y-4" onSubmit={handlePasswordSubmit}>
@@ -260,58 +271,79 @@ export default function ProfilePage() {
               <label className="block text-sm font-medium text-gray-700">
                 Mật khẩu hiện tại
               </label>
-              <input
-                type="password"
-                name="currentPassword"
-                className="mt-1 w-full rounded-md border px-3 py-2"
-                value={passwordForm.currentPassword}
-                onChange={(e) =>
-                  setPasswordForm((prev) => ({
-                    ...prev,
-                    currentPassword: e.target.value,
-                  }))
-                }
-                required
-                minLength={6}
-              />
+              <div className="relative">
+                <input
+                  type={showCurrentPassword ? "text" : "password"}
+                  name="currentPassword"
+                  className="mt-1 w-full rounded-md border px-3 py-2 pr-10"
+                  value={passwordForm.currentPassword}
+                  onChange={(e) =>
+                    setPasswordForm((prev) => ({
+                      ...prev,
+                      currentPassword: e.target.value,
+                    }))
+                  }
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowCurrentPassword((s) => !s)}
+                  aria-label={showCurrentPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                >
+                  {showCurrentPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Mật khẩu mới
               </label>
-              <input
-                type="password"
-                name="newPassword"
-                className="mt-1 w-full rounded-md border px-3 py-2"
-                value={passwordForm.newPassword}
-                onChange={(e) =>
-                  setPasswordForm((prev) => ({
-                    ...prev,
-                    newPassword: e.target.value,
-                  }))
-                }
-                required
-                minLength={6}
-              />
+              <div className="relative">
+                <input
+                  type={showNewPassword ? "text" : "password"}
+                  name="newPassword"
+                  className="mt-1 w-full rounded-md border px-3 py-2 pr-10"
+                  value={passwordForm.newPassword}
+                  onChange={(e) =>
+                    setPasswordForm((prev) => ({
+                      ...prev,
+                      newPassword: e.target.value,
+                    }))
+                  }
+                  required
+                  minLength={6}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowNewPassword((s) => !s)}
+                  aria-label={showNewPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                >
+                  {showNewPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Xác nhận mật khẩu mới
               </label>
-              <input
+                <input
                 type="password"
-                name="confirmNewPassword"
+                  name="confirmNewPassword"
                 className="mt-1 w-full rounded-md border px-3 py-2"
-                value={passwordForm.confirmNewPassword}
-                onChange={(e) =>
-                  setPasswordForm((prev) => ({
-                    ...prev,
-                    confirmNewPassword: e.target.value,
-                  }))
-                }
-                required
-                minLength={6}
-              />
+                  value={passwordForm.confirmNewPassword}
+                  onChange={(e) =>
+                    setPasswordForm((prev) => ({
+                      ...prev,
+                      confirmNewPassword: e.target.value,
+                    }))
+                  }
+                  required
+                  minLength={6}
+                />
+
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button

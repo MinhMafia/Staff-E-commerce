@@ -108,3 +108,12 @@
 [2025-12-03 02:41:58] [User:1] [Action:UPDATE_Me] [Entity:Me#change-password] [IP:::1] {"currentPassword":"admin123","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}
 [2025-12-03 02:42:12] [User:1] [Action:UPDATE_Me] [Entity:Me#change-password] [IP:::1] {"currentPassword":"mansocho123","newPassword":"123123","confirmNewPassword":"123123"}
 [2025-12-03 02:42:27] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 00:32:45] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 00:33:13] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 00:36:26] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 00:36:29] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 00:36:32] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 00:38:41] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 00:39:31] [User:1] [Action:UPDATE_Me] [Entity:Me#change-password] [IP:::1] {"currentPassword":"admin123","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}
+[2025-12-10 00:45:05] [User:1] [Action:UPDATE_Me] [Entity:Me#change-password] [IP:::1] {"currentPassword":"mansocho1234","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}
+[2025-12-10 00:45:44] [User:1] [Action:UPDATE_Me] [Entity:Me#change-password] [IP:::1] {"currentPassword":"mansocho1234","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}
