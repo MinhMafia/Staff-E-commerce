@@ -95,7 +95,7 @@ namespace backend.Controllers
                 return NotFound("User not found.");
 
             if (result == UserService.ChangePasswordResult.InvalidCurrentPassword)
-                return BadRequest("Current password is incorrect.");
+                return BadRequest("Mật khẩu hiện tại sai.");
 
             return NoContent();
         }

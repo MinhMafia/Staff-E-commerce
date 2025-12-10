@@ -50,6 +50,8 @@ export default function UserManagement() {
   const [error, setError] = useState("");
   const [alert, setAlert] = useState(null);
   const [fieldErrors, setFieldErrors] = useState({});
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [showEditPassword, setShowEditPassword] = useState(false);
 
   const [detailUser, setDetailUser] = useState(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -103,6 +105,7 @@ export default function UserManagement() {
     setFormData(emptyForm);
     setSaving(false);
     setFieldErrors({});
+    setShowEditPassword(false);
   }
 
   function openCreateModal() {
@@ -110,6 +113,7 @@ export default function UserManagement() {
     setCreateModalOpen(true);
     setAlert(null);
     setFieldErrors({});
+    setShowCreatePassword(false);
   }
 
   function closeCreateModal() {
@@ -117,6 +121,7 @@ export default function UserManagement() {
     setFormData(emptyForm);
     setSaving(false);
     setFieldErrors({});
+    setShowCreatePassword(false);
   }
 
   async function handleCreateSubmit(e) {
@@ -561,20 +566,28 @@ export default function UserManagement() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Mat khau
-              </label>
-              <input
-                type="password"
-                className="mt-1 w-full rounded-md border px-3 py-2"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, password: e.target.value }))
-                }
-                minLength={6}
-                required
-                aria-invalid={Boolean(fieldErrors.password)}
-              />
+              <label className="block text-sm font-medium text-gray-700">Mat khau</label>
+              <div className="relative">
+                <input
+                  type={showCreatePassword ? "text" : "password"}
+                  className="mt-1 w-full rounded-md border px-3 py-2 pr-10"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, password: e.target.value }))
+                  }
+                  minLength={6}
+                  required
+                  aria-invalid={Boolean(fieldErrors.password)}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowCreatePassword((s) => !s)}
+                  aria-label={showCreatePassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                >
+                  {showCreatePassword ? "🙈" : "👁️"}
+                </button>
+              </div>
               {fieldErrors.password && (
                 <p className="text-sm text-red-600 mt-1">
                   {fieldErrors.password}
@@ -696,17 +709,27 @@ export default function UserManagement() {
               <label className="block text-sm font-medium text-gray-700">
                 Đặt lại mật khẩu (tùy chọn)
               </label>
-              <input
-                type="password"
-                className="mt-1 w-full rounded-md border px-3 py-2"
-                value={formData.password}
-                placeholder="Để trống nếu không đổi"
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, password: e.target.value }))
-                }
-                minLength={6}
-                aria-invalid={Boolean(fieldErrors.password)}
-              />
+              <div className="relative">
+                <input
+                  type={showEditPassword ? "text" : "password"}
+                  className="mt-1 w-full rounded-md border px-3 py-2 pr-10"
+                  value={formData.password}
+                  placeholder="Để trống nếu không đổi"
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, password: e.target.value }))
+                  }
+                  minLength={6}
+                  aria-invalid={Boolean(fieldErrors.password)}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowEditPassword((s) => !s)}
+                  aria-label={showEditPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                >
+                  {showEditPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
               {fieldErrors.password && (
                 <p className="text-sm text-red-600 mt-1">
                   {fieldErrors.password}
