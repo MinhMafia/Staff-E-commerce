@@ -26,7 +26,7 @@ namespace backend.Controllers
             if (page < 1) page = 1;
             pageSize = Math.Clamp(pageSize, 1, 100);
 
-            var users = await _userService.GetPaginatedAsync(page, pageSize);
+            var users = await _userService.GetStaffPaginatedAsync(page, pageSize);
             return Ok(users);
         }
 
