@@ -3,10 +3,10 @@ import {
   getUsersPaginated,
   getUserById,
   updateUser,
-  deleteUser,
   createUser,
 } from "../../api/apiClient";
 import Pagination from "../../components/ui/Pagination";
+import { Eye, Edit2 } from "lucide-react";
 
 const emptyForm = {
   username: "",
@@ -61,8 +61,6 @@ export default function UserManagement() {
   const [formData, setFormData] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
 
-  const [deleteLoadingId, setDeleteLoadingId] = useState(null);
-
   useEffect(() => {
     fetchUsers();
   }, [page]);
@@ -72,7 +70,10 @@ export default function UserManagement() {
     setError("");
     try {
       const result = await getUsersPaginated(page, pageSize);
-      setUsers(result.items ?? []);
+      const filtered = (result.items ?? []).filter(
+        (u) => (u.role || "").toLowerCase() !== "admin"
+      );
+      setUsers(filtered);
       setMeta({
         currentPage: result.currentPage ?? page,
         totalPages:
@@ -265,35 +266,6 @@ export default function UserManagement() {
     setDetailLoading(false);
   }
 
-  async function handleDelete(user) {
-    const confirmed = window.confirm(
-      `Bạn có chắc chắn muốn xoá người dùng ${user.username}?`
-    );
-    if (!confirmed) return;
-
-    setDeleteLoadingId(user.id);
-    setAlert(null);
-    try {
-      await deleteUser(user.id);
-      setAlert({
-        type: "success",
-        message: `Đã xóa tài khoản ${user.username}.`,
-      });
-      if (users.length === 1 && page > 1) {
-        setPage(page - 1);
-      } else {
-        fetchUsers();
-      }
-    } catch (err) {
-      setAlert({
-        type: "error",
-        message: err.message || "Không thể xóa người dùng.",
-      });
-    } finally {
-      setDeleteLoadingId(null);
-    }
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -390,30 +362,19 @@ export default function UserManagement() {
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
                       <button
-                        className="text-xs px-2 py-1 border rounded hover:bg-gray-50"
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
                         onClick={() => handleViewDetail(user)}
+                        title="Xem chi tiết"
                       >
-                        Xem
+                        <Eye size={16} />
                       </button>
-                      {user.role !== "admin" && (
-                        <>
-                          <button
-                            className="text-xs px-2 py-1 border rounded hover:bg-gray-50"
-                            onClick={() => openEditModal(user)}
-                          >
-                            Sửa
-                          </button>
-                          <button
-                            className="text-xs px-2 py-1 border rounded text-red-600 hover:bg-red-50 disabled:opacity-50"
-                            disabled={deleteLoadingId === user.id}
-                            onClick={() => handleDelete(user)}
-                          >
-                            {deleteLoadingId === user.id
-                              ? "Đang xóa..."
-                              : "Xóa"}
-                          </button>
-                        </>
-                      )}
+                      <button
+                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
+                        onClick={() => openEditModal(user)}
+                        title="Sửa thông tin"
+                      >
+                        <Edit2 size={16} />
+                      </button>
                     </div>
                   </td>
                 </tr>

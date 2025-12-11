@@ -42,6 +42,22 @@ namespace backend.Services
             };
         }
 
+        public async Task<PaginationResult<UserDTO>> GetStaffPaginatedAsync(int page, int pageSize)
+        {
+            var result = await _userRepository.GetStaffPaginatedAsync(page, pageSize);
+
+            return new PaginationResult<UserDTO>
+            {
+                Items = result.Items.Select(MapToUserDto).ToList(),
+                TotalItems = result.TotalItems,
+                CurrentPage = result.CurrentPage,
+                PageSize = result.PageSize,
+                TotalPages = result.TotalPages,
+                HasPrevious = result.HasPrevious,
+                HasNext = result.HasNext
+            };
+        }
+
         public async Task<UserDTO?> GetUserByIdAsync(int id)
         {
             var user = await _userRepository.GetByIdAsync(id);
