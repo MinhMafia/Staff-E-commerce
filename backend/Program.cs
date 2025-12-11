@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authorization;
 using backend.Data;
 using backend.Repository;
 using backend.Services;
@@ -37,6 +38,13 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAuthorization(options =>
+{
+    // Yêu cầu đăng nhập cho tất cả endpoint trừ khi đánh dấu [AllowAnonymous]
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 // Memory Cache for AI Service
 builder.Services.AddMemoryCache();
@@ -177,7 +185,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 
-// CORS phải đặt TRƯỚC Authentication để xử lý preflight requests
 app.UseCors("AllowReact");
 
 // Xác thực JWT
@@ -186,7 +193,6 @@ app.UseAuthorization();
 
 // Middleware logging bây giờ sẽ đọc context.User chính xác
 app.UseMiddleware<RequestLoggingMiddleware>();
-
 app.UseHttpsRedirection();
 
 app.MapControllers();
