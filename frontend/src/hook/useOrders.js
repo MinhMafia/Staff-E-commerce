@@ -105,6 +105,37 @@ export const useOrders = () => {
     }
   };
 
+  async function cancelOrder(orderId) {
+      try {
+          const response = await fetch(`/api/orders/${orderId}/cancel`, {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json"
+              }
+          });
+
+          if (!response.ok) {
+              console.error("API trả về lỗi HTTP:", response.status);
+              alert("Không thể hủy đơn!");
+              return;
+          }
+
+          const result = await response.json(); // true / false
+
+          if (result === true) {
+              alert("Hủy đơn hàng thành công!");
+          } else {
+              alert("Không thể hủy đơn!");
+          }
+
+      } catch (error) {
+          console.error("Lỗi khi hủy đơn:", error);
+          alert("Có lỗi kết nối khi hủy đơn!");
+      }
+  }
+
+
+
   //Lưu đon hàng lên database
 
   async function createOrder(orderData) {
@@ -353,90 +384,6 @@ const click_buttonCreateNewOrder = async () => {
 
 
 
-
-
-
-
-
-
-
-
-
-// // In hóa đơn
-// const printOrder = (order, products, promotion, payment) => {
-//   // const printWindow = window.open('', '', 'width=800,height=600');
-//   // if (!printWindow) {
-//   //   alert("Trình duyệt chặn popup. Vui lòng cho phép popup để in phiếu.");
-//   //   return;
-//   // }
-//   // Mở TAB mới (không phải popup) → trình duyệt sẽ không chặn
-//   const printWindow = window.open('', '_blank');
-//   if (!printWindow) {
-//     alert("Trình duyệt đang chặn tab mới. Vui lòng cho phép.");
-//     return;
-//   }
-
-//   // Format số tiền
-//   const formatMoney = (value) => {
-//     return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
-//   };
-
-//   // HTML với CSS
-//   let html = `
-//     <html>
-//       <head>
-//         <title>Phiếu Đơn Hàng #${order.orderNumber}</title>
-//         <style>
-//           body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
-//           h2 { text-align: center; color: #4CAF50; }
-//           p { margin: 5px 0; }
-//           table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-//           th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-//           th { background-color: #f2f2f2; }
-//           tr:nth-child(even) { background-color: #f9f9f9; }
-//           tr:hover { background-color: #f1f1f1; }
-//           .total { font-weight: bold; font-size: 1.1em; }
-//           .promotion { color: #d32f2f; font-weight: bold; }
-//           .payment { margin-top: 10px; font-weight: bold; }
-//           .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: #666; }
-//         </style>
-//       </head>
-//       <body>
-//         <h2>Phiếu Đơn Hàng #${order.orderNumber}</h2>
-//         <p><strong>Khách hàng:</strong> ${order.customerName || "Khách lẻ"}</p>
-//         <p><strong>Ngày tạo:</strong> ${new Date().toLocaleString()}</p>
-
-//         <table>
-//           <tr>
-//             <th>Sản phẩm</th>
-//             <th>Số lượng</th>
-//             <th>Đơn giá</th>
-//             <th>Thành tiền</th>
-//           </tr>
-//   `;
-
-//   products.forEach(p => {
-//     html += `
-//       <tr>
-//         <td>${p.product}</td>
-//         <td>${p.qty}</td>
-//         <td>${formatMoney(p.price)}</td>
-//         <td>${formatMoney(p.total)}</td>
-//       </tr>
-//     `;
-//   });
-
-//   html += `</table>`;
-//   html += `<p class="total">Tổng tiền: ${formatMoney(order.total_amount)}</p>`;
-//   if (promotion?.code) html += `<p class="promotion">Khuyến mãi: ${promotion.code} - Giảm ${formatMoney(promotion.value)}</p>`;
-//   html += `<p class="payment">Thanh toán: ${payment.method}</p>`;
-//   html += `<div class="footer">Cảm ơn quý khách! Hẹn gặp lại.</div>`;
-
-//   printWindow.document.write(html);
-//   printWindow.document.close();
-//   printWindow.focus();
-//   printWindow.print();
-// };
 
 // ================== IN HÓA ĐƠN BẰNG IFRAME - KHÔNG BAO GIỜ BỊ CHẶN ==================
 const printOrder = (order, products, promotion, payment) => {
@@ -826,7 +773,8 @@ return {
   loadOrderItemsByOrderId,
   getPromotionById,
   getPaymentByOrder,
-  showOrder
+  showOrder,
+  cancelOrder
 
 };
 

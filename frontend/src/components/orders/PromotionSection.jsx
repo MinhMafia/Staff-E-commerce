@@ -110,6 +110,7 @@ export default function PromotionSection({ isCreateMode, promotion, setPromotion
                 />
               </label>
             ))
+            
           : promotion && (
               <label className="flex items-center justify-between p-4 border rounded-lg cursor-pointer bg-gray-100">
                 <div>

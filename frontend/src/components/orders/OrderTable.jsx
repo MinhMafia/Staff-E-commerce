@@ -1,6 +1,7 @@
 
 
 export default function OrderTable(  {showOrder,listOrders,
+  cancelOrder,
   currentPage,
   totalPages,
   onPrev,
@@ -85,6 +86,14 @@ export default function OrderTable(  {showOrder,listOrders,
                         >
                           Xem
                         </button>
+                        {item.status === "pending" && (
+                          <button 
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700"
+                            onClick={() => cancelOrder(item.id)}
+                          >
+                            Hủy
+                          </button>
+                        )}
                       </td>
                     </tr>
                   );

@@ -54,148 +54,153 @@ namespace backend.Repository
         }
 
         /*Tìm kiếm kết hợp phân trang*/
-        // public async Task<(List<OrderDTO> Data, int TotalItems)> SearchPagingAsync(
-        //     int pageNumber,
-        //     int pageSize,
-        //     string? status,
-        //     DateTime? startDate,
-        //     DateTime? endDate,
-        //     string? search
-        // )
-        // {
-        //     var query = _context.Orders
-        //         .Include(o => o.Customer)
-        //         .Include(o => o.User)
-        //         .Include(o => o.Promotion)
-        //         .AsQueryable();
-
-        //     // 1) Lọc theo trạng thái
-        //     if (!string.IsNullOrEmpty(status))
-        //         query = query.Where(o => o.Status == status);
-
-        //     // 2) Lọc theo ngày tạo
-        //     if (startDate.HasValue)
-        //         query = query.Where(o => o.CreatedAt >= startDate.Value);
-
-        //     if (endDate.HasValue)
-        //         query = query.Where(o => o.CreatedAt <= endDate.Value);
-
-        //     // 3) Tìm theo tên khách / tên nhân viên
-        //     if (!string.IsNullOrEmpty(search))
-        //     {
-        //         string keyword = search.ToLower();
-        //         query = query.Where(o =>
-        //             (o.Customer != null && o.Customer.FullName.ToLower().Contains(keyword)) ||
-        //             (o.User != null && o.User.FullName.ToLower().Contains(keyword))
-        //         );
-        //     }
-
-        //     int totalItems = await query.CountAsync();
-
-        //     var data = await query
-        //         .OrderByDescending(o => o.CreatedAt)
-        //         .Skip((pageNumber - 1) * pageSize)
-        //         .Take(pageSize)
-        //         .Select(o => new OrderDTO
-        //         {
-        //             Id = o.Id,
-        //             OrderNumber = o.OrderNumber,
-        //             CustomerId = o.CustomerId,
-        //             UserId = o.UserId,
-        //             Status = o.Status,
-        //             Subtotal = o.Subtotal,
-        //             Discount = o.Discount,
-        //             TotalAmount = o.TotalAmount,
-        //             PromotionId = o.PromotionId,
-        //             Note = o.Note,
-        //             CreatedAt = o.CreatedAt,
-        //             UpdatedAt = o.UpdatedAt,
-
-        //             CustomerName = o.Customer != null ? o.Customer.FullName : null,
-        //             UserName = o.User != null ? o.User.FullName : null,
-        //             PromotionCode = o.Promotion != null ? o.Promotion.Code : null
-        //         })
-        //         .ToListAsync();
-
-        //     return (data, totalItems);
-        // }
 
         public async Task<(List<OrderDTO> Data, int TotalItems)> SearchPagingAsync(
-    int pageNumber,
-    int pageSize,
-    string? status,
-    DateTime? startDate,
-    DateTime? endDate,
-    string? search
-)
-{
-    var query = _context.Orders
-        .Include(o => o.Customer)
-        .Include(o => o.User)
-        .Include(o => o.Promotion)
-        .AsQueryable();
-
-    // === LỌC TRẠNG THÁI ===
-    if (!string.IsNullOrEmpty(status))
-        query = query.Where(o => o.Status == status);
-
-    // === LỌC TỪ NGÀY ===
-    if (startDate.HasValue)
-    {
-        var start = startDate.Value.Date; // 00:00:00
-        query = query.Where(o => o.CreatedAt >= start);
-    }
-
-    // === LỌC ĐẾN NGÀY ===
-    if (endDate.HasValue)
-    {
-        var end = endDate.Value.Date.AddDays(1).AddTicks(-1); // 23:59:59.9999999
-        query = query.Where(o => o.CreatedAt <= end);
-    }
-
-    // === TÌM KIẾM THEO TÊN ===
-    if (!string.IsNullOrEmpty(search))
-    {
-        string keyword = $"%{search}%";
-
-        query = query.Where(o =>
-            (o.Customer != null && EF.Functions.Like(o.Customer.FullName, keyword)) ||
-            (o.User != null && EF.Functions.Like(o.User.FullName, keyword))
-        );
-    }
-
-    // === ĐẾM TỔNG ===
-    int totalItems = await query.CountAsync();
-
-    // === TRẢ VỀ DATA THEO TRANG ===
-    var data = await query
-        .OrderByDescending(o => o.CreatedAt)
-        .ThenByDescending(o => o.Id)
-
-        .Skip((pageNumber - 1) * pageSize)
-        .Take(pageSize)
-        .Select(o => new OrderDTO
+            int pageNumber,
+            int pageSize,
+            string? status,
+            DateTime? startDate,
+            DateTime? endDate,
+            string? search
+        )
         {
-            Id = o.Id,
-            OrderNumber = o.OrderNumber,
-            CustomerId = o.CustomerId,
-            UserId = o.UserId,
-            Status = o.Status,
-            Subtotal = o.Subtotal,
-            Discount = o.Discount,
-            TotalAmount = o.TotalAmount,
-            PromotionId = o.PromotionId,
-            Note = o.Note,
-            CreatedAt = o.CreatedAt,
-            UpdatedAt = o.UpdatedAt,
-            CustomerName = o.Customer != null ? o.Customer.FullName : null,
-            UserName = o.User != null ? o.User.FullName : null,
-            PromotionCode = o.Promotion != null ? o.Promotion.Code : null
-        })
-        .ToListAsync();
+            var query = _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.User)
+                .Include(o => o.Promotion)
+                .AsQueryable();
 
-    return (data, totalItems);
-}
+            // === LỌC TRẠNG THÁI ===
+            if (!string.IsNullOrEmpty(status))
+                query = query.Where(o => o.Status == status);
+
+            // === LỌC TỪ NGÀY ===
+            if (startDate.HasValue)
+            {
+                var start = startDate.Value.Date; // 00:00:00
+                query = query.Where(o => o.CreatedAt >= start);
+            }
+
+            // === LỌC ĐẾN NGÀY ===
+            if (endDate.HasValue)
+            {
+                var end = endDate.Value.Date.AddDays(1).AddTicks(-1); // 23:59:59.9999999
+                query = query.Where(o => o.CreatedAt <= end);
+            }
+
+            // === TÌM KIẾM THEO TÊN ===
+            if (!string.IsNullOrEmpty(search))
+            {
+                string keyword = $"%{search}%";
+
+                query = query.Where(o =>
+                    (o.Customer != null && EF.Functions.Like(o.Customer.FullName, keyword)) ||
+                    (o.User != null && EF.Functions.Like(o.User.FullName, keyword))
+                );
+            }
+
+            // === ĐẾM TỔNG ===
+            int totalItems = await query.CountAsync();
+
+            // === TRẢ VỀ DATA THEO TRANG ===
+            var data = await query
+                .OrderByDescending(o => o.CreatedAt)
+                .ThenByDescending(o => o.Id)
+
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(o => new OrderDTO
+                {
+                    Id = o.Id,
+                    OrderNumber = o.OrderNumber,
+                    CustomerId = o.CustomerId,
+                    UserId = o.UserId,
+                    Status = o.Status,
+                    Subtotal = o.Subtotal,
+                    Discount = o.Discount,
+                    TotalAmount = o.TotalAmount,
+                    PromotionId = o.PromotionId,
+                    Note = o.Note,
+                    CreatedAt = o.CreatedAt,
+                    UpdatedAt = o.UpdatedAt,
+                    CustomerName = o.Customer != null ? o.Customer.FullName : null,
+                    UserName = o.User != null ? o.User.FullName : null,
+                    PromotionCode = o.Promotion != null ? o.Promotion.Code : null
+                })
+                .ToListAsync();
+
+            return (data, totalItems);
+        }
+
+
+        /// <summary>
+        /// Cập nhật user xử lý đơn hàng theo user_id bạn truyền vào.
+        /// </summary>
+        public async Task<bool> UpdateOrderUserAsync(int orderId, int? newUserId)
+        {
+            var order = await _context.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order == null)
+                return false;
+
+            order.UserId = newUserId;
+            order.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        // HỦY ĐƠN
+        public async Task<bool> CancelOrderAsync(int orderId)
+        {
+            // Lấy Order + Items + Payment (nếu cần) bằng Include
+            var order = await _context.Orders
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+
+            if (order == null)
+                return false;
+
+            if (!order.Status.Equals("pending", StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                var now = DateTime.UtcNow;
+
+                // Hủy đơn
+                order.Status = "cancelled";
+                order.UpdatedAt = now;
+
+                // Lấy danh sách productId cần update để giảm truy vấn
+                var productIds = order.OrderItems.Select(i => i.ProductId).ToList();
+
+                var inventories = await _context.Inventory
+                    .Where(i => productIds.Contains(i.ProductId))
+                    .ToListAsync();
+
+                // Update tồn kho
+                foreach (var item in order.OrderItems)
+                {
+                    var inv = inventories.FirstOrDefault(i => i.ProductId == item.ProductId);
+                    if (inv != null)
+                    {
+                        inv.Quantity += item.Quantity;
+                        inv.UpdatedAt = now;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
 
 
     }
