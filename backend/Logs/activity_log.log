@@ -119,3 +119,9 @@
 [2025-12-10 00:45:44] [User:1] [Action:UPDATE_Me] [Entity:Me#change-password] [IP:::1] {"currentPassword":"mansocho1234","newPassword":"mansocho123","confirmNewPassword":"mansocho123"}
 [2025-12-10 03:40:20] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
 [2025-12-10 03:40:25] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 06:04:50] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 06:04:53] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 19:22:14] [User:1] [Action:CREATE_Suppliers] [Entity:Suppliers#0] [IP:::1] {"name":"dsadssdas","phone":"0913885625","email":"jlkjl@gmail.com","address":"m\u00E1nocho123","isActive":true}
+[2025-12-10 19:51:22] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 19:55:36] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}
+[2025-12-10 19:56:22] [User:2] [Action:CREATE_Auth] [Entity:Auth#login] [IP:::1] {"username":"admin","password":"[REDACTED]"}

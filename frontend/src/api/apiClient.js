@@ -84,6 +84,7 @@ export function setRefreshToken(token) {
 /** ---------- core request helper ---------- */
 export async function request(path, options = {}) {
   const url = `${BASE_URL}${path}`;
+  const isLoginPath = path.toLowerCase().startsWith("/auth/login");
 
   // Build headers
   const defaultHeaders = {
@@ -124,16 +125,33 @@ export async function request(path, options = {}) {
 
     // Handle 401 explicitly (optionally attempt refresh)
     if (res.status === 401) {
+      let displayMessage = isLoginPath
+        ? "Sai tài khoản hoặc mật khẩu, vui lòng đăng nhập lại."
+        : "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại.";
+      try {
+        const errText = await res.text();
+        const parsed = errText ? JSON.parse(errText) : null;
+        if (parsed) {
+          if (typeof parsed === "string") {
+            displayMessage = parsed;
+          } else if (parsed.message) {
+            displayMessage = parsed.message;
+          }
+        }
+      } catch (_) {
+        // ignore parse errors, keep default message
+      }
+
       // call optional callback (e.g. redirect to login)
       if (typeof onUnauthorizedCallback === "function") {
         onUnauthorizedCallback();
       } else {
-        // default behaviour: clear token
-        clearAuthToken();
+        // default behaviour: clear token + local user info
+        logout();
       }
 
       // throw descriptive error
-      throw new Error("Unauthorized (401). Please login again.");
+      throw new Error(displayMessage);
     }
 
     if (!res.ok) {

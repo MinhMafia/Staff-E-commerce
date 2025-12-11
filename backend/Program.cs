@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Authorization;
 using backend.Data;
 using backend.Repository;
 using backend.Services;
@@ -32,6 +33,13 @@ builder.Services.AddControllers()
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAuthorization(options =>
+{
+    // Yêu cầu đăng nhập cho tất cả endpoint trừ khi đánh dấu [AllowAnonymous]
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 // Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -143,14 +151,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 
-// Xác thực JWT trước
+app.UseCors("AllowReact");
+
+// Xác thực JWT
 app.UseAuthentication();
 app.UseAuthorization();
 
 // Middleware logging bây giờ sẽ đọc context.User chính xác
 app.UseMiddleware<RequestLoggingMiddleware>();
-
-app.UseCors("AllowReact");
 app.UseHttpsRedirection();
 
 app.MapControllers();
