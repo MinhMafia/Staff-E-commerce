@@ -93,7 +93,10 @@ export default function PromotionList() {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "N/A";
-    return new Date(dateStr).toLocaleDateString("vi-VN");
+    const date = new Date(dateStr);
+    // Cộng 7 giờ để chuyển từ UTC sang giờ Việt Nam
+    date.setHours(date.getHours() + 7);
+    return date.toLocaleDateString("vi-VN");
   };
 
   const getStatusBadge = (promo) => {

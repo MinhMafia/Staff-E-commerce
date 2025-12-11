@@ -38,12 +38,16 @@ export default function PromotionDetail({ promotionId, onClose, onEdit }) {
   const formatDate = (dateStr) => {
     if (!dateStr) return "Không giới hạn";
     const date = new Date(dateStr);
+    // Cộng 7 giờ để chuyển từ UTC sang giờ Việt Nam
+    date.setHours(date.getHours() + 7);
     return date.toLocaleDateString("vi-VN", { day: '2-digit', month: '2-digit', year: 'numeric' });
   };
 
   const formatDateTime = (dateStr) => {
     if (!dateStr) return "N/A";
     const date = new Date(dateStr);
+    // Cộng 7 giờ để chuyển từ UTC sang giờ Việt Nam
+    date.setHours(date.getHours() + 7);
     return date.toLocaleString("vi-VN", { 
       day: '2-digit', 
       month: '2-digit', 

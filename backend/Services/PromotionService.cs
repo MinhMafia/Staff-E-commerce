@@ -108,8 +108,7 @@ namespace backend.Services
             }
 
             promotion.CreatedAt = existing.CreatedAt;
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            promotion.UpdatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
+            promotion.UpdatedAt = DateTime.UtcNow;
             var updated = await _promotionRepository.UpdateAsync(promotion);
             return MapToDTO(updated);
         }

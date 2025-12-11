@@ -4,7 +4,7 @@ import ReactMarkdown from "react-markdown";
 /**
  * Component hiển thị một message bubble trong chat
  */
-const MessageBubble = ({ msg, renderDataTable }) => {
+const MessageBubble = ({ msg }) => {
   let displayContent = msg.content || "";
 
   // Xóa marker [TOOL_COMPLETE]
@@ -61,7 +61,6 @@ const MessageBubble = ({ msg, renderDataTable }) => {
             ) : (
               <div className="whitespace-pre-wrap break-words">{msg.content}</div>
             )}
-            {msg.data && renderDataTable && renderDataTable(msg.data, msg.functionCalled)}
           </>
         )}
       </div>

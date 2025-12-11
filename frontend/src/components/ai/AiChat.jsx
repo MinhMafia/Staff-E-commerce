@@ -5,7 +5,6 @@ import { streamMessage, getConversations, getConversation, deleteConversation } 
 // Sub-components
 import MessageBubble from "./MessageBubble";
 import ConversationHistory from "./ConversationHistory";
-import DataTable from "./DataTable";
 
 // Constants
 const MAX_MESSAGE_LENGTH = 4000;
@@ -234,11 +233,6 @@ Bạn cần hỗ trợ gì?`,
       .map((m) => ({ role: m.role, content: m.content }));
   }, [messages]);
 
-  // Render data table callback
-  const renderDataTable = useCallback((data, functionCalled) => {
-    return <DataTable data={data} functionCalled={functionCalled} />;
-  }, []);
-
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -398,7 +392,7 @@ Bạn cần hỗ trợ gì?`,
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg) => (
-          <MessageBubble key={msg.id} msg={msg} renderDataTable={renderDataTable} />
+          <MessageBubble key={msg.id} msg={msg} />
         ))}
         <div ref={messagesEndRef} />
       </div>
