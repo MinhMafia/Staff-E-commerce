@@ -1,6 +1,7 @@
 using backend.Models;
 using backend.Repository;
 using backend.DTO;
+using backend.Helpers;
 
 namespace backend.Services
 {
@@ -108,7 +109,7 @@ namespace backend.Services
             }
 
             promotion.CreatedAt = existing.CreatedAt;
-            promotion.UpdatedAt = DateTime.UtcNow;
+            promotion.UpdatedAt = DateTimeHelper.UtcNow;
             var updated = await _promotionRepository.UpdateAsync(promotion);
             return MapToDTO(updated);
         }
@@ -156,8 +157,8 @@ namespace backend.Services
                 };
             }
 
-            var now = DateTime.UtcNow;
-            if (promotion.StartDate.HasValue && promotion.StartDate > now)
+            // Sử dụng DateTimeHelper để so sánh theo ngày VN
+            if (DateTimeHelper.IsScheduled(promotion.StartDate))
             {
                 return new ValidatePromotionResult
                 {
@@ -167,7 +168,7 @@ namespace backend.Services
                 };
             }
 
-            if (promotion.EndDate.HasValue && promotion.EndDate < now)
+            if (DateTimeHelper.IsExpired(promotion.EndDate))
             {
                 return new ValidatePromotionResult
                 {
@@ -291,17 +292,23 @@ namespace backend.Services
         public async Task<object> GetOverviewStatsAsync()
         {
             var allPromotions = await _promotionRepository.GetAllAsync();
-            var now = DateTime.UtcNow;
+            var vnToday = DateTimeHelper.VietnamToday;
 
             var total = allPromotions.Count;
-            var active = allPromotions.Count(p => p.Active && (!p.EndDate.HasValue || p.EndDate >= now));
-            var expired = allPromotions.Count(p => p.EndDate.HasValue && p.EndDate < now);
+            var active = allPromotions.Count(p => p.Active && 
+                (!p.StartDate.HasValue || p.StartDate.Value.Date <= vnToday) &&
+                (!p.EndDate.HasValue || p.EndDate.Value.Date >= vnToday) &&
+                (!p.UsageLimit.HasValue || p.UsedCount < p.UsageLimit));
+            var scheduled = allPromotions.Count(p => p.Active && 
+                p.StartDate.HasValue && p.StartDate.Value.Date > vnToday);
+            var expired = allPromotions.Count(p => p.EndDate.HasValue && p.EndDate.Value.Date < vnToday);
             var inactive = allPromotions.Count(p => !p.Active);
 
             return new
             {
                 total,
                 active,
+                scheduled,
                 expired,
                 inactive
             };

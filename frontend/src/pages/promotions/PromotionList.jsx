@@ -11,6 +11,7 @@ import PromotionCreate from "./PromotionCreate";
 import PromotionDetail from "./PromotionDetail";
 import PromotionEdit from "./PromotionEdit";
 import { useAuth } from "../../hook/useAuth";
+import { formatVietnam, getPromotionStatus } from "../../utils/dateTimeHelper";
 
 export default function PromotionList() {
   const [page, setPage] = useState(1);
@@ -92,42 +93,23 @@ export default function PromotionList() {
   }, [stats]);
 
   const formatDate = (dateStr) => {
-    if (!dateStr) return "N/A";
-    const date = new Date(dateStr);
-    // Cộng 7 giờ để chuyển từ UTC sang giờ Việt Nam
-    date.setHours(date.getHours() + 7);
-    return date.toLocaleDateString("vi-VN");
+    return formatVietnam(dateStr);
   };
 
   const getStatusBadge = (promo) => {
-    const now = new Date();
-    if (!promo.active)
-      return (
-        <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-          Không hoạt động
-        </span>
-      );
-    if (promo.endDate && new Date(promo.endDate) < now)
-      return (
-        <span className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-          Hết hạn
-        </span>
-      );
-    if (promo.startDate && new Date(promo.startDate) > now)
-      return (
-        <span className="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-          Chưa bắt đầu
-        </span>
-      );
-    if (promo.usageLimit && promo.usedCount >= promo.usageLimit)
-      return (
-        <span className="px-3 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-          Hết lượt
-        </span>
-      );
+    const { label, color } = getPromotionStatus(promo);
+    
+    const colorClasses = {
+      gray: "bg-gray-100 text-gray-800",
+      red: "bg-red-100 text-red-800",
+      yellow: "bg-yellow-100 text-yellow-800",
+      orange: "bg-orange-100 text-orange-800",
+      green: "bg-green-100 text-green-800",
+    };
+    
     return (
-      <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-        Đang hoạt động
+      <span className={`px-3 py-1 rounded-full text-xs font-medium ${colorClasses[color]}`}>
+        {label}
       </span>
     );
   };
@@ -136,14 +118,12 @@ export default function PromotionList() {
   const filteredItems = items;
 
   const StatCard = ({ icon, label, value, color }) => (
-    <div className="w-full md:w-1/2 lg:w-1/4 px-3 mb-6">
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow h-full">
-        <div className="flex items-center">
-          <div className={`shrink-0 ${color} rounded-lg p-3`}>{icon}</div>
-          <div className="ml-4">
-            <p className="text-sm font-medium text-gray-600">{label}</p>
-            <p className="text-2xl font-semibold text-gray-900">{value}</p>
-          </div>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow h-full">
+      <div className="flex items-center">
+        <div className={`shrink-0 ${color} rounded-lg p-2`}>{icon}</div>
+        <div className="ml-3">
+          <p className="text-xs font-medium text-gray-600">{label}</p>
+          <p className="text-xl font-semibold text-gray-900">{value}</p>
         </div>
       </div>
     </div>
@@ -187,87 +167,117 @@ export default function PromotionList() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Statistics */}
-        <div className="flex flex-wrap -mx-3 mb-8">
-          <StatCard
-            icon={
-              <svg
-                className="w-6 h-6 text-blue-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                />
-              </svg>
-            }
-            label="Tổng số"
-            value={statsLocal?.total ?? stats?.total ?? 0}
-            color="bg-blue-100"
-          />
-          <StatCard
-            icon={
-              <svg
-                className="w-6 h-6 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-            label="Đang hoạt động"
-            value={statsLocal?.active ?? stats?.active ?? 0}
-            color="bg-green-100"
-          />
-          <StatCard
-            icon={
-              <svg
-                className="w-6 h-6 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            }
-            label="Hết hạn"
-            value={statsLocal?.expired ?? stats?.expired ?? 0}
-            color="bg-red-100"
-          />
-          <StatCard
-            icon={
-              <svg
-                className="w-6 h-6 text-gray-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
-                />
-              </svg>
-            }
-            label="Không hoạt động"
-            value={statsLocal?.inactive ?? stats?.inactive ?? 0}
-            color="bg-gray-100"
-          />
+        <div className="flex flex-wrap gap-3 mb-8">
+          <div className="flex-1 min-w-[140px]">
+            <StatCard
+              icon={
+                <svg
+                  className="w-5 h-5 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                  />
+                </svg>
+              }
+              label="Tổng số"
+              value={statsLocal?.total ?? stats?.total ?? 0}
+              color="bg-blue-100"
+            />
+          </div>
+          <div className="flex-1 min-w-[140px]">
+            <StatCard
+              icon={
+                <svg
+                  className="w-5 h-5 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              }
+              label="Đang hoạt động"
+              value={statsLocal?.active ?? stats?.active ?? 0}
+              color="bg-green-100"
+            />
+          </div>
+          <div className="flex-1 min-w-[140px]">
+            <StatCard
+              icon={
+                <svg
+                  className="w-5 h-5 text-yellow-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              }
+              label="Chưa bắt đầu"
+              value={statsLocal?.scheduled ?? stats?.scheduled ?? 0}
+              color="bg-yellow-100"
+            />
+          </div>
+          <div className="flex-1 min-w-[140px]">
+            <StatCard
+              icon={
+                <svg
+                  className="w-5 h-5 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              }
+              label="Hết hạn"
+              value={statsLocal?.expired ?? stats?.expired ?? 0}
+              color="bg-red-100"
+            />
+          </div>
+          <div className="flex-1 min-w-[140px]">
+            <StatCard
+              icon={
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"
+                  />
+                </svg>
+              }
+              label="Không hoạt động"
+              value={statsLocal?.inactive ?? stats?.inactive ?? 0}
+              color="bg-gray-100"
+            />
+          </div>
         </div>
 
         {/* Filters */}
@@ -304,6 +314,7 @@ export default function PromotionList() {
             >
               <option value="all">Tất cả trạng thái</option>
               <option value="active">Đang hoạt động</option>
+              <option value="scheduled">Chưa bắt đầu</option>
               <option value="inactive">Không hoạt động</option>
               <option value="expired">Hết hạn</option>
             </select>

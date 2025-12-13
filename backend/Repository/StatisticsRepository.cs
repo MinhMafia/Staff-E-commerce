@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.DTO;
+using backend.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repository
@@ -15,15 +16,13 @@ namespace backend.Repository
 
         public async Task<OverviewStatsDTO> GetOverviewStatsAsync()
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            var today = vietnamNow.Date;
+            var today = DateTimeHelper.VietnamToday;
             var yesterday = today.AddDays(-1);
 
             // Chuyển đổi khoảng thời gian "hôm nay" và "hôm qua" sang UTC để query chính xác
-            var todayStartUtc = TimeZoneInfo.ConvertTimeToUtc(today, vietnamTimeZone);
-            var todayEndUtc = TimeZoneInfo.ConvertTimeToUtc(today.AddDays(1), vietnamTimeZone);
-            var yesterdayStartUtc = TimeZoneInfo.ConvertTimeToUtc(yesterday, vietnamTimeZone);
+            var todayStartUtc = DateTimeHelper.ToUtc(today);
+            var todayEndUtc = DateTimeHelper.ToUtc(today.AddDays(1));
+            var yesterdayStartUtc = DateTimeHelper.ToUtc(yesterday);
             var yesterdayEndUtc = todayStartUtc;
 
             var todayRevenue = await _context.Orders
@@ -56,7 +55,7 @@ namespace backend.Repository
                 .SumAsync(oi => oi.Quantity);
 
             // AOV tính theo 7 ngày gần nhất để chính xác hơn
-            var last7DaysStartUtc = TimeZoneInfo.ConvertTimeToUtc(today.AddDays(-6), vietnamTimeZone);
+            var last7DaysStartUtc = DateTimeHelper.ToUtc(today.AddDays(-6));
             var last7DaysRevenue = await _context.Orders
                 .Where(o => o.Status == "completed" && o.CreatedAt >= last7DaysStartUtc && o.CreatedAt < todayEndUtc)
                 .SumAsync(o => o.TotalAmount);
@@ -93,11 +92,10 @@ namespace backend.Repository
 
         public async Task<List<RevenueDataPoint>> GetRevenueByPeriodAsync(int days = 7)
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            var startDate = vietnamNow.Date.AddDays(-days + 1);
-            var startDateUtc = TimeZoneInfo.ConvertTimeToUtc(startDate, vietnamTimeZone);
-            var endDateUtc = TimeZoneInfo.ConvertTimeToUtc(vietnamNow.Date.AddDays(1), vietnamTimeZone);
+            var today = DateTimeHelper.VietnamToday;
+            var startDate = today.AddDays(-days + 1);
+            var startDateUtc = DateTimeHelper.ToUtc(startDate);
+            var endDateUtc = DateTimeHelper.ToUtc(today.AddDays(1));
 
             // Lấy tất cả orders trong khoảng thời gian
             var orders = await _context.Orders
@@ -109,7 +107,7 @@ namespace backend.Repository
                 .Select(o => new
                 {
                     Order = o,
-                    VnDate = TimeZoneInfo.ConvertTimeFromUtc(o.CreatedAt, vietnamTimeZone).Date
+                    VnDate = DateTimeHelper.ToVietnamTime(o.CreatedAt).Date
                 })
                 .GroupBy(x => x.VnDate)
                 .Select(g => new
@@ -131,14 +129,14 @@ namespace backend.Repository
 
         public async Task<List<ProductSalesDTO>> GetBestSellersAsync(int limit = 10, int days = 7)
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            var startDate = vietnamNow.Date.AddDays(-days);
-            var startDateUtc = TimeZoneInfo.ConvertTimeToUtc(startDate, vietnamTimeZone);
+            var today = DateTimeHelper.VietnamToday;
+            var startDate = today.AddDays(-days + 1);
+            var startDateUtc = DateTimeHelper.ToUtc(startDate);
+            var endDateUtc = DateTimeHelper.ToUtc(today.AddDays(1));
 
             var data = await _context.OrderItems
                 .Include(oi => oi.Order)
-                .Where(oi => oi.Order != null && oi.Order.Status == "completed" && oi.Order.CreatedAt >= startDateUtc)
+                .Where(oi => oi.Order != null && oi.Order.Status == "completed" && oi.Order.CreatedAt >= startDateUtc && oi.Order.CreatedAt < endDateUtc)
                 .GroupBy(oi => oi.ProductId)
                 .Select(g => new
                 {
@@ -192,13 +190,13 @@ namespace backend.Repository
 
         public async Task<OrderStatsDTO> GetOrderStatsAsync(int days = 7)
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            var startDate = vietnamNow.Date.AddDays(-days);
-            var startDateUtc = TimeZoneInfo.ConvertTimeToUtc(startDate, vietnamTimeZone);
+            var today = DateTimeHelper.VietnamToday;
+            var startDate = today.AddDays(-days + 1);
+            var startDateUtc = DateTimeHelper.ToUtc(startDate);
+            var endDateUtc = DateTimeHelper.ToUtc(today.AddDays(1));
 
             var orders = await _context.Orders
-                .Where(o => o.CreatedAt >= startDateUtc)
+                .Where(o => o.CreatedAt >= startDateUtc && o.CreatedAt < endDateUtc)
                 .ToListAsync();
 
             return new OrderStatsDTO
