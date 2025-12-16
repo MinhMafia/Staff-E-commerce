@@ -36,7 +36,7 @@ namespace backend.Services
             return BitConverter.ToString(hmac.ComputeHash(Encoding.UTF8.GetBytes(message))).Replace("-", "").ToLower();
         }
 
-        public async Task<MomoPaymentResponseDTO> CreatePaymentAsync(MomoPaymentRequestDTO req, int userId)
+        public async Task<MomoPaymentResponseDTO> CreatePaymentAsync(MomoPaymentRequestDTO req)
         {
             string endpoint = _config["Momo:Endpoint"];
             string partnerCode = _config["Momo:PartnerCode"];
@@ -105,8 +105,7 @@ namespace backend.Services
             };
             await _paymentRepo.AddPaymentAsync(payment);
 
-            // Log activity
-            await _logService.LogAsync(userId, "CREATE_PAYMENT", "Payment", orderId, JsonConvert.SerializeObject(req), "system");
+            
 
             return new MomoPaymentResponseDTO
             {

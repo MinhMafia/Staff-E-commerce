@@ -85,7 +85,6 @@ namespace backend.Repository
         public async Task<List<Customer>> GetPaginatedAsync(int page, int pageSize)
         {
             return await _context.Set<Customer>()
-                .OrderByDescending(c => c.CreatedAt)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
@@ -100,7 +99,6 @@ namespace backend.Repository
         {
             return await _context.Set<Customer>()
                 .Where(c => c.FullName.Contains(keyword))
-                .OrderByDescending(c => c.CreatedAt)
                 .ToListAsync();
         }
 

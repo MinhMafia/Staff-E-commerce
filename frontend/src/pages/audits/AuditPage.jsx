@@ -115,6 +115,7 @@ export default function AuditPage() {
                 </div>
                 
             </div>
+            
             <AuditTable openAuditDetailModal={openAuditDetailModal} listActivityLog={listActivityLog} setSelectedActivityLog={setSelectedActivityLog} page={page} totalPages={totalPages} fetchListActivity ={fetchListActivity } />
             {showAuditDetailModal&&<AuditDetail onClose={closeAuditDetailModal} selectedActivityLog={selectedActivityLog}/>}
 

@@ -70,7 +70,7 @@ namespace backend.Services
                 CreatedAt, UpdatedAt: thời gian hiện tại
 
         */
-        public async Task<OrderDTO> CreateTemporaryOrderAsync()
+         public async Task<OrderDTO> CreateTemporaryOrderAsync()
         {
             int maxId = await _orderRepo.GetMaxIdAsync();
             int newId = maxId + 1;
@@ -81,15 +81,13 @@ namespace backend.Services
             var user = await _userRepo.GetByIdAsync(userId);
             string userName = user?.FullName ?? $"Nhân viên #{userId}";
 
-            int customerId = 0;
-            var customer = await _customerRepo.GetByIdAsync(customerId);
-            string customerName = customer?.FullName ?? "Khách vãng lai";
+           
 
             var tempOrder = new OrderDTO
             {
                 Id = newId,
                 OrderNumber = orderCode,
-                CustomerId = customerId,
+                CustomerId = null,
                 UserId = userId,
                 Status = "pending",
                 Subtotal = 0m,
@@ -99,13 +97,14 @@ namespace backend.Services
                 Note = null,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CustomerName = customerName,
+                CustomerName = null,
                 UserName = userName,
                 PromotionCode = null
             };
 
             return tempOrder;
         }
+
 
 
         // Lưu đơn hàng (frontend đã gửi đủ dữ liệu)

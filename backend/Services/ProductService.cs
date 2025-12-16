@@ -286,8 +286,13 @@ namespace backend.Services
         {
             if (string.IsNullOrWhiteSpace(keyword)) return new List<ProductDTO>();
 
-            // use filtered API: page=1, pageSize=maxResults, search=keyword
-            var filtered = await _productRepository.GetFilteredAsync(1, maxResults, null, null, null, null, null, keyword);
+            /*
+       
+
+            string? search = null,
+            int? status = null)
+            */
+            var filtered = await _productRepository.GetFilteredAsync(1, maxResults, null, null, null, null, null, keyword,null);
             return filtered.Items.Select(MapToProductDto).ToList();
         }
 

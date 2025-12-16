@@ -21,10 +21,9 @@ namespace backend.Controllers
         [HttpPost("momo/create")]
         public async Task<IActionResult> CreatePayment([FromBody] MomoPaymentRequestDTO req)
         {
-            int userId = int.Parse(User.FindFirst("uid")?.Value ?? "0");
-            if(userId == 0) return Unauthorized(new { message = "User not authenticated" });
+            
 
-            var result = await _paymentService.CreatePaymentAsync(req, userId);
+            var result = await _paymentService.CreatePaymentAsync(req);
             if (!result.Success) return BadRequest(new { message = "Tạo payment MoMo thất bại" });
             return Ok(new { payUrl = result.PayUrl, orderId = req.OrderId });
         }

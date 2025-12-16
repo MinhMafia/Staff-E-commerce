@@ -51,8 +51,11 @@ export default function CustomerModal({ onClose, updateCustomer }) {
   };
 
   useEffect(() => {
-    fetchCustomers();
-  }, [page, searchMode]);
+    if (!searchMode) {
+      fetchCustomers();
+    }
+  }, [page]);
+
 
   const handleSelect = () => {
     const customer = customers.find(c => c.id === selectedCustomerId);
@@ -94,10 +97,16 @@ export default function CustomerModal({ onClose, updateCustomer }) {
             />
             <button
               className="px-4 py-2 bg-blue-500 text-white rounded"
-              onClick={() => setSearchMode(true)}
+              onClick={() => {
+                setPage(1);
+                setSearchMode(true);
+                fetchCustomers();
+              }}
             >
               Tìm kiếm
             </button>
+
+
             {searchMode && (
               <button
                 className="px-4 py-2 bg-gray-300 rounded"

@@ -32,22 +32,47 @@ namespace backend.Controllers
         }
 
         // POST: api/Order/create
+        // [HttpPost("create")]
+        // public async Task<IActionResult> CreateOrder([FromBody] Order order)
+        // {
+        //     if (order == null)
+        //         return BadRequest(false);
+
+        //     try
+        //     {
+        //         var savedOrder = await _orderService.SaveOrderAsync(order);
+        //         return Ok(true);
+        //     }
+        //     catch (Exception)
+        //     {
+        //         return StatusCode(500, false);
+        //     }
+        // }
+
         [HttpPost("create")]
         public async Task<IActionResult> CreateOrder([FromBody] Order order)
         {
             if (order == null)
-                return BadRequest(false);
+                return BadRequest("Order payload is null");
 
             try
             {
                 var savedOrder = await _orderService.SaveOrderAsync(order);
-                return Ok(true);
+
+                if (savedOrder == null)
+                    return StatusCode(500, "Failed to save order");
+
+                return Ok(savedOrder);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, false);
+                // NÊN log ex ở đây
+                return StatusCode(500, ex.Message);
             }
         }
+
+
+
 
         [HttpGet("search")]
         public async Task<IActionResult> Search(

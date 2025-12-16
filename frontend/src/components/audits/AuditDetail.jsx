@@ -59,6 +59,7 @@ export default function AuditDetail({ onClose ,selectedActivityLog}) {
           </div>
         </div>
       </div>
+      
     </div>
   );
 }
