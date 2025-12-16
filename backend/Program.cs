@@ -185,7 +185,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseRouting();
 
-// CORS phải đặt TRƯỚC Authentication để xử lý preflight requests
 app.UseCors("AllowReact");
 
 // Xác thực JWT

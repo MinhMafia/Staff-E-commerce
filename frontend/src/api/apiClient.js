@@ -200,14 +200,12 @@ export async function request(path, options = {}) {
       if (typeof onUnauthorizedCallback === "function") {
         onUnauthorizedCallback();
       } else {
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
+        // default behaviour: clear token + local user info
+        logout();
       }
 
       // throw descriptive error
-      throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-      // throw new Error("Unauthorized (401). Please login again.");
+      throw new Error(displayMessage);
     }
 
     if (!res.ok) {

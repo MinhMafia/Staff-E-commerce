@@ -368,25 +368,13 @@ export default function UserManagement() {
                       >
                         <Eye size={16} />
                       </button>
-                      {user.role !== "admin" && (
-                        <>
-                          <button
-                            className="text-xs px-2 py-1 border rounded hover:bg-gray-50"
-                            onClick={() => openEditModal(user)}
-                          >
-                            Sửa
-                          </button>
-                          <button
-                            className="text-xs px-2 py-1 border rounded text-red-600 hover:bg-red-50 disabled:opacity-50"
-                            disabled={deleteLoadingId === user.id}
-                            onClick={() => handleDelete(user)}
-                          >
-                            {deleteLoadingId === user.id
-                              ? "Đang xóa..."
-                              : "Xóa"}
-                          </button>
-                        </>
-                      )}
+                      <button
+                        className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
+                        onClick={() => openEditModal(user)}
+                        title="Sửa thông tin"
+                      >
+                        <Edit2 size={16} />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -539,20 +527,28 @@ export default function UserManagement() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Mat khau
-              </label>
-              <input
-                type="password"
-                className="mt-1 w-full rounded-md border px-3 py-2"
-                value={formData.password}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, password: e.target.value }))
-                }
-                minLength={6}
-                required
-                aria-invalid={Boolean(fieldErrors.password)}
-              />
+              <label className="block text-sm font-medium text-gray-700">Mat khau</label>
+              <div className="relative">
+                <input
+                  type={showCreatePassword ? "text" : "password"}
+                  className="mt-1 w-full rounded-md border px-3 py-2 pr-10"
+                  value={formData.password}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, password: e.target.value }))
+                  }
+                  minLength={6}
+                  required
+                  aria-invalid={Boolean(fieldErrors.password)}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 px-3 text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowCreatePassword((s) => !s)}
+                  aria-label={showCreatePassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                >
+                  {showCreatePassword ? "🙈" : "👁️"}
+                </button>
+              </div>
               {fieldErrors.password && (
                 <p className="text-sm text-red-600 mt-1">
                   {fieldErrors.password}
