@@ -72,8 +72,7 @@ namespace backend.Services
         */
          public async Task<OrderDTO> CreateTemporaryOrderAsync()
         {
-            int maxId = await _orderRepo.GetMaxIdAsync();
-            int newId = maxId + 1;
+            
             string orderCode = Guid.NewGuid().ToString();
 
             // Lấy user_id thực tế
@@ -85,7 +84,7 @@ namespace backend.Services
 
             var tempOrder = new OrderDTO
             {
-                Id = newId,
+            
                 OrderNumber = orderCode,
                 CustomerId = null,
                 UserId = userId,

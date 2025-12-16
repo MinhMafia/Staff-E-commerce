@@ -73,7 +73,7 @@ export default function Sidebar({ collapsed, onClose }) {
           SM
         </div> */}
         <div className="hidden md:block flex-1 text-center">
-          <style jsx>{`
+          <style>{`
             @keyframes animate {
               to {
                 background-position-x: -500px;

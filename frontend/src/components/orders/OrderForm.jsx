@@ -76,7 +76,7 @@ export default function OrdersForm({
             </label>
             <div className="flex gap-2">
               <input
-                value={`${currentOrder?.customerName || "Khách Hàng"} (${
+                value={`${currentOrder?.customerName || "Khách Hàng vãng lai"} (${
                   currentOrder?.customerId ?? 0
                 })`}
                 readOnly
@@ -247,11 +247,18 @@ export default function OrdersForm({
                   <option value="other">MoMo</option>
                 </select>
               ) : (
-                <input
+               <input
                   readOnly
-                  value={payment.method}
+                  value={
+                    payment?.method === "cash"
+                      ? "Tiền mặt"
+                      : payment?.method === "other"
+                        ? "MoMo"
+                        : payment?.method || "Không xác định"
+                  }
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg bg-gray-50"
                 />
+
               )}
             </div>
 

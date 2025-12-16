@@ -57,7 +57,7 @@ export default function OrderTable(  {showOrder,listOrders,
                       </td>
 
                       {/* Khách */}
-                      <td className="px-6 py-4">{item.customerName}</td>
+                      <td className="px-6 py-4"> {item.customerName?.trim() ? item.customerName : "Khách vãng lai"}</td>
 
                       {/* NV */}
                       <td className="px-6 py-4">{item.userName}</td>

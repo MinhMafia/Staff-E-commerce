@@ -222,7 +222,7 @@ export const useOrders = () => {
 
 
 
-// const pay = async (method = "cash") => {
+// const pay = async (method = "cash",currentOrder) => {
 //   if (!currentOrder) return;
 
 //   // ======= THANH TOÁN MOMO =======
@@ -231,7 +231,7 @@ export const useOrders = () => {
 //     // 1. Gọi API tạo payment
 //     const body = {
 //       OrderId: currentOrder.id,
-//       Amount: Math.round(currentOrder.total_amount),
+//       Amount: Math.round(currentOrder.totalAmount),
 
 //       // Không cần ReturnUrl vì thanh toán mở popup
 //       ReturnUrl: "",
@@ -297,7 +297,7 @@ export const useOrders = () => {
 //   // ======= CASH / OTHER METHODS =======
 //   const body = {
 //     OrderId: currentOrder.id,
-//     Amount: Math.round(currentOrder.total_amount),
+//     Amount: Math.round(currentOrder.totalAmount),
 //     Method: method,
 //     Status: "completed"
 //   };
@@ -305,59 +305,55 @@ export const useOrders = () => {
 //   return await request("/payment/offlinepayment", { method: "POST", body });
 // };
 
-const pay = async (method = "cash") => {
-  if (!currentOrder) return;
+const pay = async (method = "cash", currentOrder) => {
+  if (!currentOrder) return null;
 
   // ======= THANH TOÁN MOMO =======
   if (method === "other") {
 
-    // 1. Gọi API tạo payment
     const body = {
       OrderId: currentOrder.id,
-      Amount: Math.round(currentOrder.total_amount),
-
-      // Không cần ReturnUrl vì thanh toán mở popup
+      Amount: Math.round(currentOrder.totalAmount),
       ReturnUrl: "",
-
       NotifyUrl:
         "https://stainful-asher-unfeigningly.ngrok-free.dev/api/payment/momo/ipn"
     };
 
-    const res = await request("/payment/momo/create", { method: "POST", body });
+    const res = await request("/payment/momo/create", {
+      method: "POST",
+      body
+    });
 
     if (!res?.payUrl) {
-      alert("Không lấy được payUrl từ MoMo");
-      return null;
+      return {
+        success: false,
+        message: "Không lấy được payUrl từ MoMo"
+      };
     }
 
-    // 2. Mở popup momo
-    const popup = window.open(
-      res.payUrl,
-      "_blank",
-      "width=480,height=700"
-    );
+    const popup = window.open(res.payUrl, "_blank", "width=480,height=700");
 
     if (!popup) {
-      alert("Trình duyệt chặn popup. Hãy cho phép mở popup.");
-      return null;
+      return {
+        success: false,
+        message: "Trình duyệt chặn popup"
+      };
     }
 
-    // 3. Polling để chờ trạng thái thanh toán
     return new Promise((resolve) => {
       let counter = 0;
-      let finished = false; // 🔒 chống resolve nhiều lần
+      let finished = false;
 
       const interval = setInterval(async () => {
-
-        // ❌ Người dùng tự đóng popup
         if (popup.closed && !finished) {
           finished = true;
           clearInterval(interval);
-
           resolve({
             success: false,
-            message: "Bạn đã đóng cửa sổ thanh toán MoMo"
+            message: "Bạn đã đóng cửa sổ MoMo"
           });
+          setCurrentPage(1);
+          loadOrdersAdvanced();
           return;
         }
 
@@ -371,14 +367,10 @@ const pay = async (method = "cash") => {
           if (statusRes.ok) {
             const data = await statusRes.json();
 
-            console.log("Payment status →", data.status);
-
-            // ✅ MoMo IPN đã cập nhật DB → success
             if (data.status === "completed" && !finished) {
               finished = true;
               clearInterval(interval);
               popup.close();
-
               resolve({
                 success: true,
                 message: "Thanh toán thành công!"
@@ -386,16 +378,13 @@ const pay = async (method = "cash") => {
               return;
             }
 
-            // ❌ Thanh toán thất bại / huỷ
             if (
-              (data.status === "failed" ||
-                data.status === "canceled") &&
+              (data.status === "failed" || data.status === "canceled") &&
               !finished
             ) {
               finished = true;
               clearInterval(interval);
               popup.close();
-
               resolve({
                 success: false,
                 message: "Thanh toán không thành công"
@@ -407,31 +396,52 @@ const pay = async (method = "cash") => {
           console.error("Check payment error", err);
         }
 
-        // ⏰ Hết 2 phút → timeout
         if (counter >= 60 && !finished) {
           finished = true;
           clearInterval(interval);
           popup.close();
-
           resolve({
             success: false,
             message: "Quá thời gian chờ thanh toán"
           });
         }
-
       }, 2000);
     });
   }
 
-  // ======= CASH / OTHER METHODS =======
+  // ======= CASH / OFFLINE =======
   const body = {
     OrderId: currentOrder.id,
-    Amount: Math.round(currentOrder.total_amount),
+    Amount: Math.round(currentOrder.totalAmount),
     Method: method,
     Status: "completed"
   };
 
-  return await request("/payment/offlinepayment", { method: "POST", body });
+  try {
+    const offlinepayment = await request(
+      "/payment/offlinepayment",
+      { method: "POST", body }
+    );
+
+    if (offlinepayment) {
+      return {
+        success: true,
+        message: "Thanh toán thành công"
+      };
+    }
+
+    return {
+      success: false,
+      message: "Thanh toán không thành công"
+    };
+
+  } catch (err) {
+    console.error("Offline payment error", err);
+    return {
+      success: false,
+      message: "Thanh toán gặp lỗi"
+    };
+  }
 };
 
 
@@ -562,8 +572,7 @@ const Handleclick_buttonCreateNewOrder = async () => {
     return;
   }
 
-  // ⚠️ CỰC KỲ QUAN TRỌNG: dùng order đã lưu
-  setCurrentOrder(savedOrder);
+
 
   const listOrderItem = listOrderItemObject(listOrderProducts, savedOrder);
   const listreduceItem = listReduceItemObject(listOrderProducts);
@@ -595,7 +604,7 @@ const Handleclick_buttonCreateNewOrder = async () => {
   if (!payment?.method) payment.method = "cash";
 
   try {
-    const paymentResult = await pay(payment.method);
+    const paymentResult = await pay(payment.method,savedOrder);
 
     // ❌ Thanh toán thất bại / user đóng popup / timeout
     if (!paymentResult || paymentResult.success !== true) {
