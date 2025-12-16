@@ -46,20 +46,11 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-// Memory Cache for AI Service
-builder.Services.AddMemoryCache();
-
 // Database
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
 // .EnableSensitiveDataLogging() // Dev only
-);
-
-// DbContext Factory for parallel operations (AI Service)
-builder.Services.AddDbContextFactory<AppDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)),
-    ServiceLifetime.Scoped
 );
 
 // -------------------------
