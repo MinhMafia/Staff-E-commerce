@@ -165,6 +165,30 @@ namespace backend.Services
                 TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize)
             };
         }
+        public async Task<bool> CancelOrderAsync(int orderId)
+        {
+            // 1. Lấy user hiện tại
+            int currentUserId = 2;
+            try
+            {
+                currentUserId=GetCurrentUserId();
+            }
+            catch
+            {
+                
+            }
+
+            // 2. Kiểm tra order tồn tại
+            var order = await _orderRepo.GetByIdAsync(orderId);
+            if (order == null)
+                return false;
+
+            // 3. Ghi lại ai là người hủy đơn
+            await _orderRepo.UpdateOrderUserAsync(orderId, currentUserId);
+
+            // 4. Tiến hành hủy đơn
+            return await _orderRepo.CancelOrderAsync(orderId);
+        }
 
 
 

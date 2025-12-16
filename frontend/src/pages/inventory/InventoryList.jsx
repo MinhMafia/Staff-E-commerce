@@ -6,8 +6,12 @@ import {
   getInventoryStats,
 } from "../../api/inventoryApi";
 import { formatPrice } from "../../utils/formatPrice";
+import { useAuth } from "../../hook/useAuth";
 
 export default function InventoryList() {
+  const { user } = useAuth();
+  const isStaff = user?.role?.toLowerCase() === "staff";
+
   // --- state
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState({
@@ -67,11 +71,11 @@ export default function InventoryList() {
       try {
         const data = await getInventoryPaginated(p, ps, q, sortBy, status);
         console.log("📦 Inventory data received:", data);
-        
+
         // Đảm bảo dữ liệu được xử lý đúng
         const items = Array.isArray(data.items) ? data.items : [];
         setItems(items);
-        
+
         setMeta({
           totalItems: data.totalItems || 0,
           currentPage: data.currentPage || 1,
@@ -173,11 +177,7 @@ export default function InventoryList() {
     setNotification(null);
 
     try {
-      await adjustInventory(
-        adjustModal.item.id,
-        newQty,
-        adjustModal.reason
-      );
+      await adjustInventory(adjustModal.item.id, newQty, adjustModal.reason);
       setNotification({
         type: "success",
         message: "Cập nhật số lượng tồn kho thành công",
@@ -275,7 +275,9 @@ export default function InventoryList() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
           <div className="bg-white p-4 rounded-md shadow-sm border-l-4 border-blue-500">
             <div className="text-sm text-gray-600">Tổng sản phẩm</div>
-            <div className="text-2xl font-bold text-gray-800">{stats.total}</div>
+            <div className="text-2xl font-bold text-gray-800">
+              {stats.total}
+            </div>
           </div>
           <div className="bg-white p-4 rounded-md shadow-sm border-l-4 border-red-500">
             <div className="text-sm text-gray-600">Hết hàng</div>
@@ -389,9 +391,11 @@ export default function InventoryList() {
                 <th className="px-4 py-3 text-left text-xs font-medium text-gray-500">
                   Cập nhật lần cuối
                 </th>
-                <th className="px-4 py-3 text-center text-xs font-medium text-gray-500">
-                  Hành động
-                </th>
+                {!isStaff && (
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500">
+                    Hành động
+                  </th>
+                )}
               </tr>
             </thead>
 
@@ -449,14 +453,16 @@ export default function InventoryList() {
                     <td className="px-4 py-3 text-sm text-gray-600">
                       {formatDate(item.updatedAt)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-center">
-                      <button
-                        onClick={() => openAdjustModal(item)}
-                        className="px-3 py-1 bg-indigo-100 rounded text-indigo-800 hover:bg-indigo-200 text-sm"
-                      >
-                        Điều chỉnh
-                      </button>
-                    </td>
+                    {!isStaff && (
+                      <td className="px-4 py-3 text-sm text-center">
+                        <button
+                          onClick={() => openAdjustModal(item)}
+                          className="px-3 py-1 bg-indigo-100 rounded text-indigo-800 hover:bg-indigo-200 text-sm"
+                        >
+                          Điều chỉnh
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
@@ -549,7 +555,10 @@ export default function InventoryList() {
                 min="0"
                 value={adjustModal.newQuantity}
                 onChange={(e) =>
-                  setAdjustModal({ ...adjustModal, newQuantity: e.target.value })
+                  setAdjustModal({
+                    ...adjustModal,
+                    newQuantity: e.target.value,
+                  })
                 }
                 className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-indigo-300"
                 placeholder="Nhập số lượng"

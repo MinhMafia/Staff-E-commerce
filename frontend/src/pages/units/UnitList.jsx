@@ -1,3 +1,4 @@
+// Updated UnitList.jsx with role-based access control
 import React, { useState, useEffect, useCallback } from "react";
 import {
   getAllUnits,
@@ -7,8 +8,13 @@ import {
   toggleUnitActive,
 } from "../../api/unitApi";
 import UnitModal from "../../components/units/UnitModal";
+import { useAuth } from "../../hook/useAuth";
 
 export default function UnitList() {
+  // Get current user and role
+  const { user } = useAuth();
+  const isStaff = user?.role?.toLowerCase() === "staff";
+
   const [units, setUnits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,6 +71,14 @@ export default function UnitList() {
 
   // Handle save (create/edit)
   const handleSave = async (unitData, mode) => {
+    if (isStaff) {
+      setNotification({
+        type: "error",
+        message: "Bạn không có quyền thực hiện thao tác này",
+      });
+      return;
+    }
+
     setSaving(true);
     setNotification(null);
     try {
@@ -98,6 +112,14 @@ export default function UnitList() {
 
   // Handle delete
   const handleDelete = async (id, productCount) => {
+    if (isStaff) {
+      setNotification({
+        type: "error",
+        message: "Bạn không có quyền xóa đơn vị",
+      });
+      return;
+    }
+
     if (productCount > 0) {
       setNotification({
         type: "error",
@@ -127,6 +149,14 @@ export default function UnitList() {
 
   // Handle toggle active
   const handleToggleActive = async (id) => {
+    if (isStaff) {
+      setNotification({
+        type: "error",
+        message: "Bạn không có quyền thay đổi trạng thái",
+      });
+      return;
+    }
+
     try {
       await toggleUnitActive(id);
       await fetchUnits();
@@ -180,25 +210,27 @@ export default function UnitList() {
               Quản lý các đơn vị đo lường sản phẩm
             </p>
           </div>
-          <button
-            onClick={() => openModal("create")}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 flex items-center gap-2 transition"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+          {!isStaff && (
+            <button
+              onClick={() => openModal("create")}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 flex items-center gap-2 transition"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v16m8-8H4"
-              />
-            </svg>
-            Thêm đơn vị
-          </button>
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Thêm đơn vị
+            </button>
+          )}
         </div>
 
         {/* Notification */}
@@ -344,11 +376,12 @@ export default function UnitList() {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <button
                         onClick={() => handleToggleActive(unit.id)}
+                        disabled={isStaff}
                         className={`px-3 py-1 rounded-full text-xs font-semibold transition ${
                           unit.isActive
                             ? "bg-green-100 text-green-800 hover:bg-green-200"
                             : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-                        }`}
+                        } ${isStaff ? "opacity-50 cursor-not-allowed" : ""}`}
                       >
                         {unit.isActive ? "Đang dùng" : "Ngừng dùng"}
                       </button>
@@ -361,29 +394,33 @@ export default function UnitList() {
                         >
                           Chi tiết
                         </button>
-                        <button
-                          onClick={() => openModal("edit", unit)}
-                          className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200 transition"
-                        >
-                          Sửa
-                        </button>
-                        <button
-                          onClick={() =>
-                            handleDelete(unit.id, unit.productCount)
-                          }
-                          className={`px-3 py-1 rounded transition ${
-                            unit.productCount > 0
-                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "bg-red-100 text-red-800 hover:bg-red-200"
-                          }`}
-                          title={
-                            unit.productCount > 0
-                              ? "Không thể xóa đơn vị đang được sử dụng"
-                              : "Xóa đơn vị"
-                          }
-                        >
-                          Xóa
-                        </button>
+                        {!isStaff && (
+                          <>
+                            <button
+                              onClick={() => openModal("edit", unit)}
+                              className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200 transition"
+                            >
+                              Sửa
+                            </button>
+                            <button
+                              onClick={() =>
+                                handleDelete(unit.id, unit.productCount)
+                              }
+                              className={`px-3 py-1 rounded transition ${
+                                unit.productCount > 0
+                                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                  : "bg-red-100 text-red-800 hover:bg-red-200"
+                              }`}
+                              title={
+                                unit.productCount > 0
+                                  ? "Không thể xóa đơn vị đang được sử dụng"
+                                  : "Xóa đơn vị"
+                              }
+                            >
+                              Xóa
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -403,12 +440,12 @@ export default function UnitList() {
       {/* Modal */}
       {modalState.open && (
         <UnitModal
-          mode={modalState.mode}
+          mode={isStaff ? "view" : modalState.mode}
           unit={modalState.unit}
           onSave={handleSave}
           onCancel={closeModal}
           onDelete={() => {
-            if (modalState.unit?.id) {
+            if (modalState.unit?.id && !isStaff) {
               handleDelete(modalState.unit.id, modalState.unit.productCount);
             }
           }}

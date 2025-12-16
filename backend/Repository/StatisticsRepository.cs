@@ -1,5 +1,6 @@
 using backend.Data;
 using backend.DTO;
+using backend.Helpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repository
@@ -15,52 +16,56 @@ namespace backend.Repository
 
         public async Task<OverviewStatsDTO> GetOverviewStatsAsync()
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            var today = vietnamNow.Date;
+            var today = DateTimeHelper.VietnamToday;
             var yesterday = today.AddDays(-1);
 
+            // Chuyển đổi khoảng thời gian "hôm nay" và "hôm qua" sang UTC để query chính xác
+            var todayStartUtc = DateTimeHelper.ToUtc(today);
+            var todayEndUtc = DateTimeHelper.ToUtc(today.AddDays(1));
+            var yesterdayStartUtc = DateTimeHelper.ToUtc(yesterday);
+            var yesterdayEndUtc = todayStartUtc;
+
             var todayRevenue = await _context.Orders
-                .Where(o => o.Status == "paid" && o.CreatedAt.Date == today)
+                .Where(o => o.Status == "completed" && o.CreatedAt >= todayStartUtc && o.CreatedAt < todayEndUtc)
                 .SumAsync(o => o.TotalAmount);
 
             var yesterdayRevenue = await _context.Orders
-                .Where(o => o.Status == "paid" && o.CreatedAt.Date == yesterday)
+                .Where(o => o.Status == "completed" && o.CreatedAt >= yesterdayStartUtc && o.CreatedAt < yesterdayEndUtc)
                 .SumAsync(o => o.TotalAmount);
 
-            var revenueChange = yesterdayRevenue > 0
+            decimal? revenueChange = yesterdayRevenue > 0
                 ? ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100
-                : 0;
+                : null;  // null nếu hôm qua không có dữ liệu
 
             var todayOrders = await _context.Orders
-                .Where(o => o.CreatedAt.Date == today)
+                .Where(o => o.CreatedAt >= todayStartUtc && o.CreatedAt < todayEndUtc)
                 .CountAsync();
 
             var yesterdayOrders = await _context.Orders
-                .Where(o => o.CreatedAt.Date == yesterday)
+                .Where(o => o.CreatedAt >= yesterdayStartUtc && o.CreatedAt < yesterdayEndUtc)
                 .CountAsync();
 
-            var ordersChange = yesterdayOrders > 0
+            decimal? ordersChange = yesterdayOrders > 0
                 ? ((decimal)(todayOrders - yesterdayOrders) / yesterdayOrders) * 100
-                : 0;
+                : null;  // null nếu hôm qua không có dữ liệu
 
             var todayProductsSold = await _context.OrderItems
                 .Include(oi => oi.Order)
-                .Where(oi => oi.Order != null && oi.Order.CreatedAt.Date == today && oi.Order.Status == "paid")
+                .Where(oi => oi.Order != null && oi.Order.CreatedAt >= todayStartUtc && oi.Order.CreatedAt < todayEndUtc && oi.Order.Status == "completed")
                 .SumAsync(oi => oi.Quantity);
 
             // AOV tính theo 7 ngày gần nhất để chính xác hơn
-            var last7Days = today.AddDays(-6);
+            var last7DaysStartUtc = DateTimeHelper.ToUtc(today.AddDays(-6));
             var last7DaysRevenue = await _context.Orders
-                .Where(o => o.Status == "paid" && o.CreatedAt.Date >= last7Days && o.CreatedAt.Date <= today)
+                .Where(o => o.Status == "completed" && o.CreatedAt >= last7DaysStartUtc && o.CreatedAt < todayEndUtc)
                 .SumAsync(o => o.TotalAmount);
             var last7DaysOrders = await _context.Orders
-                .Where(o => o.Status == "paid" && o.CreatedAt.Date >= last7Days && o.CreatedAt.Date <= today)
+                .Where(o => o.Status == "completed" && o.CreatedAt >= last7DaysStartUtc && o.CreatedAt < todayEndUtc)
                 .CountAsync();
             var avgOrderValue = last7DaysOrders > 0 ? last7DaysRevenue / last7DaysOrders : 0;
 
             var totalDiscount = await _context.Orders
-                .Where(o => o.CreatedAt.Date == today)
+                .Where(o => o.CreatedAt >= todayStartUtc && o.CreatedAt < todayEndUtc)
                 .SumAsync(o => o.Discount);
 
             var lowStockCount = await _context.Inventory
@@ -74,9 +79,9 @@ namespace backend.Repository
             return new OverviewStatsDTO
             {
                 TodayRevenue = todayRevenue,
-                RevenueChange = revenueChange,
+                RevenueChange = revenueChange.HasValue ? Math.Round(revenueChange.Value, 1) : null,
                 TodayOrders = todayOrders,
-                OrdersChange = Math.Round(ordersChange, 1),
+                OrdersChange = ordersChange.HasValue ? Math.Round(ordersChange.Value, 1) : null,
                 TodayProductsSold = todayProductsSold,
                 AverageOrderValue = avgOrderValue,
                 TotalDiscountApplied = totalDiscount,
@@ -87,21 +92,32 @@ namespace backend.Repository
 
         public async Task<List<RevenueDataPoint>> GetRevenueByPeriodAsync(int days = 7)
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            var startDate = vietnamNow.Date.AddDays(-days + 1);
+            var today = DateTimeHelper.VietnamToday;
+            var startDate = today.AddDays(-days + 1);
+            var startDateUtc = DateTimeHelper.ToUtc(startDate);
+            var endDateUtc = DateTimeHelper.ToUtc(today.AddDays(1));
 
-            var data = await _context.Orders
-                .Where(o => o.Status == "paid" && o.CreatedAt.Date >= startDate)
-                .GroupBy(o => o.CreatedAt.Date)
+            // Lấy tất cả orders trong khoảng thời gian
+            var orders = await _context.Orders
+                .Where(o => o.Status == "completed" && o.CreatedAt >= startDateUtc && o.CreatedAt < endDateUtc)
+                .ToListAsync();
+
+            // Group theo ngày Việt Nam
+            var data = orders
+                .Select(o => new
+                {
+                    Order = o,
+                    VnDate = DateTimeHelper.ToVietnamTime(o.CreatedAt).Date
+                })
+                .GroupBy(x => x.VnDate)
                 .Select(g => new
                 {
                     Date = g.Key,
-                    Revenue = g.Sum(o => o.TotalAmount),
+                    Revenue = g.Sum(x => x.Order.TotalAmount),
                     OrderCount = g.Count()
                 })
                 .OrderBy(d => d.Date)
-                .ToListAsync();
+                .ToList();
 
             return data.Select(d => new RevenueDataPoint
             {
@@ -113,13 +129,14 @@ namespace backend.Repository
 
         public async Task<List<ProductSalesDTO>> GetBestSellersAsync(int limit = 10, int days = 7)
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            var startDate = vietnamNow.Date.AddDays(-days);
+            var today = DateTimeHelper.VietnamToday;
+            var startDate = today.AddDays(-days + 1);
+            var startDateUtc = DateTimeHelper.ToUtc(startDate);
+            var endDateUtc = DateTimeHelper.ToUtc(today.AddDays(1));
 
             var data = await _context.OrderItems
                 .Include(oi => oi.Order)
-                .Where(oi => oi.Order != null && oi.Order.Status == "paid" && oi.Order.CreatedAt >= startDate)
+                .Where(oi => oi.Order != null && oi.Order.Status == "completed" && oi.Order.CreatedAt >= startDateUtc && oi.Order.CreatedAt < endDateUtc)
                 .GroupBy(oi => oi.ProductId)
                 .Select(g => new
                 {
@@ -173,24 +190,25 @@ namespace backend.Repository
 
         public async Task<OrderStatsDTO> GetOrderStatsAsync(int days = 7)
         {
-            var vietnamTimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
-            var vietnamNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vietnamTimeZone);
-            var startDate = vietnamNow.Date.AddDays(-days);
+            var today = DateTimeHelper.VietnamToday;
+            var startDate = today.AddDays(-days + 1);
+            var startDateUtc = DateTimeHelper.ToUtc(startDate);
+            var endDateUtc = DateTimeHelper.ToUtc(today.AddDays(1));
 
             var orders = await _context.Orders
-                .Where(o => o.CreatedAt >= startDate)
+                .Where(o => o.CreatedAt >= startDateUtc && o.CreatedAt < endDateUtc)
                 .ToListAsync();
 
             return new OrderStatsDTO
             {
                 TotalOrders = orders.Count,
-                CompletedOrders = orders.Count(o => o.Status == "paid" || o.Status == "completed"),
+                CompletedOrders = orders.Count(o => o.Status == "completed"),
                 PendingOrders = orders.Count(o => o.Status == "pending"),
                 ProcessingOrders = 0, // No processing status in ENUM
                 CancelledOrders = orders.Count(o => o.Status == "cancelled"),
-                TotalRevenue = orders.Where(o => o.Status == "paid").Sum(o => o.TotalAmount),
-                AverageOrderValue = orders.Where(o => o.Status == "paid").Any()
-                    ? orders.Where(o => o.Status == "paid").Average(o => o.TotalAmount)
+                TotalRevenue = orders.Where(o => o.Status == "completed").Sum(o => o.TotalAmount),
+                AverageOrderValue = orders.Where(o => o.Status == "completed").Any()
+                    ? orders.Where(o => o.Status == "completed").Average(o => o.TotalAmount)
                     : 0
             };
         }

@@ -41,10 +41,19 @@ export default function PromotionEdit({ promotion, onCancel, onSuccess }) {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    setFormData((prev) => {
+      const newData = {
+        ...prev,
+        [name]: type === "checkbox" ? checked : value,
+      };
+      
+      // Xóa giá trị maxDiscount khi chuyển sang loại "fixed"
+      if (name === "type" && value === "fixed") {
+        newData.maxDiscount = "";
+      }
+      
+      return newData;
+    });
   };
 
   const handleSubmit = async (e) => {

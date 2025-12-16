@@ -12,8 +12,21 @@ import Pagination from "../../components/ui/Pagination";
 import CustomerDetailModal from "../../components/customers/CustomerDetailModal";
 import CustomerEditModal from "../../components/customers/CustomerEditModal";
 import CustomerAddModal from "../../components/customers/CustomerAddModal";
+import {
+  Search,
+  Edit2,
+  Power,
+  Eye,
+  RotateCcw,
+  Tag,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Upload,
+} from "lucide-react";
 import ImportModal from "../../components/import/ImportModal";
-import { Search, Edit2, Power, Eye, RotateCcw, Upload } from "lucide-react";
+import { getCustomers } from "../../api/customerApi";
+import { useAuth } from "../../hook/useAuth";
 
 const CustomerList = () => {
   const dispatch = useDispatch();
@@ -25,11 +38,40 @@ const CustomerList = () => {
     filters,
   } = useSelector((state) => state.customers);
 
+  const { user } = useAuth();
+  const isStaff = user?.role?.toLowerCase() === "staff";
+
   const [localSearchTerm, setLocalSearchTerm] = useState("");
   const [selectedCustomerId, setSelectedCustomerId] = useState(null);
   const [editingCustomerId, setEditingCustomerId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+  });
+
+  // Fetch stats (total, active, inactive) on mount
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [totalData, activeData, inactiveData] = await Promise.all([
+          getCustomers(1, 1, "", "all"),
+          getCustomers(1, 1, "", "active"),
+          getCustomers(1, 1, "", "inactive"),
+        ]);
+        setStats({
+          total: totalData.totalItems || 0,
+          active: activeData.totalItems || 0,
+          inactive: inactiveData.totalItems || 0,
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
 
   // Fetch customers when filters or pagination changes
   useEffect(() => {
@@ -92,6 +134,18 @@ const CustomerList = () => {
           })
         ).unwrap();
         console.log("Customers refetched successfully");
+
+        // Update stats
+        const [totalData, activeData, inactiveData] = await Promise.all([
+          getCustomers(1, 1, "", "all"),
+          getCustomers(1, 1, "", "active"),
+          getCustomers(1, 1, "", "inactive"),
+        ]);
+        setStats({
+          total: totalData.totalItems || 0,
+          active: activeData.totalItems || 0,
+          inactive: inactiveData.totalItems || 0,
+        });
       } catch (error) {
         console.error("Error toggling status:", error);
       }
@@ -146,24 +200,51 @@ const CustomerList = () => {
       </div>
 
       {/* Statistics */}
-      <div className="mb-6 grid grid-cols-2 gap-4">
+      <div className="mb-6 grid grid-cols-4 gap-4">
         <div
-          className="p-4 bg-green-50 border border-green-200 rounded-lg cursor-pointer hover:bg-green-100"
-          onClick={() => handleStatusFilter("active")}
+          className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => handleStatusFilter("all")}
         >
-          <p className="text-sm text-green-600">Đang Hoạt Động</p>
-          <p className="text-2xl font-bold text-green-800">
-            {customers.filter((c) => c.isActive).length}
-          </p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Tag className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Tổng số</p>
+          <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
         </div>
         <div
-          className="p-4 bg-red-50 border border-red-200 rounded-lg cursor-pointer hover:bg-red-100"
+          className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => handleStatusFilter("active")}
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Đang hoạt động</p>
+          <p className="text-2xl font-bold text-gray-800">{stats.active}</p>
+        </div>
+        <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <Clock className="w-5 h-5 text-red-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Hết hạn</p>
+          <p className="text-2xl font-bold text-gray-800">0</p>
+        </div>
+        <div
+          className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
           onClick={() => handleStatusFilter("inactive")}
         >
-          <p className="text-sm text-red-600">Ngừng Hoạt Động</p>
-          <p className="text-2xl font-bold text-red-800">
-            {customers.filter((c) => !c.isActive).length}
-          </p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <XCircle className="w-5 h-5 text-gray-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Không hoạt động</p>
+          <p className="text-2xl font-bold text-gray-800">{stats.inactive}</p>
         </div>
       </div>
 
@@ -309,26 +390,32 @@ const CustomerList = () => {
                         >
                           <Eye size={18} />
                         </button>
-                        <button
-                          onClick={() => handleEdit(customer.id)}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
-                          title="Sửa"
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleToggleStatus(customer.id)}
-                          className={`p-2 rounded-lg transition ${
-                            customer.isActive
-                              ? "text-red-600 hover:bg-red-50"
-                              : "text-orange-600 hover:bg-orange-50"
-                          }`}
-                          title={
-                            customer.isActive ? "Ngừng hoạt động" : "Kích hoạt"
-                          }
-                        >
-                          <Power size={18} />
-                        </button>
+                        {!isStaff && (
+                          <>
+                            <button
+                              onClick={() => handleEdit(customer.id)}
+                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
+                              title="Sửa"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleToggleStatus(customer.id)}
+                              className={`p-2 rounded-lg transition ${
+                                customer.isActive
+                                  ? "text-red-600 hover:bg-red-50"
+                                  : "text-orange-600 hover:bg-orange-50"
+                              }`}
+                              title={
+                                customer.isActive
+                                  ? "Ngừng hoạt động"
+                                  : "Kích hoạt"
+                              }
+                            >
+                              <Power size={18} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -342,10 +429,17 @@ const CustomerList = () => {
       {/* Pagination */}
       <div className="mt-6">
         <Pagination meta={pagination} onPageChange={handlePageChange} />
-        <p className="mt-4 text-sm text-gray-600">
-          Hiển thị {customers.length} trên {pagination.pageSize} khách hàng
-          (tổng: {pagination.totalItems})
-        </p>
+        <div className="mt-4 text-sm text-gray-600">
+          Hiển thị{" "}
+          <strong>
+            {(pagination.currentPage - 1) * pagination.pageSize + 1} -{" "}
+            {Math.min(
+              pagination.currentPage * pagination.pageSize,
+              pagination.totalItems
+            )}
+          </strong>{" "}
+          / {pagination.totalItems} khách hàng
+        </div>
       </div>
 
       {/* Customer Detail Modal */}
@@ -361,16 +455,27 @@ const CustomerList = () => {
         <CustomerEditModal
           customerId={editingCustomerId}
           onClose={() => setEditingCustomerId(null)}
-          onSave={() => {
+          onSave={async () => {
             // Refresh customer list after edit
-            dispatch(
+            await dispatch(
               fetchCustomers({
                 page: pagination.currentPage,
                 pageSize: pagination.pageSize,
                 search: filters.search,
                 status: filters.status,
               })
-            );
+            ).unwrap();
+            // Update stats
+            const [totalData, activeData, inactiveData] = await Promise.all([
+              getCustomers(1, 1, "", "all"),
+              getCustomers(1, 1, "", "active"),
+              getCustomers(1, 1, "", "inactive"),
+            ]);
+            setStats({
+              total: totalData.totalItems || 0,
+              active: activeData.totalItems || 0,
+              inactive: inactiveData.totalItems || 0,
+            });
           }}
         />
       )}
@@ -379,16 +484,27 @@ const CustomerList = () => {
       <CustomerAddModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSuccess={() => {
+        onSuccess={async () => {
           // Refresh customer list after adding
-          dispatch(
+          await dispatch(
             fetchCustomers({
               page: pagination.currentPage,
               pageSize: pagination.pageSize,
               search: filters.search,
               status: filters.status,
             })
-          );
+          ).unwrap();
+          // Update stats
+          const [totalData, activeData, inactiveData] = await Promise.all([
+            getCustomers(1, 1, "", "all"),
+            getCustomers(1, 1, "", "active"),
+            getCustomers(1, 1, "", "inactive"),
+          ]);
+          setStats({
+            total: totalData.totalItems || 0,
+            active: activeData.totalItems || 0,
+            inactive: inactiveData.totalItems || 0,
+          });
         }}
       />
 
@@ -396,16 +512,27 @@ const CustomerList = () => {
       <ImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
-        onSuccess={() => {
+        onSuccess={async () => {
           // Refresh customer list after import
-          dispatch(
+          await dispatch(
             fetchCustomers({
               page: pagination.currentPage,
               pageSize: pagination.pageSize,
               search: filters.search,
               status: filters.status,
             })
-          );
+          ).unwrap();
+          // Update stats
+          const [totalData, activeData, inactiveData] = await Promise.all([
+            getCustomers(1, 1, "", "all"),
+            getCustomers(1, 1, "", "active"),
+            getCustomers(1, 1, "", "inactive"),
+          ]);
+          setStats({
+            total: totalData.totalItems || 0,
+            active: activeData.totalItems || 0,
+            inactive: inactiveData.totalItems || 0,
+          });
         }}
         type="customers"
       />

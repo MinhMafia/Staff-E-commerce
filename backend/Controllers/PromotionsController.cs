@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using backend.Models;
 using backend.Services;
 using backend.DTO;
@@ -8,6 +9,7 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class PromotionsController : ControllerBase
     {
         private readonly PromotionService _promotionService;

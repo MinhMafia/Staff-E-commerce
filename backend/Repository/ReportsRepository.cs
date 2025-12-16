@@ -19,7 +19,7 @@ namespace backend.Repository
                 .Include(oi => oi.Order)
                     .ThenInclude(o => o!.Customer)
                 .Include(oi => oi.Product)
-                .Where(oi => oi.Order != null && oi.Order.Status == "paid") // Chỉ lấy orders đã thanh toán
+                .Where(oi => oi.Order != null && oi.Order.Status == "completed") // Chỉ lấy orders đã hoàn thành
                 .AsQueryable();
 
             if (fromDate.HasValue)
@@ -98,18 +98,18 @@ namespace backend.Repository
                 query = query.Where(o => o.CreatedAt <= endDate);
             }
 
-            // Chỉ tính các orders đã thanh toán
-            var paidOrders = query.Where(o => o.Status == "paid");
+            // Chỉ tính các orders đã hoàn thành
+            var paidOrders = query.Where(o => o.Status == "completed");
 
             var netRevenue = await paidOrders.SumAsync(o => o.TotalAmount);
             // TotalDiscount: Tính tổng discount của các orders đã thanh toán (để khớp với NetRevenue)
             var totalDiscount = await paidOrders.SumAsync(o => o.Discount);
             var totalOrders = await paidOrders.CountAsync();
 
-            // ProductsSold: Chỉ tính sản phẩm từ orders đã thanh toán
+            // ProductsSold: Chỉ tính sản phẩm từ orders đã hoàn thành
             var productsSoldQuery = _context.OrderItems
                 .Include(oi => oi.Order)
-                .Where(oi => oi.Order != null && oi.Order.Status == "paid");
+                .Where(oi => oi.Order != null && oi.Order.Status == "completed");
 
             if (fromDate.HasValue)
             {
@@ -137,7 +137,7 @@ namespace backend.Repository
         public async Task<List<RevenueByDayDTO>> GetRevenueByDayAsync(DateTime? fromDate, DateTime? toDate)
         {
             var query = _context.Orders
-                .Where(o => o.Status == "paid")
+                .Where(o => o.Status == "completed")
                 .AsQueryable();
 
             if (fromDate.HasValue)
@@ -231,7 +231,7 @@ namespace backend.Repository
                 .Include(oi => oi.Order)
                 .Include(oi => oi.Product)
                     .ThenInclude(p => p!.Category)
-                .Where(oi => oi.Order != null && oi.Order.Status == "paid")
+                .Where(oi => oi.Order != null && oi.Order.Status == "completed")
                 .AsQueryable();
 
             if (fromDate.HasValue)
@@ -275,7 +275,7 @@ namespace backend.Repository
         {
             var query = _context.Orders
                 .Include(o => o.Customer)
-                .Where(o => o.Status == "paid")
+                .Where(o => o.Status == "completed")
                 .AsQueryable();
 
             if (fromDate.HasValue)
@@ -320,7 +320,7 @@ namespace backend.Repository
         {
             var query = _context.Orders
                 .Include(o => o.User)
-                .Where(o => o.Status == "paid" && o.UserId.HasValue)
+                .Where(o => o.Status == "completed" && o.UserId.HasValue)
                 .AsQueryable();
 
             if (fromDate.HasValue)

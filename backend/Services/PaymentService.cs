@@ -154,7 +154,7 @@ namespace backend.Services
                 {
                     payment.Status = "completed";
                     await _paymentRepo.UpdatePaymentAsync(payment);
-                    await _orderRepo.UpdateOrderStatusAsync(payment.OrderId, "paid");
+                    await _orderRepo.UpdateOrderStatusAsync(payment.OrderId, "completed");
                     await _logService.LogAsync(payment.OrderId, "PAYMENT_SUCCESS", "Payment", payment.TransactionRef, JsonConvert.SerializeObject(callback), "system");
                 }
             }
@@ -176,6 +176,7 @@ namespace backend.Services
             );
         }
 
+    
 
     }
 }

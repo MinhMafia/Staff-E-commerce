@@ -184,6 +184,38 @@ namespace backend.Repository
             return await q.AnyAsync();
         }
 
+        // Lấy nhiều products theo danh sách IDs (dùng cho semantic search)
+        public async Task<List<Product>> GetByIdsAsync(IEnumerable<int> ids)
+        {
+            if (!ids.Any()) return new List<Product>();
+
+            return await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .Include(p => p.Inventory)
+                .Where(p => ids.Contains(p.Id))
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
+        // Lấy tất cả products để reindex (batch processing)
+        public async Task<List<Product>> GetAllForIndexingAsync(int skip = 0, int take = 500)
+        {
+            return await _context.Products
+                .Include(p => p.Category)
+                .Include(p => p.Supplier)
+                .AsNoTracking()
+                .OrderBy(p => p.Id)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+
+        public async Task<int> GetTotalCountAsync()
+        {
+            return await _context.Products.CountAsync();
+        }
+
         // LÀM ƠN ĐỪNG XÓA => LẤY DANH SÁCH SẢN PHẨM CÒN HÀNG TRONG CỬA HÀNG
          public async Task<PaginationResult<Product>> GetAvailableProductsPaginatedAsync(int page, int pageSize)
         {

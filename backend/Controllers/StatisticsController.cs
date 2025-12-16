@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using backend.Services;
 using backend.DTO;
 
@@ -6,6 +7,7 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class StatisticsController : ControllerBase
     {
         private readonly StatisticsService _statisticsService;

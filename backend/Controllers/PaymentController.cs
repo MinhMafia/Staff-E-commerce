@@ -62,6 +62,22 @@ namespace backend.Controllers
             return Ok(payment);
         }
 
+        [HttpGet("status/{orderId}")]
+        public async Task<IActionResult> GetPaymentStatus(int orderId)
+        {
+            var payment = await _paymentService.GetByOrderIdAsync(orderId);
+            if (payment == null)
+                return NotFound(new { message = "Payment not found" });
+
+            return Ok(new {
+                status = payment.status,
+                method = payment.method,
+                transaction_ref = payment.transaction_ref
+            });
+        }
+
+
+
     }
 }
 

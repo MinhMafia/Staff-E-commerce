@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { logout } from "../../api/apiClient";
 import { useAuth } from "../../hook/useAuth";
+import bgImg from "../../assets/images/animate.jpg";
 
 /**
  * Nếu bạn không dùng react-router, thay NavLink bằng <a href="..."> và className active logic
@@ -67,13 +68,31 @@ export default function Sidebar({ collapsed, onClose }) {
         collapsed ? "hidden md:block" : "block"
       } h-screen fixed z-999`}
     >
-      <div className="flex items-center gap-3 px-4 py-7  border-b">
-        <div className="w-8 h-8 rounded-md bg-indigo-600 text-white flex items-center justify-center font-bold">
+      <div className="flex items-center gap-3 px-4 border-b">
+        {/* <div className="w-8 h-8 rounded-md bg-indigo-600 text-white flex items-center justify-center font-bold">
           SM
-        </div>
-        <div className="hidden md:block">
-          <div className="text-lg font-semibold">StoreManager</div>
-          {/* <div className="text-xs text-gray-500">Quản lý cửa hàng</div> */}
+        </div> */}
+        <div className="hidden md:block flex-1 text-center">
+          <style jsx>{`
+            @keyframes animate {
+              to {
+                background-position-x: -500px;
+              }
+            }
+
+            .animated-text {
+              background-image: url(${bgImg});
+              background-size: cover;
+              background-clip: text;
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+              animation: animate 20s linear infinite;
+            }
+          `}</style>
+          <div className="text-4xl font-extrabold animated-text">
+            <p className="leading-tight">STORE</p>
+            <p className="leading-tight">MANAGER</p>
+          </div>
         </div>
         <div className="md:hidden ml-auto">
           <button onClick={onClose} className="p-2 rounded hover:bg-gray-100">
@@ -194,16 +213,20 @@ export default function Sidebar({ collapsed, onClose }) {
         </NavLink>
 
         {/* Reports */}
-        <NavLink to="/reports" className={linkClass}>
-          <span className="w-5 h-5">📊</span>
-          <span className="text-sm">Báo cáo/Thống kê</span>
-        </NavLink>
+        {user?.role === "admin" && (
+          <NavLink to="/reports" className={linkClass}>
+            <span className="w-5 h-5">📊</span>
+            <span className="text-sm">Báo cáo/Thống kê</span>
+          </NavLink>
+        )}
 
         {/* Audit */}
-        <NavLink to="/audit" className={linkClass}>
-          <span className="w-5 h-5">🗂️</span>
-          <span className="text-sm">Nhật ký hệ thống</span>
-        </NavLink>
+        {user?.role === "admin" && (
+          <NavLink to="/audit" className={linkClass}>
+            <span className="w-5 h-5">🗂️</span>
+            <span className="text-sm">Nhật ký hệ thống</span>
+          </NavLink>
+        )}
 
         {/* Settings */}
         {/* <NavLink to="/settings" className={linkClass}>

@@ -4,6 +4,7 @@ import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import GlobalSpinner from "../ui/GlobalSpinner";
+import AiChatWidget from "../ai/AiChatWidget";
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -41,6 +42,9 @@ export default function AppLayout() {
           <Outlet />
         </main>
       </div>
+
+      {/* AI Chat Widget - floating button */}
+      <AiChatWidget />
 
       {/* <GlobalSpinner /> */}
     </div>

@@ -55,7 +55,7 @@ namespace backend.Controllers
             if (string.IsNullOrWhiteSpace(req.Username) || string.IsNullOrWhiteSpace(req.Password))
             {
                 Console.WriteLine("❌ Username or password is empty");
-                return BadRequest(new { message = "Username and password are required" });
+                return BadRequest(new { message = "Vui lòng nhập tên đăng nhập và mật khẩu" });
             }
 
             var user = await _db.Users
@@ -64,7 +64,7 @@ namespace backend.Controllers
             if (user == null)
             {
                 Console.WriteLine($"❌ User not found: {req.Username}");
-                return Unauthorized(new { message = "Invalid username or password" });
+                return Unauthorized(new { message = "Tên đăng nhập hoặc mật khẩu không đúng" });
             }
 
             Console.WriteLine($"✅ User found - ID: {user.Id}, IsActive: {user.IsActive}");
@@ -72,7 +72,7 @@ namespace backend.Controllers
             if (!user.IsActive)
             {
                 Console.WriteLine("❌ User is inactive");
-                return Unauthorized(new { message = "Account is disabled" });
+                return Unauthorized(new { message = "Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên" });
             }
 
             bool passwordValid = BCrypt.Net.BCrypt.Verify(req.Password, user.PasswordHash);
@@ -81,7 +81,7 @@ namespace backend.Controllers
             if (!passwordValid)
             {
                 Console.WriteLine("❌ Password incorrect");
-                return Unauthorized(new { message = "Invalid username or password" });
+                return Unauthorized(new { message = "Tên đăng nhập hoặc mật khẩu không đúng" });
             }
 
             var (token, expiresIn) = _jwt.GenerateToken(user);

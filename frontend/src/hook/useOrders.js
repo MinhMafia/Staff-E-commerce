@@ -1,6 +1,6 @@
 import { useState,useEffect } from "react";
 
-import { request } from "../api/apiClient"; // THÊM DÒNG NÀY
+import { request } from "../api/apiClient"; 
 
 
 export const useOrders = () => {
@@ -105,6 +105,37 @@ export const useOrders = () => {
     }
   };
 
+  async function cancelOrder(orderId) {
+      try {
+          const response = await fetch(`/api/orders/${orderId}/cancel`, {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json"
+              }
+          });
+
+          if (!response.ok) {
+              console.error("API trả về lỗi HTTP:", response.status);
+              alert("Không thể hủy đơn!");
+              return;
+          }
+
+          const result = await response.json(); // true / false
+
+          if (result === true) {
+              alert("Hủy đơn hàng thành công!");
+          } else {
+              alert("Không thể hủy đơn!");
+          }
+
+      } catch (error) {
+          console.error("Lỗi khi hủy đơn:", error);
+          alert("Có lỗi kết nối khi hủy đơn!");
+      }
+  }
+
+
+
   //Lưu đon hàng lên database
 
   async function createOrder(orderData) {
@@ -170,32 +201,102 @@ export const useOrders = () => {
     }
   };
 
+
+
 const pay = async (method = "cash") => {
   if (!currentOrder) return;
 
+  // ======= THANH TOÁN MOMO =======
   if (method === "other") {
+
+    // 1. Gọi API tạo payment
     const body = {
       OrderId: currentOrder.id,
       Amount: Math.round(currentOrder.total_amount),
-      ReturnUrl: "http://localhost:5173/orders",
-      NotifyUrl: "http://localhost:5099/api/payment/momo/ipn"
+
+      // Không cần ReturnUrl vì thanh toán mở popup
+      ReturnUrl: "",
+
+      NotifyUrl: "https://stainful-asher-unfeigningly.ngrok-free.dev/api/payment/momo/ipn"
     };
+
     const res = await request("/payment/momo/create", { method: "POST", body });
-    if (res?.payUrl) window.location.href = res.payUrl;
-    return res;
-  } else {
-    const body = {
-      OrderId: currentOrder.id,
-      Amount: Math.round(currentOrder.total_amount),
-      Method: method,
-      Status: "completed",
-    };
-    return await request("/payment/offlinepayment", { method: "POST", body });
+
+    if (!res?.payUrl) {
+      alert("Không lấy được payUrl từ MoMo");
+      return null;
+    }
+
+    // 2. Mở popup momo
+    const popup = window.open(res.payUrl, "_blank", "width=480,height=700");
+
+    if (!popup) {
+      alert("Trình duyệt chặn popup. Hãy cho phép mở popup.");
+      return null;
+    }
+
+    // 3. Polling để chờ trạng thái thanh toán
+    return new Promise((resolve) => {
+      let counter = 0;
+
+      const interval = setInterval(async () => {
+        counter++;
+
+        const statusRes = await fetch(`http://localhost:5099/api/payment/status/${currentOrder.id}`);
+
+        if (statusRes.ok) {
+          const data = await statusRes.json();
+
+          console.log("Payment status →", data.status);
+
+          // MoMo ipn đã cập nhật DB → success
+          if (data.status === "completed") {
+            clearInterval(interval);
+            popup.close();
+
+            resolve({
+              success: true,
+              message: "Thanh toán thành công!"
+            });
+          }
+        }
+
+        // Hết 2 phút → timeout
+        if (counter >= 60) {
+          clearInterval(interval);
+          popup.close();
+          resolve({
+            success: false,
+            message: "Quá thời gian chờ thanh toán"
+          });
+        }
+
+      }, 2000);
+    });
   }
+
+  // ======= CASH / OTHER METHODS =======
+  const body = {
+    OrderId: currentOrder.id,
+    Amount: Math.round(currentOrder.total_amount),
+    Method: method,
+    Status: "completed"
+  };
+
+  return await request("/payment/offlinepayment", { method: "POST", body });
 };
 
 
+
+
+
+
+
+
+
 const click_buttonCreateNewOrder = async () => {
+ 
+
   console.log("=== BẮT ĐẦU TẠO ĐƠN HÀNG ===");
   console.log("Current Order:", currentOrder);
   console.log("Khuyến mãi:", promotion);
@@ -264,6 +365,9 @@ const click_buttonCreateNewOrder = async () => {
         printOrder(currentOrder, listOrderProducts, promotion, payment);
       }
 
+      
+
+
       closeOrderModal();
     } else {
       console.log("Thanh toán thất bại hoặc bị hủy");
@@ -278,75 +382,87 @@ const click_buttonCreateNewOrder = async () => {
   console.log("=== KẾT THÚC TẠO ĐƠN HÀNG ===");
 };
 
-// In hóa đơn
+
+
+
+// ================== IN HÓA ĐƠN BẰNG IFRAME - KHÔNG BAO GIỜ BỊ CHẶN ==================
 const printOrder = (order, products, promotion, payment) => {
-  const printWindow = window.open('', '', 'width=800,height=600');
-  if (!printWindow) {
-    alert("Trình duyệt chặn popup. Vui lòng cho phép popup để in phiếu.");
-    return;
-  }
+  // Format tiền đẹp
+  const f = (num) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(num);
 
-  // Format số tiền
-  const formatMoney = (value) => {
-    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
-  };
-
-  // HTML với CSS
+  // Nội dung hóa đơn (HTML đầy đủ)
   let html = `
-    <html>
-      <head>
-        <title>Phiếu Đơn Hàng #${order.orderNumber}</title>
-        <style>
-          body { font-family: Arial, sans-serif; margin: 20px; color: #333; }
-          h2 { text-align: center; color: #4CAF50; }
-          p { margin: 5px 0; }
-          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-          th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-          th { background-color: #f2f2f2; }
-          tr:nth-child(even) { background-color: #f9f9f9; }
-          tr:hover { background-color: #f1f1f1; }
-          .total { font-weight: bold; font-size: 1.1em; }
-          .promotion { color: #d32f2f; font-weight: bold; }
-          .payment { margin-top: 10px; font-weight: bold; }
-          .footer { margin-top: 30px; text-align: center; font-size: 0.9em; color: #666; }
-        </style>
-      </head>
-      <body>
-        <h2>Phiếu Đơn Hàng #${order.orderNumber}</h2>
-        <p><strong>Khách hàng:</strong> ${order.customerName || "Khách lẻ"}</p>
-        <p><strong>Ngày tạo:</strong> ${new Date().toLocaleString()}</p>
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<title>Hóa đơn #${order.orderNumber || order.id}</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; font-size: 14px; }
+  h2 { text-align: center; color: #1a9a7d; margin: 0 0 15px 0; }
+  .info { margin: 5px 0; }
+  table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+  th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+  th { background: #f0f0f0; }
+  .total { text-align: right; font-weight: bold; font-size: 18px; margin-top: 15px; }
+  .promo { color: red; font-weight: bold; }
+  .footer { margin-top: 40px; text-align: center; font-size: 18px; font-weight: bold; }
+  @media print { body { margin: 5mm; } }
+</style>
+</head>
+<body>
+  <h2>PHIẾU THANH TOÁN</h2>
+  <div class="info"><strong>Mã đơn:</strong> #${order.orderNumber || order.id}</div>
+  <div class="info"><strong>Khách hàng:</strong> ${order.customerName || 'Khách lẻ'}</div>
+  <div class="info"><strong>Thời gian:</strong> ${new Date().toLocaleString('vi-VN')}</div>
 
-        <table>
-          <tr>
-            <th>Sản phẩm</th>
-            <th>Số lượng</th>
-            <th>Đơn giá</th>
-            <th>Thành tiền</th>
-          </tr>
+  <table>
+    <tr><th>Sản phẩm</th><th>SL</th><th>Đơn giá</th><th>Thành tiền</th></tr>
   `;
 
   products.forEach(p => {
     html += `
-      <tr>
-        <td>${p.product}</td>
-        <td>${p.qty}</td>
-        <td>${formatMoney(p.price)}</td>
-        <td>${formatMoney(p.total)}</td>
-      </tr>
-    `;
+    <tr>
+      <td style="text-align:left; padding-left:10px;">${p.product || p.productName}</td>
+      <td>${p.qty || p.quantity}</td>
+      <td>${f(p.price)}</td>
+      <td>${f(p.total || p.price * p.qty)}</td>
+    </tr>`;
   });
 
-  html += `</table>`;
-  html += `<p class="total">Tổng tiền: ${formatMoney(order.total_amount)}</p>`;
-  if (promotion?.code) html += `<p class="promotion">Khuyến mãi: ${promotion.code} - Giảm ${formatMoney(promotion.value)}</p>`;
-  html += `<p class="payment">Thanh toán: ${payment.method}</p>`;
-  html += `<div class="footer">Cảm ơn quý khách! Hẹn gặp lại.</div>`;
+  html += `
+  </table>
+  <div class="total">TỔNG TIỀN: ${f(order.total_amount)}</div>
+  ${promotion?.code ? `<div class="promo">Khuyến mãi (${promotion.code}): -${f(promotion.value || 0)}</div>` : ''}
+  <div style="margin-top:20px; font-size:18px; font-weight:bold;">
+    Thanh toán: ${payment?.method === 'cash' ? 'TIỀN MẶT' : payment?.method === 'other' ? 'MOMO' : (payment?.method || 'CASH').toUpperCase()}
+  </div>
+  <div class="footer">CẢM ƠN QUÝ KHÁCH!<br>HẸN GẶP LẠI</div>
+</body></html>`;
 
-  printWindow.document.write(html);
-  printWindow.document.close();
-  printWindow.focus();
-  printWindow.print();
+  // Tạo iframe ẩn và in
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0px';
+  iframe.style.height = '0px';
+  iframe.style.border = 'none';
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+
+  iframe.contentWindow.focus();
+  iframe.contentWindow.print();
+
+  // TỰ ĐỘNG XÓA iframe sau khi in xong hoặc bấm Hủy
+  iframe.contentWindow.onafterprint = () => {
+    document.body.removeChild(iframe);
+  };
 };
+
 
 
 
@@ -420,8 +536,14 @@ const loadOrdersAdvanced = async () => {
 
         if (selectedStatus) params.append("status", selectedStatus);
         if (searchKeyword?.trim()) params.append("search", searchKeyword.trim());
-        if (selectedStartDate) params.append("startDate", selectedStartDate); // nếu có
-        if (selectedEndDate) params.append("endDate", selectedEndDate);       // nếu có
+
+        // Format ngày (nếu có)
+        if (selectedStartDate) {
+            params.append("startDate", new Date(selectedStartDate).toISOString());
+        }
+        if (selectedEndDate) {
+            params.append("endDate", new Date(selectedEndDate).toISOString());
+        }
 
         const url = `http://localhost:5099/api/orders/search?${params.toString()}`;
 
@@ -433,15 +555,35 @@ const loadOrdersAdvanced = async () => {
         }
 
         const data = await res.json();
-        // data.items, data.totalPages, data.totalItems (camelCase)
-       
+
         setListOrders(data.items || []);
-        setTotalPages(data.totalPages || 1);
-       
+        setTotalPages(data.totalPages);
+
+        console.log("Danh sách đơn hàng:", data);
+        console.log("Params gửi lên:", {
+            status: selectedStatus,
+            search: searchKeyword,
+            startDate: selectedStartDate,
+            endDate: selectedEndDate,
+            page: currentPage
+        });
+
+
+
     } catch (err) {
         console.error("loadOrdersAdvanced error:", err);
     }
 };
+
+useEffect(() => {
+    console.log("totalPages đã cập nhật:", totalPages);
+}, [totalPages]);
+useEffect(() => {
+    console.log(" currentPage đã cập nhật:", currentPage);
+}, [currentPage]);
+
+
+
 //Api lấy danh sách orderitem
 async function loadOrderItemsByOrderId(orderId) {
     try {
@@ -631,7 +773,8 @@ return {
   loadOrderItemsByOrderId,
   getPromotionById,
   getPaymentByOrder,
-  showOrder
+  showOrder,
+  cancelOrder
 
 };
 

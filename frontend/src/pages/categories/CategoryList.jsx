@@ -12,7 +12,19 @@ import Pagination from "../../components/ui/Pagination";
 import CategoryDetailModal from "../../components/categories/CategoryDetailModal";
 import CategoryEditModal from "../../components/categories/CategoryEditModal";
 import CategoryAddModal from "../../components/categories/CategoryAddModal";
-import { Search, Edit2, Power, Eye, RotateCcw } from "lucide-react";
+import {
+  Search,
+  Edit2,
+  Power,
+  Eye,
+  RotateCcw,
+  Tag,
+  CheckCircle,
+  Clock,
+  XCircle,
+} from "lucide-react";
+import { getCategories } from "../../api/categoryApi";
+import { useAuth } from "../../hook/useAuth";
 
 const CategoryList = () => {
   const dispatch = useDispatch();
@@ -28,6 +40,35 @@ const CategoryList = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState(null);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    inactive: 0,
+  });
+
+  const { user } = useAuth();
+  const isStaff = user?.role?.toLowerCase() === "staff";
+
+  // Fetch stats (total, active, inactive) on mount
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const [totalData, activeData, inactiveData] = await Promise.all([
+          getCategories(1, 1, "", "all"),
+          getCategories(1, 1, "", "active"),
+          getCategories(1, 1, "", "inactive"),
+        ]);
+        setStats({
+          total: totalData.totalItems || 0,
+          active: activeData.totalItems || 0,
+          inactive: inactiveData.totalItems || 0,
+        });
+      } catch (error) {
+        console.error("Error fetching stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
 
   // Fetch categories when filters or pagination changes
   useEffect(() => {
@@ -90,6 +131,18 @@ const CategoryList = () => {
           })
         ).unwrap();
         console.log("Categories refetched successfully");
+
+        // Update stats
+        const [totalData, activeData, inactiveData] = await Promise.all([
+          getCategories(1, 1, "", "all"),
+          getCategories(1, 1, "", "active"),
+          getCategories(1, 1, "", "inactive"),
+        ]);
+        setStats({
+          total: totalData.totalItems || 0,
+          active: activeData.totalItems || 0,
+          inactive: inactiveData.totalItems || 0,
+        });
       } catch (error) {
         console.error("Error toggling status:", error);
       }
@@ -126,33 +179,62 @@ const CategoryList = () => {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-800">Quản Lý Danh Mục</h1>
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-        >
-          + Thêm Danh Mục
-        </button>
+        {!isStaff && (
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            + Thêm Danh Mục
+          </button>
+        )}
       </div>
 
       {/* Statistics */}
-      <div className="mb-6 grid grid-cols-2 gap-4">
+      <div className="mb-6 grid grid-cols-4 gap-4">
         <div
-          className="p-4 bg-green-50 border border-green-200 rounded-lg cursor-pointer hover:bg-green-100"
-          onClick={() => handleStatusFilter("active")}
+          className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => handleStatusFilter("all")}
         >
-          <p className="text-sm text-green-600">Đang Hoạt Động</p>
-          <p className="text-2xl font-bold text-green-800">
-            {categories.filter((c) => c.isActive).length}
-          </p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Tag className="w-5 h-5 text-blue-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Tổng số</p>
+          <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
         </div>
         <div
-          className="p-4 bg-red-50 border border-red-200 rounded-lg cursor-pointer hover:bg-red-100"
+          className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => handleStatusFilter("active")}
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <CheckCircle className="w-5 h-5 text-green-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Đang hoạt động</p>
+          <p className="text-2xl font-bold text-gray-800">{stats.active}</p>
+        </div>
+        <div className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <Clock className="w-5 h-5 text-red-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Hết hạn</p>
+          <p className="text-2xl font-bold text-gray-800">0</p>
+        </div>
+        <div
+          className="p-4 bg-white border border-gray-200 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow"
           onClick={() => handleStatusFilter("inactive")}
         >
-          <p className="text-sm text-red-600">Ngừng Hoạt Động</p>
-          <p className="text-2xl font-bold text-red-800">
-            {categories.filter((c) => !c.isActive).length}
-          </p>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-gray-100 rounded-lg">
+              <XCircle className="w-5 h-5 text-gray-600" />
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-1">Không hoạt động</p>
+          <p className="text-2xl font-bold text-gray-800">{stats.inactive}</p>
         </div>
       </div>
 
@@ -295,26 +377,32 @@ const CategoryList = () => {
                         >
                           <Eye size={18} />
                         </button>
-                        <button
-                          onClick={() => handleEdit(category.id)}
-                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
-                          title="Sửa"
-                        >
-                          <Edit2 size={18} />
-                        </button>
-                        <button
-                          onClick={() => handleToggleStatus(category.id)}
-                          className={`p-2 rounded-lg transition ${
-                            category.isActive
-                              ? "text-red-600 hover:bg-red-50"
-                              : "text-orange-600 hover:bg-orange-50"
-                          }`}
-                          title={
-                            category.isActive ? "Ngừng hoạt động" : "Kích hoạt"
-                          }
-                        >
-                          <Power size={18} />
-                        </button>
+                        {!isStaff && (
+                          <>
+                            <button
+                              onClick={() => handleEdit(category.id)}
+                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition"
+                              title="Sửa"
+                            >
+                              <Edit2 size={18} />
+                            </button>
+                            <button
+                              onClick={() => handleToggleStatus(category.id)}
+                              className={`p-2 rounded-lg transition ${
+                                category.isActive
+                                  ? "text-red-600 hover:bg-red-50"
+                                  : "text-orange-600 hover:bg-orange-50"
+                              }`}
+                              title={
+                                category.isActive
+                                  ? "Ngừng hoạt động"
+                                  : "Kích hoạt"
+                              }
+                            >
+                              <Power size={18} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -328,10 +416,17 @@ const CategoryList = () => {
       {/* Pagination */}
       <div className="mt-6">
         <Pagination meta={pagination} onPageChange={handlePageChange} />
-        <p className="mt-4 text-sm text-gray-600">
-          Hiển thị {categories.length} trên {pagination.pageSize} danh mục
-          (tổng: {pagination.totalItems})
-        </p>
+        <div className="mt-4 text-sm text-gray-600">
+          Hiển thị{" "}
+          <strong>
+            {(pagination.currentPage - 1) * pagination.pageSize + 1} -{" "}
+            {Math.min(
+              pagination.currentPage * pagination.pageSize,
+              pagination.totalItems
+            )}
+          </strong>{" "}
+          / {pagination.totalItems} danh mục
+        </div>
       </div>
 
       {/* Category Detail Modal */}
@@ -347,16 +442,27 @@ const CategoryList = () => {
         <CategoryEditModal
           categoryId={editingCategoryId}
           onClose={() => setEditingCategoryId(null)}
-          onSave={() => {
+          onSave={async () => {
             // Refresh category list after edit
-            dispatch(
+            await dispatch(
               fetchCategories({
                 page: pagination.currentPage,
                 pageSize: pagination.pageSize,
                 search: filters.search,
                 status: filters.status,
               })
-            );
+            ).unwrap();
+            // Update stats
+            const [totalData, activeData, inactiveData] = await Promise.all([
+              getCategories(1, 1, "", "all"),
+              getCategories(1, 1, "", "active"),
+              getCategories(1, 1, "", "inactive"),
+            ]);
+            setStats({
+              total: totalData.totalItems || 0,
+              active: activeData.totalItems || 0,
+              inactive: inactiveData.totalItems || 0,
+            });
           }}
         />
       )}
@@ -365,16 +471,27 @@ const CategoryList = () => {
       <CategoryAddModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSuccess={() => {
+        onSuccess={async () => {
           // Refresh category list after adding
-          dispatch(
+          await dispatch(
             fetchCategories({
               page: pagination.currentPage,
               pageSize: pagination.pageSize,
               search: filters.search,
               status: filters.status,
             })
-          );
+          ).unwrap();
+          // Update stats
+          const [totalData, activeData, inactiveData] = await Promise.all([
+            getCategories(1, 1, "", "all"),
+            getCategories(1, 1, "", "active"),
+            getCategories(1, 1, "", "inactive"),
+          ]);
+          setStats({
+            total: totalData.totalItems || 0,
+            active: activeData.totalItems || 0,
+            inactive: inactiveData.totalItems || 0,
+          });
         }}
       />
     </div>

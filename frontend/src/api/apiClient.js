@@ -1,8 +1,6 @@
 // src/api/apiClient.js
 import { trackRequestStart, trackRequestEnd } from "../utils/requestTracker";
 
-
-
 const BASE_URL = "http://localhost:5099/api";
 const USER_ID_STORAGE_KEY = "currentUserId";
 const AUTH_TOKEN_KEY = "auth_token";
@@ -26,7 +24,6 @@ function getCurrentUserId() {
   return null;
 }
 
-
 function setCurrentUserId(id) {
   cachedUserId = String(id);
   if (typeof window !== "undefined") {
@@ -43,10 +40,21 @@ function setAuthToken(token, { persist = true } = {}) {
 }
 
 function getAuthToken() {
-  if (cachedAuthToken) return cachedAuthToken;
+  if (cachedAuthToken) {
+    if (isTokenExpired(cachedAuthToken)) {
+      clearAuthToken();
+      return null;
+    }
+    return cachedAuthToken;
+  }
+
   if (typeof window !== "undefined") {
     const t = window.localStorage.getItem(AUTH_TOKEN_KEY);
     if (t) {
+      if (isTokenExpired(t)) {
+        clearAuthToken();
+        return null;
+      }
       cachedAuthToken = t;
       return t;
     }
@@ -59,6 +67,32 @@ function clearAuthToken() {
   if (typeof window !== "undefined") {
     window.localStorage.removeItem(AUTH_TOKEN_KEY);
     window.localStorage.removeItem(AUTH_REFRESH_KEY);
+  }
+}
+
+function isTokenExpired(token) {
+  if (!token) return true;
+
+  try {
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    const decoded = JSON.parse(jsonPayload);
+
+    // exp is in seconds, Date.now() is in milliseconds
+    if (decoded.exp && decoded.exp * 1000 < Date.now()) {
+      console.log("⏰ Token expired");
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error("❌ Token decode error:", error);
+    return true;
   }
 }
 
@@ -143,15 +177,37 @@ export async function request(path, options = {}) {
       }
 
       // call optional callback (e.g. redirect to login)
+
+      if (path === "/auth/login" || options.skipAuth) {
+        // Parse error message từ backend
+        const errText = await res.text();
+        let errorMessage = "Invalid username or password";
+
+        try {
+          const parsed = JSON.parse(errText);
+          if (parsed?.message) {
+            errorMessage = parsed.message;
+          }
+        } catch (_) {
+          errorMessage = errText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      clearAuthToken();
+
       if (typeof onUnauthorizedCallback === "function") {
         onUnauthorizedCallback();
       } else {
-        // default behaviour: clear token + local user info
-        logout();
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
       }
 
       // throw descriptive error
-      throw new Error(displayMessage);
+      throw new Error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+      // throw new Error("Unauthorized (401). Please login again.");
     }
 
     if (!res.ok) {
@@ -171,7 +227,7 @@ export async function request(path, options = {}) {
             }
           }
         }
-      // eslint-disable-next-line no-unused-vars
+        // eslint-disable-next-line no-unused-vars
       } catch (_) {
         // ignore JSON parse errors, fall back to raw text
       }
@@ -351,5 +407,6 @@ export {
   getAuthToken,
   setAuthToken,
   clearAuthToken,
+  isTokenExpired,
   onUnauthorized,
 };

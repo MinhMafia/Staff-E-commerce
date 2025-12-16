@@ -65,6 +65,23 @@ namespace backend.Controllers
 
             return Ok(result);
         }
+       
+        [HttpPost("{orderId}/cancel")]
+        public async Task<IActionResult> CancelOrder(int orderId)
+        {
+            try
+            {
+                var result = await _orderService.CancelOrderAsync(orderId);
+
+                // Trả về true/false
+                return Ok(result);
+            }
+            catch
+            {
+                // Nếu lỗi hệ thống, vẫn trả false
+                return Ok(false);
+            }
+        }
 
 
 
